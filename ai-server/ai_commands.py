@@ -91,10 +91,12 @@ def _submit_batch_replay(command_json):
 def _train(command_json):
     print_logs = command_json["print_logs"]
     steps = command_json["steps"]
+    
+    q1_loss, q2_loss, pi_loss, a_loss = agent.optimize(steps)
+    
     if "checkpoint" in command_json:
         checkpoint = command_json["checkpoint"]
         make_checkpoint(agent, checkpoint)
-    q1_loss, q2_loss, pi_loss, a_loss = agent.optimize(steps)
     
     if print_logs:
         print("----- Training Report -----")

@@ -20,9 +20,9 @@ func _input(event):
 	if key_event and !key_event.echo:
 		match key_event.keycode:
 			KEY_UP:
-				_attempt_connection_to_ai_server()
+				attempt_connection_to_ai_server()
 
-func _attempt_connection_to_ai_server():
+func attempt_connection_to_ai_server():
 	if _client:
 		return
 	_client = StreamPeerTCP.new()
