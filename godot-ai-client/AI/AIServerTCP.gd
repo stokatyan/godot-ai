@@ -17,12 +17,14 @@ func _ready():
 
 func _input(event):
 	var key_event = event as InputEventKey
-	if key_event:
+	if key_event and !key_event.echo:
 		match key_event.keycode:
 			KEY_UP:
 				_attempt_connection_to_ai_server()
 
 func _attempt_connection_to_ai_server():
+	if _client:
+		return
 	_client = StreamPeerTCP.new()
 
 	# Connect to the Python server running on localhost at port 9999
