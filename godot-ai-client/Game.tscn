@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://l44udr1kqouq"]
+
+[ext_resource type="Script" path="res://Game.gd" id="1_na51h"]
+[ext_resource type="PackedScene" uid="uid://k4x6qnt0j01g" path="res://CombatUnits/Infantry2D.tscn" id="2_nrycj"]
+[ext_resource type="PackedScene" uid="uid://dxq7xwumsu1na" path="res://AI/AIServerTCP.tscn" id="3_4bcpq"]
+
+[node name="Game" type="Node2D" node_paths=PackedStringArray("camera", "training_details_label", "_ai_server")]
+script = ExtResource("1_na51h")
+infantry_unit_ui = ExtResource("2_nrycj")
+camera = NodePath("Camera")
+training_details_label = NodePath("CanvasLayer/Label")
+_ai_server = NodePath("AIServerTCP")
+
+[node name="AIServerTCP" parent="." instance=ExtResource("3_4bcpq")]
+
+[node name="Camera" type="Camera2D" parent="."]
+zoom = Vector2(0.9, 0.9)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -23.0
+grow_horizontal = 2
+grow_vertical = 0
+horizontal_alignment = 1
