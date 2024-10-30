@@ -7,6 +7,8 @@ GET_ACTION = "get_action"
 GET_BATCH_ACTIONS = "get_batch_actions"
 SUBMIT_BATCH_REPLAY = "submit_batch_replay"
 TRAIN = "train"
+INIT = "init"
+LOAD = "load"
 
 agent = Agent(
     state_dim=6, 
@@ -14,8 +16,6 @@ agent = Agent(
     batchsize=500,
     hidden_size=50
 )
-
-load_checkpoint(agent, 1)
 
 def respond_to_command(command_json):
     response = {}
@@ -28,6 +28,10 @@ def respond_to_command(command_json):
         response = _submit_batch_replay(command_json)
     elif command_json[COMMAND] == TRAIN:
         response = _train(command_json)
+    elif command_json[COMMAND] == INIT:
+        response = _init_agent(command_json)
+    elif command_json[COMMAND] == LOAD:
+        response = _load_agent(command_json)
     else:
         response = {}
 
@@ -103,5 +107,33 @@ def _train(command_json):
     response = {
         "done": True
     }
+
+    return response
+
+def _init_agent(command_json):
+    global agent 
+    agent = Agent(
+        state_dim=command_json["state_dim"], 
+        action_dim=["action_dim"],
+        batchsize=["batchsize"],
+        hidden_size=["hidden_size"]
+    )
+    
+    response = {
+        "done": True
+    }
+    
+    print("New Agent initialized")
+
+    return response
+
+def _load_agent(command_json):
+    load_checkpoint(agent, command_json["step_count"])
+    
+    response = {
+        "done": True
+    }
+    
+    print("Agent loaded")
 
     return response

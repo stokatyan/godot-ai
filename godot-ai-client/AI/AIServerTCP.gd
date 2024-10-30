@@ -35,8 +35,6 @@ func _attempt_connection_to_ai_server():
 
 func _launch_python_ai_server():
 	var python_script = "../ai-server/ai_server.py"
-	var args = []  # Add arguments if needed
-	var blocking = false  # If true, it waits for the Python script to complete
 	var output = []
 	# Run the Python script
 	var result = OS.execute("cmd", ["/c", "start", "python3", python_script, "&&", "pause"], output, true, true)
@@ -170,7 +168,7 @@ func submit_batch_replay(replays: Array[Replay]):
 	_is_communicating = false
 	return action
 
-func train(steps: int, make_checkpoint, print_logs: bool):
+func train(steps: int, make_checkpoint: bool, print_logs: bool):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -185,6 +183,55 @@ func train(steps: int, make_checkpoint, print_logs: bool):
 
 	if make_checkpoint:
 		data["checkpoint"] = 1
+
+	_send_json(data)
+
+	var response: Dictionary
+	while !response:
+		await get_tree().create_timer(0.1).timeout
+		_client.poll()
+		response = _receive_json()
+
+	_is_communicating = false
+	return action
+
+func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: int):
+	while _is_communicating:
+		await get_tree().create_timer(2).timeout
+
+	_is_communicating = true
+	var action: Array[float] = []
+
+	var data = {}
+	data[AICommands.new().command] = AICommands.new().init_agent
+
+	data["state_dim"] = state_dim
+	data["action_dim"] = action_dim
+	data["batchsize"] = batchsize
+	data["hidden_size"] = hidden_size
+
+	_send_json(data)
+
+	var response: Dictionary
+	while !response:
+		await get_tree().create_timer(0.1).timeout
+		_client.poll()
+		response = _receive_json()
+
+	_is_communicating = false
+	return action
+
+func load_agent(step_count: int):
+	while _is_communicating:
+		await get_tree().create_timer(2).timeout
+
+	_is_communicating = true
+	var action: Array[float] = []
+
+	var data = {}
+	data[AICommands.new().command] = AICommands.new().load_agent
+
+	data["step_count"] = step_count
 
 	_send_json(data)
 
