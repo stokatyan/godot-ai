@@ -14,8 +14,15 @@ var rounding_precision = 0.0001
 
 func _ready():
 	_python_thread.start(_launch_python_ai_server)
-	await get_tree().create_timer(1).timeout
-	# Create a TCP client
+
+func _input(event):
+	var key_event = event as InputEventKey
+	if key_event:
+		match key_event.keycode:
+			KEY_UP:
+				_attempt_connection_to_ai_server()
+
+func _attempt_connection_to_ai_server():
 	_client = StreamPeerTCP.new()
 
 	# Connect to the Python server running on localhost at port 9999
@@ -27,7 +34,7 @@ func _ready():
 		push_error("Failed to connect: ", err)
 
 func _launch_python_ai_server():
-	var python_script = "C:/Users/tokat/Git/AI/BattleMap/ai-server/ai_server.py"
+	var python_script = "../ai-server/ai_server.py"
 	var args = []  # Add arguments if needed
 	var blocking = false  # If true, it waits for the Python script to complete
 	var output = []
