@@ -11,7 +11,6 @@ config_version=5
 [application]
 
 config/name="godot-ai"
-run/main_scene="res://Game.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
@@ -20,6 +19,7 @@ config/icon="res://icon.svg"
 window/size/viewport_width=1920
 window/size/viewport_height=1080
 window/size/initial_position_type=3
+window/stretch/mode="canvas_items"
 
 [rendering]
 
