@@ -65,10 +65,9 @@ func _receive_json() -> Dictionary:
 
 func get_action(state: Array[float]) -> Array[float]:
 	while _is_communicating:
-		await get_tree().create_timer(2).timeout
+		await get_tree().create_timer(0.05).timeout
 
 	_is_communicating = true
-	var action: Array[float] = []
 
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().get_action
@@ -82,14 +81,20 @@ func get_action(state: Array[float]) -> Array[float]:
 
 	var response: Dictionary
 	while !response:
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(0.01).timeout
 		_client.poll()
 		response = _receive_json()
 
 	_is_communicating = false
 
-	for val in response["action"]:
-		action.append(val)
+	var action: Array[float] = []
+
+	var action_response = response["action"]
+	if action_response is Array:
+		for val in action_response:
+			action.append(val)
+	else:
+		action.append(action_response)
 
 	return action
 

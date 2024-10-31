@@ -47,7 +47,7 @@ def _get_action(command_json):
     response = {
         "action": action.tolist()
     }
-
+    
     return response
 
 def _get_batch_actions(command_json):
@@ -114,18 +114,20 @@ def _train(command_json):
 
 def _init_agent(command_json):
     global agent 
-    agent = Agent(
-        state_dim=command_json["state_dim"], 
-        action_dim=["action_dim"],
-        batchsize=["batchsize"],
-        hidden_size=["hidden_size"]
-    )
-    
+    try:
+        agent = Agent(
+            state_dim=command_json["state_dim"], 
+            action_dim=command_json["action_dim"],
+            batchsize=command_json["batchsize"],
+            hidden_size=command_json["hidden_size"]
+        )
+        print("New Agent initialized")
+    except Exception as e:
+        print(f"Failed to initialize agent: {e}")
+
     response = {
         "done": True
     }
-    
-    print("New Agent initialized")
 
     return response
 
