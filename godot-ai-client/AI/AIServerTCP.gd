@@ -15,16 +15,9 @@ var rounding_precision = 0.0001
 func _ready():
 	_python_thread.start(_launch_python_ai_server)
 
-func _input(event):
-	var key_event = event as InputEventKey
-	if key_event and !key_event.echo:
-		match key_event.keycode:
-			KEY_UP:
-				attempt_connection_to_ai_server()
-
-func attempt_connection_to_ai_server():
+func attempt_connection_to_ai_server() -> bool:
 	if _client:
-		return
+		return false
 	_client = StreamPeerTCP.new()
 
 	# Connect to the Python server running on localhost at port 9999
@@ -32,8 +25,10 @@ func attempt_connection_to_ai_server():
 
 	if err == OK:
 		print("Connected to server!")
+		return true
 	else:
 		push_error("Failed to connect: ", err)
+		return false
 
 func _launch_python_ai_server():
 	var python_script = "../ai-server/ai_server.py"

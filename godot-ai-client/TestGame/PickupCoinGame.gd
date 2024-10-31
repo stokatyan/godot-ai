@@ -17,6 +17,8 @@ func _input(event):
 	match key_input.keycode:
 		KEY_N:
 			_new_game()
+		KEY_UP:
+			_setup_ai()
 
 func _physics_process(delta):
 	if _is_game_complete():
@@ -25,7 +27,9 @@ func _physics_process(delta):
 	var move_vector: Vector2 = Vector2.ZERO
 
 func _setup_ai():
-	_ai_tcp._attempt_connection_to_ai_server()
+	var result = _ai_tcp.attempt_connection_to_ai_server()
+	if !result:
+		return
 	_ai_tcp.init_agent(4, 2, 20, 40)
 
 func _new_game():
