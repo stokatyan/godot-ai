@@ -26,7 +26,7 @@ func _input(event):
 			var start_time = Time.get_ticks_msec()
 			var action = await _ai_tcp.get_action(current_state)
 			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
-			_move_hero(1, action[0])
+			_move_hero(_time_elapsed, action[0])
 		KEY_2: # Get and Submit batch
 			pass
 		KEY_3: # Start training loop
