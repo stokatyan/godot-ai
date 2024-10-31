@@ -6,18 +6,22 @@ extends Node2D
 
 var _map_size = Vector2(1500, 800)
 
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_new_game()
 
 func _input(event):
 	var key_input = event as InputEventKey
+	if !key_input or key_input.echo or key_input.is_released():
+		return
 	match key_input.keycode:
 		KEY_N:
 			_new_game()
 
 func _physics_process(delta):
+	if _is_game_complete():
+		_new_game()
+		return
 	var move_vector: Vector2 = Vector2.ZERO
 
 func _setup_ai():

@@ -7,20 +7,23 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_o06rb"]
 size = Vector2(50, 50)
 
-[node name="PickupCoinGame" type="Node2D" node_paths=PackedStringArray("hero", "coin")]
+[node name="PickupCoinGame" type="Node2D" node_paths=PackedStringArray("hero", "coin", "_ai_tcp")]
 script = ExtResource("1_l0ngi")
 hero = NodePath("Hero")
 coin = NodePath("Coin")
+_ai_tcp = NodePath("AIServerTCP")
+
+[node name="Camera2D" type="Camera2D" parent="."]
 
 [node name="Coin" type="Node2D" parent="."]
-position = Vector2(1280, 432)
+position = Vector2(208, -94)
 
 [node name="Sprite2D" type="Sprite2D" parent="Coin"]
 rotation = 0.785398
 texture = SubResource("PlaceholderTexture2D_o06rb")
 
 [node name="Hero" type="Node2D" parent="."]
-position = Vector2(738, 600)
+position = Vector2(-334, 74)
 
 [node name="Sprite2D" type="Sprite2D" parent="Hero"]
 texture = ExtResource("1_hf8k2")
