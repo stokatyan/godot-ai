@@ -10,7 +10,7 @@ var done: int
 
 var rounding_precision = 0.0001
 
-func _init(_state: Array[float], _action: Array[float], _reward: float, _state_: Array[float], _done: float):
+func _init(_state: Array[float], _action: Array[float], _reward: float, _state_: Array[float], _done: bool):
 	state = []
 	for s in _state:
 		state.append(snappedf(s, rounding_precision))
@@ -25,7 +25,9 @@ func _init(_state: Array[float], _action: Array[float], _reward: float, _state_:
 	for s in _state_:
 		state_.append(snappedf(s, rounding_precision))
 
-	done = snappedf(_done, rounding_precision)
+	done = 0
+	if _done:
+		done = 1
 
 func to_data() -> Dictionary:
 	var data = {}

@@ -33,10 +33,6 @@ func _input(event):
 			pass
 
 func _physics_process(delta):
-	if _is_game_complete():
-		_new_game()
-		return
-
 	var apply_move = false
 	var move_vector: Vector2 = Vector2.ZERO
 
@@ -75,5 +71,32 @@ func _move_hero(delta_time: float, direction: float):
 	var move_vector = Vector2.from_angle(direction)
 	hero.position += move_vector * move_speed * delta_time
 
+	if _is_game_complete():
+		_new_game()
+		return
+
 func _get_game_state() -> Array[float]:
 	return [hero.position.x, hero.position.y, coin.position.x, coin.position.y]
+
+
+func _get_batch_from_playing_round() -> Array[Replay]:
+	_new_game()
+	var batch: Array[Replay] = []
+	var start_time = Time.get_ticks_msec()
+
+	while Time.get_ticks_msec() - start_time < 1000.0:
+		var t = Time.get_ticks_msec()
+		var state = _get_game_state()
+		var actions = await _ai_tcp.get_batch_actions([state], false)
+		var action = actions[0] # Since we are not simulating in parallel, there is only 1 action
+		var _time_elapsed = (Time.get_ticks_msec() - t) / 1000.0
+		_move_hero(_time_elapsed, action[0])
+		var state_ = _get_game_state()
+		var is_done = _is_game_complete()
+		var replay = Replay.new(state, action, _get_score(), state_, is_done)
+		batch.append(replay)
+
+	return batch
+
+func _get_score() -> float:
+	return 1000.0 - hero.position.distance_to(coin.position)
