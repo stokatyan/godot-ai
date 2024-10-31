@@ -8,13 +8,21 @@ var _map_size = Vector2(1500, 800)
 
 var move_speed = 500
 
+var _is_loop_training = false
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_new_game()
 
 func _input(event):
 	var key_input = event as InputEventKey
-	if !key_input or key_input.echo or key_input.is_released():
+	if !key_input:
+		return
+
+	if key_input.keycode == KEY_ENTER:
+		_is_loop_training = false
+
+	if key_input.echo or key_input.is_released():
 		return
 	match key_input.keycode:
 		KEY_N:
@@ -28,9 +36,10 @@ func _input(event):
 			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
 			_move_hero(_time_elapsed, action[0])
 		KEY_2: # Get and Submit batch
-			pass
+			var replays = await _get_batch_from_playing_round(false)
+			var response = await _ai_tcp.submit_batch_replay(replays)
 		KEY_3: # Start training loop
-			pass
+			_loop_train()
 
 func _physics_process(delta):
 	var apply_move = false
@@ -51,6 +60,9 @@ func _physics_process(delta):
 
 	if apply_move:
 		_move_hero(delta, move_vector.angle())
+		if _is_game_complete():
+			_new_game()
+			return
 
 func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
@@ -71,32 +83,42 @@ func _move_hero(delta_time: float, direction: float):
 	var move_vector = Vector2.from_angle(direction)
 	hero.position += move_vector * move_speed * delta_time
 
-	if _is_game_complete():
-		_new_game()
-		return
-
 func _get_game_state() -> Array[float]:
 	return [hero.position.x, hero.position.y, coin.position.x, coin.position.y]
 
 
-func _get_batch_from_playing_round() -> Array[Replay]:
+func _get_batch_from_playing_round(deterministic: bool) -> Array[Replay]:
 	_new_game()
 	var batch: Array[Replay] = []
 	var start_time = Time.get_ticks_msec()
 
 	while Time.get_ticks_msec() - start_time < 1000.0:
+		var score_before = _get_score()
 		var t = Time.get_ticks_msec()
 		var state = _get_game_state()
-		var actions = await _ai_tcp.get_batch_actions([state], false)
+		var actions = await _ai_tcp.get_batch_actions([state], deterministic)
 		var action = actions[0] # Since we are not simulating in parallel, there is only 1 action
 		var _time_elapsed = (Time.get_ticks_msec() - t) / 1000.0
 		_move_hero(_time_elapsed, action[0])
 		var state_ = _get_game_state()
 		var is_done = _is_game_complete()
-		var replay = Replay.new(state, action, _get_score(), state_, is_done)
+		var score_after = _get_score()
+		var replay = Replay.new(state, action, score_after, state_, is_done)
 		batch.append(replay)
+
+		if is_done:
+			break
 
 	return batch
 
 func _get_score() -> float:
 	return 1000.0 - hero.position.distance_to(coin.position)
+
+func _loop_train():
+	if _is_loop_training:
+		return
+
+	_is_loop_training = true
+	var replays = await _get_batch_from_playing_round(false)
+	var response = await _ai_tcp.submit_batch_replay(replays)
+	response = await _ai_tcp.train(10, true, true)

@@ -55,20 +55,22 @@ def _get_batch_actions(command_json):
     batch = command_json["batch_state"]
     current_state = []
     batch_actions = []
-
+    
     for i in range(len(batch)):
         current_state.append(batch[i])
         if len(current_state) == agent.state_dim:
             action = agent.get_action(current_state, deterministic=deterministic)
-            for a in action:
-                batch_actions.append(float(a))
-
-            current_state = []        
+            if agent.action_dim == 1:
+                batch_actions.append(float(action))
+            else:
+                for a in action:
+                    batch_actions.append(float(a))
+            current_state = []
     
     response = {
         "batch_actions": batch_actions
     }
-
+    
     return response
 
 def _submit_batch_replay(command_json):
