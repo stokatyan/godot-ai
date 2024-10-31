@@ -21,6 +21,12 @@ func _input(event):
 			_new_game()
 		KEY_UP:
 			_setup_ai()
+		KEY_1: # Get and Apply action
+			pass
+		KEY_2: # Get and Submit batch
+			pass
+		KEY_3: # Start training loop
+			pass
 
 func _physics_process(delta):
 	if _is_game_complete():
