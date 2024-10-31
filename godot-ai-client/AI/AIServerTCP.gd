@@ -34,7 +34,7 @@ func _launch_python_ai_server():
 	var python_script = "../ai-server/ai_server.py"
 	var output = []
 	# Run the Python script
-	var result = OS.execute("cmd", ["/c", "start", "python3", python_script, "&&", "pause"], output, true, true)
+	var _result = OS.execute("cmd", ["/c", "start", "python3", python_script, "&&", "pause"], output, true, true)
 
 func _send_json(data: Dictionary):
 	_client.poll()
@@ -108,7 +108,6 @@ func get_batch_actions(states_2d_array: Array, deterministic: bool) -> Array:
 	var batch = []
 	for state in states_2d_array:
 		for s in state:
-			var val: float = s
 			batch.append(snapped(s, rounding_precision))
 
 	data["batch_state"] = batch

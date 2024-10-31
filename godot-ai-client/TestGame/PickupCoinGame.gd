@@ -6,6 +6,8 @@ extends Node2D
 
 var _map_size = Vector2(1500, 800)
 
+var move_speed = 500
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	_new_game()
@@ -24,7 +26,24 @@ func _physics_process(delta):
 	if _is_game_complete():
 		_new_game()
 		return
+
+	var move_strength: float = 0
 	var move_vector: Vector2 = Vector2.ZERO
+
+	if Input.is_key_pressed(KEY_W):
+		move_strength = 1
+		move_vector += Vector2.UP
+	if Input.is_key_pressed(KEY_A):
+		move_strength = 1
+		move_vector += Vector2.LEFT
+	if Input.is_key_pressed(KEY_S):
+		move_strength = 1
+		move_vector += Vector2.DOWN
+	if Input.is_key_pressed(KEY_D):
+		move_strength = 1
+		move_vector += Vector2.RIGHT
+
+	move_hero(move_strength * move_speed * delta, move_vector.angle())
 
 func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
@@ -40,3 +59,8 @@ func _new_game():
 
 func _is_game_complete() -> bool:
 	return hero.position.distance_to(coin.position) < 80
+
+func move_hero(force: float, direction: float):
+	var move_vector = Vector2.from_angle(direction)
+	move_vector *= force
+	hero.position += move_vector
