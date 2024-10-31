@@ -33,23 +33,24 @@ func _physics_process(delta):
 		_new_game()
 		return
 
-	var move_strength: float = 0
+	var apply_move = false
 	var move_vector: Vector2 = Vector2.ZERO
 
 	if Input.is_key_pressed(KEY_W):
-		move_strength = 1
+		apply_move = true
 		move_vector += Vector2.UP
 	if Input.is_key_pressed(KEY_A):
-		move_strength = 1
+		apply_move = true
 		move_vector += Vector2.LEFT
 	if Input.is_key_pressed(KEY_S):
-		move_strength = 1
+		apply_move = true
 		move_vector += Vector2.DOWN
 	if Input.is_key_pressed(KEY_D):
-		move_strength = 1
+		apply_move = true
 		move_vector += Vector2.RIGHT
 
-	move_hero(move_strength * move_speed * delta, move_vector.angle())
+	if apply_move:
+		_move_hero(delta, move_vector.angle())
 
 func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
@@ -66,7 +67,9 @@ func _new_game():
 func _is_game_complete() -> bool:
 	return hero.position.distance_to(coin.position) < 80
 
-func move_hero(force: float, direction: float):
+func _move_hero(delta_time: float, direction: float):
 	var move_vector = Vector2.from_angle(direction)
-	move_vector *= force
-	hero.position += move_vector
+	hero.position += move_vector * move_speed * delta_time
+
+func _get_game_state() -> Array[float]:
+	return [0.0]
