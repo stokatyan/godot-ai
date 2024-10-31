@@ -22,7 +22,11 @@ func _input(event):
 		KEY_UP:
 			_setup_ai()
 		KEY_1: # Get and Apply action
-			pass
+			var current_state = _get_game_state()
+			var start_time = Time.get_ticks_msec()
+			var action = await _ai_tcp.get_action(current_state)
+			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
+			_move_hero(1, action[0])
 		KEY_2: # Get and Submit batch
 			pass
 		KEY_3: # Start training loop
@@ -56,7 +60,7 @@ func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
 	if !result:
 		return
-	_ai_tcp.init_agent(4, 2, 20, 40)
+	_ai_tcp.init_agent(4, 1, 20, 40)
 
 func _new_game():
 	hero.position = Vector2(randf_range(-_map_size.x/2, _map_size.x/2), randf_range(-_map_size.y/2, _map_size.y/2))
@@ -72,4 +76,4 @@ func _move_hero(delta_time: float, direction: float):
 	hero.position += move_vector * move_speed * delta_time
 
 func _get_game_state() -> Array[float]:
-	return [0.0]
+	return [hero.position.x, hero.position.y, coin.position.x, coin.position.y]
