@@ -19,9 +19,6 @@ func _input(event):
 	if !key_input:
 		return
 
-	if key_input.keycode == KEY_ENTER:
-		_is_loop_training = false
-
 	if key_input.echo or key_input.is_released():
 		return
 	match key_input.keycode:
@@ -122,3 +119,9 @@ func _loop_train():
 	var replays = await _get_batch_from_playing_round(false)
 	var response = await _ai_tcp.submit_batch_replay(replays)
 	response = await _ai_tcp.train(10, true, true)
+
+	_is_loop_training = false
+	if Input.is_key_pressed(KEY_ENTER):
+		return
+	else:
+		_loop_train()
