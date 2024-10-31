@@ -9,6 +9,7 @@ var _map_size = Vector2(1500, 800)
 var move_speed = 500
 
 var _is_loop_training = false
+var _is_testing = false
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -22,6 +23,13 @@ func _input(event):
 	if key_input.echo or key_input.is_released():
 		return
 	match key_input.keycode:
+		KEY_ENTER:
+			if _is_loop_training or _is_testing:
+				return
+			_is_testing = true
+			var result = await _get_batch_from_playing_round(true)
+			_is_testing = false
+
 		KEY_N:
 			_new_game()
 		KEY_UP:
@@ -65,7 +73,8 @@ func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
 	if !result:
 		return
-	_ai_tcp.init_agent(4, 1, 20, 40)
+	result = await _ai_tcp.init_agent(4, 1, 20, 40)
+	_ai_tcp.load_agent(1)
 
 func _new_game():
 	hero.position = Vector2(randf_range(-_map_size.x/2, _map_size.x/2), randf_range(-_map_size.y/2, _map_size.y/2))
@@ -88,6 +97,7 @@ func _get_batch_from_playing_round(deterministic: bool) -> Array[Replay]:
 	_new_game()
 	var batch: Array[Replay] = []
 	var start_time = Time.get_ticks_msec()
+	var average_reward = 0
 
 	while Time.get_ticks_msec() - start_time < 1000.0:
 		var score_before = _get_score()
@@ -100,11 +110,17 @@ func _get_batch_from_playing_round(deterministic: bool) -> Array[Replay]:
 		var state_ = _get_game_state()
 		var is_done = _is_game_complete()
 		var score_after = _get_score()
-		var replay = Replay.new(state, action, score_after, state_, is_done)
+		var reward = score_after - score_before
+		var replay = Replay.new(state, action, reward, state_, is_done)
 		batch.append(replay)
+		average_reward = score_after - score_before
 
 		if is_done:
 			break
+
+	average_reward /= float(batch.size())
+	if deterministic:
+		print("Average Reward: " + str(average_reward))
 
 	return batch
 

@@ -33,7 +33,7 @@ try:
                 # Parse the received JSON
                 json_data = json.loads(message_buffer)
                 message_buffer = ""
-                print(json_data["command"])
+                # print(json_data["command"])
                 json_response = ai_commands.respond_to_command(json_data)
                 connection.sendall(json_response.encode('utf-8'))  # Send as utf-8 encoded string
         except json.JSONDecodeError as e:
