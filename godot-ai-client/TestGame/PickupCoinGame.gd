@@ -15,8 +15,7 @@ var _simulation = PCGSimulation.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	_simulation.new_game()
-	_display_simulation(_simulation)
+	_new_simulations()
 
 func _input(event):
 	var key_input = event as InputEventKey
@@ -34,8 +33,7 @@ func _input(event):
 			_is_testing = false
 
 		KEY_N:
-			_simulation.new_game()
-			_display_simulation(_simulation)
+			_new_simulations()
 		KEY_UP:
 			_setup_ai()
 		KEY_1: # Get and Apply action
@@ -70,7 +68,7 @@ func _physics_process(delta):
 	if apply_move:
 		_simulation.move_hero(1.0, move_vector.angle(), _display_simulation)
 		if _simulation.is_game_complete():
-			_simulation.new_game()
+			_new_simulations()
 			return
 
 func _setup_ai():
@@ -81,7 +79,7 @@ func _setup_ai():
 	_ai_tcp.load_agent(1)
 
 func _get_batch_from_playing_round(deterministic: bool) -> Array[Replay]:
-	_simulation.new_game()
+	_new_simulations()
 	var batch: Array[Replay] = []
 	var start_time = Time.get_ticks_msec()
 	var average_reward = 0
@@ -129,3 +127,7 @@ func _loop_train():
 func _display_simulation(sim: PCGSimulation):
 	hero.position = sim.hero_position
 	coin.position = sim.coin_position
+
+func _new_simulations():
+	_simulation.new_game()
+	_display_simulation(_simulation)
