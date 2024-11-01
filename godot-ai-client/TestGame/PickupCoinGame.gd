@@ -115,9 +115,11 @@ func _get_batch_from_playing_round(deterministic: bool) -> Array[Replay]:
 			reward = 100
 		else:
 			reward = -100
+		if is_done:
+			reward += 200
 		var replay = Replay.new(state, action, reward, state_, is_done)
 		batch.append(replay)
-		average_reward = score_after - score_before
+		average_reward = reward
 
 		if is_done:
 			break
