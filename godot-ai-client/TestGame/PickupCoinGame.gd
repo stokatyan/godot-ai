@@ -6,6 +6,7 @@ extends Node2D
 
 var move_speed = 500
 
+var _loop_train_count = 0
 var _is_loop_training = false
 var _is_testing = false
 
@@ -48,6 +49,7 @@ func _input(event):
 			var replays = await _get_batch_from_playing_round(_simulations, false)
 			var _response = await _ai_tcp.submit_batch_replay(replays)
 		KEY_3: # Start training loop
+			_loop_train_count = 1
 			_loop_train()
 
 func _physics_process(_delta):
@@ -130,6 +132,15 @@ func _loop_train():
 	var replays = await _get_batch_from_playing_round(_simulations, false)
 	var _response = await _ai_tcp.submit_batch_replay(replays)
 	_response = await _ai_tcp.train(10, true, true)
+
+	var average_reward = 0.0
+	for replay in replays:
+		average_reward += replay.reward
+	average_reward /= float(replays.size())
+
+	print("\nEpoch: " + str(_loop_train_count))
+	print("Average Reward: " + str(average_reward))
+	_loop_train_count += 1
 
 	_is_loop_training = false
 	if Input.is_key_pressed(KEY_ENTER):
