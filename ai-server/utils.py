@@ -57,7 +57,7 @@ class ReplayPool:
         self._memory.append(transition)
         
     def sample(self, batch_size: int) -> Transition:
-        transitions = random.sample(self._memory, batch_size)
+        transitions = random.sample(self._memory, min(len(self._memory), batch_size))
         return Transition(*zip(*transitions))
 
     def get(self, start_idx: int, end_idx: int) -> Transition:
