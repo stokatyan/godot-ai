@@ -138,7 +138,8 @@ func _loop_train():
 		average_reward += replay.reward
 	average_reward /= float(replays.size())
 
-	print("\nEpoch: " + str(_loop_train_count))
+	print("\n----------")
+	print("Epoch: " + str(_loop_train_count))
 	print("Average Reward: " + str(average_reward))
 	_loop_train_count += 1
 
