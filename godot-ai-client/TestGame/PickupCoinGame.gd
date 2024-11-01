@@ -108,6 +108,7 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 			var reward = score_after - scores_before[simulation_index]
 			if is_done:
 				reward += 100
+				sim.new_game()
 
 			var replay = Replay.new(batch_state[simulation_index], action, reward, state_, is_done)
 
