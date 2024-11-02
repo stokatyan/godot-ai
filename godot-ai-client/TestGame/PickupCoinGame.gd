@@ -79,7 +79,7 @@ func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
 	if !result:
 		return
-	result = await _ai_tcp.init_agent(4, 2, 256, 40)
+	result = await _ai_tcp.init_agent(4, 2, 256, 40, 2, 3)
 	_ai_tcp.load_agent(1)
 
 func _get_batch_from_playing_round(simulations: Array[PCGSimulation], deterministic: bool) -> Array[Replay]:
@@ -90,7 +90,7 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 	for step in range(10):
 		var scores_before: Array[float] = []
 		var batch_state: Array = []
-		for sim in _simulations:
+		for sim in simulations:
 			var score_before = sim.get_score()
 			scores_before.append(score_before)
 			var state = sim.get_game_state()
@@ -98,8 +98,8 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 
 		var actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
 
-		for simulation_index in range(_simulations.size()):
-			var sim = _simulations[simulation_index]
+		for simulation_index in range(simulations.size()):
+			var sim = simulations[simulation_index]
 			var action = actions[simulation_index] # Since we are not simulating in parallel, there is only 1 action
 			sim.move_hero(action[1], action[0], null)
 			var state_ = sim.get_game_state()
@@ -117,7 +117,7 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 			if is_done:
 				sim.new_game()
 
-		_display_simulation(_simulations[0])
+		_display_simulation(simulations[0])
 
 	average_reward /= float(batch_replay.size())
 	if deterministic:

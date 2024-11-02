@@ -12,17 +12,30 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class MLPNetwork(nn.Module):
     
-    def __init__(self, input_dim, output_dim, hidden_size=256):
+    def __init__(self, input_dim, output_dim, num_hidden_layers, hidden_size):
         super(MLPNetwork, self).__init__()
-        self.network = nn.Sequential(
-                        nn.Linear(input_dim, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, output_dim),
-                        )
+        
+        layers = [nn.Linear(input_dim, hidden_size), nn.ReLU()]
+
+        # Add the specified number of hidden layers
+        for _ in range(num_hidden_layers):
+            layers.append(nn.Linear(hidden_size, hidden_size))
+            layers.append(nn.ReLU())
+        
+        # Output layer
+        layers.append(nn.Linear(hidden_size, output_dim))
+        
+        self.network = nn.Sequential(*layers)
+                
+        # self.network = nn.Sequential(
+        #                 nn.Linear(input_dim, hidden_size),
+        #                 nn.ReLU(),
+        #                 nn.Linear(hidden_size, hidden_size),
+        #                 nn.ReLU(),
+        #                 nn.Linear(hidden_size, hidden_size),
+        #                 nn.ReLU(),
+        #                 nn.Linear(hidden_size, output_dim),
+        #                 )
     
     def forward(self, x):
         return self.network(x)
@@ -30,19 +43,21 @@ class MLPNetwork(nn.Module):
 
 class DeepMLPNetwork(nn.Module):
     
-    def __init__(self, input_dim, output_dim, hidden_size=256):
+    def __init__(self, input_dim, output_dim, num_hidden_layers, hidden_size):
         super(DeepMLPNetwork, self).__init__()
-        self.network = nn.Sequential(
-                        nn.Linear(input_dim, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, hidden_size),
-                        nn.ReLU(),
-                        nn.Linear(hidden_size, output_dim),
-                        )
+        
+        layers = [nn.Linear(input_dim, hidden_size), nn.ReLU()]
+
+        # Add the specified number of hidden layers
+        for _ in range(num_hidden_layers):
+            layers.append(nn.Linear(hidden_size, hidden_size))
+            layers.append(nn.ReLU())
+        
+        # Output layer
+        layers.append(nn.Linear(hidden_size, output_dim))
+        
+        self.network = nn.Sequential(*layers)
+
     
     def forward(self, x):
         return self.network(x)
@@ -50,10 +65,10 @@ class DeepMLPNetwork(nn.Module):
 
 class Policy(nn.Module):
 
-    def __init__(self, state_dim, action_dim, hidden_size=256):
+    def __init__(self, state_dim, action_dim, num_hidden_layers, hidden_size):
         super(Policy, self).__init__()
         self.action_dim = action_dim
-        self.network = MLPNetwork(state_dim, action_dim * 2, hidden_size)
+        self.network = MLPNetwork(state_dim, action_dim * 2, num_hidden_layers, hidden_size)
 
     def forward(self, x, get_logprob=False):
         mu_logstd = self.network(x)
@@ -74,10 +89,10 @@ class Policy(nn.Module):
 
 class DoubleQFunc(nn.Module):
     
-    def __init__(self, state_dim, action_dim, hidden_size=256):
+    def __init__(self, state_dim, action_dim, num_hidden_layers, hidden_size):
         super(DoubleQFunc, self).__init__()
-        self.network1 = DeepMLPNetwork(state_dim + action_dim, 1, hidden_size)
-        self.network2 = DeepMLPNetwork(state_dim + action_dim, 1, hidden_size)
+        self.network1 = DeepMLPNetwork(state_dim + action_dim, 1, num_hidden_layers, hidden_size)
+        self.network2 = DeepMLPNetwork(state_dim + action_dim, 1, num_hidden_layers, hidden_size)
 
     def forward(self, state, action):
         x = torch.cat((state, action), dim=1)
@@ -86,7 +101,7 @@ class DoubleQFunc(nn.Module):
 
 class SAC_Agent:
 
-    def __init__(self, state_dim, action_dim, seed=100, lr=3e-4, gamma=0.99, tau=5e-3, batchsize=256, hidden_size=256, update_interval=1):
+    def __init__(self, state_dim, action_dim, seed=100, lr=3e-4, gamma=0.99, tau=5e-3, batchsize=256, hidden_size=256, update_interval=1, num_actor_layers=2, num_critic_layers=2):
         self.state_dim = state_dim
         self.action_dim = action_dim
         
@@ -99,14 +114,14 @@ class SAC_Agent:
         torch.manual_seed(seed)
 
         # aka critic
-        self.q_funcs = DoubleQFunc(state_dim, action_dim, hidden_size=hidden_size).to(device)
+        self.q_funcs = DoubleQFunc(state_dim, action_dim, hidden_size=hidden_size, num_hidden_layers=num_critic_layers).to(device)
         self.target_q_funcs = copy.deepcopy(self.q_funcs)
         self.target_q_funcs.eval()
         for p in self.target_q_funcs.parameters():
             p.requires_grad = False
 
         # aka actor
-        self.policy = Policy(state_dim, action_dim, hidden_size=hidden_size).to(device)
+        self.policy = Policy(state_dim, action_dim, hidden_size=hidden_size, num_hidden_layers=num_actor_layers).to(device)
 
         # aka temperature
         self.log_alpha = torch.zeros(1, requires_grad=True, device=device)

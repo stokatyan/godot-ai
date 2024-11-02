@@ -121,7 +121,9 @@ def _init_agent(command_json):
             state_dim=command_json["state_dim"], 
             action_dim=command_json["action_dim"],
             batchsize=command_json["batchsize"],
-            hidden_size=command_json["hidden_size"]
+            hidden_size=command_json["hidden_size"],
+            num_actor_layers=command_json["num_actor_layers"],
+            num_critic_layers=command_json["num_critic_layers"]
         )
         print("New Agent initialized")
     except Exception as e:

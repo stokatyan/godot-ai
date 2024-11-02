@@ -196,7 +196,7 @@ func train(steps: int, make_checkpoint: bool, print_logs: bool):
 	_is_communicating = false
 	return action
 
-func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: int):
+func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -210,6 +210,8 @@ func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: in
 	data["action_dim"] = action_dim
 	data["batchsize"] = batchsize
 	data["hidden_size"] = hidden_size
+	data["num_actor_layers"] = num_actor_layers
+	data["num_critic_layers"] = num_critic_layers
 
 	_send_json(data)
 
