@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-ai"
-run/main_scene="res://TestGame/PickupCoinGame.tscn"
+run/main_scene="res://PickupCoinGame/PickupCoinGame.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 

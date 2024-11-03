@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://bn84386k2reco"]
 
 [ext_resource type="Texture2D" uid="uid://bapglndse4a3k" path="res://icon.svg" id="1_hf8k2"]
-[ext_resource type="Script" path="res://TestGame/PickupCoinGame.gd" id="1_l0ngi"]
+[ext_resource type="Script" path="res://PickupCoinGame/PickupCoinGame.gd" id="1_l0ngi"]
 [ext_resource type="PackedScene" uid="uid://dxq7xwumsu1na" path="res://AI/AIServerTCP.tscn" id="2_defc6"]
 
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_o06rb"]

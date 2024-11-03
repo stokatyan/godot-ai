@@ -105,7 +105,8 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 			var state_ = sim.get_game_state()
 			var is_done = sim.is_game_complete()
 			var score_after = sim.get_score()
-			var reward = score_after - scores_before[simulation_index]
+			#var reward = score_after - scores_before[simulation_index] # Continuos reward
+			var reward = 0 # Discrete reward
 			if is_done:
 				reward += 100
 				sim.new_game()
