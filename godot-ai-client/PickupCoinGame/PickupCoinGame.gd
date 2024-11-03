@@ -87,7 +87,7 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 	var batch_replay: Array[Replay] = []
 	var average_reward = 0
 #
-	for step in range(10):
+	for step in range(20):
 		var scores_before: Array[float] = []
 		var batch_state: Array = []
 		for sim in simulations:

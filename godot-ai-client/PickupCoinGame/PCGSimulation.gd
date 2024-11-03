@@ -18,7 +18,7 @@ func is_game_complete() -> bool:
 
 func move_hero(force: float, direction: float, callback = null):
 	var move_vector = Vector2.from_angle(direction)
-	hero_position += move_vector * force * 10
+	hero_position += move_vector * force * 20
 	if callback:
 		callback.call(self)
 
