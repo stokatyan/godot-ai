@@ -1,24 +1,26 @@
-extends Node2D
+extends Node
 
-@export var hero: Node2D
-@export var coin: Node2D
-@export var _ai_tcp: AIServerTCP
+class_name AIRunner
 
-var move_speed = 500
+var env_delegate
+
+var _ai_tcp: AIServerTCP = AIServerTCP.new()
 
 var _loop_train_count = 0
 var _is_loop_training = false
 var _is_testing = false
 
 var _simulation_count = 100
-var _simulations: Array[PCGSimulation] = []
+
+var _simulations: Array[BaseSimulation] = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	await get_tree().process_frame
 	for i in range(_simulation_count):
-		_simulations.append(PCGSimulation.new())
+		_simulations.append(env_delegate.new_simulation())
 
-	_new_simulations()
+	_reset_simulations()
 
 func _input(event):
 	var key_input = event as InputEventKey
@@ -36,7 +38,7 @@ func _input(event):
 			_is_testing = false
 
 		KEY_N:
-			_new_simulations()
+			_reset_simulations()
 		KEY_UP:
 			_setup_ai()
 		KEY_1: # Get and Apply action
@@ -44,7 +46,7 @@ func _input(event):
 			var start_time = Time.get_ticks_msec()
 			var action = await _ai_tcp.get_action(current_state)
 			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
-			_simulations[0].apply_action(action, _display_simulation)
+			_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
 			var replays = await _get_batch_from_playing_round(_simulations, false)
 			var _response = await _ai_tcp.submit_batch_replay(replays)
@@ -52,38 +54,31 @@ func _input(event):
 			_loop_train_count = 1
 			_loop_train()
 
-func _physics_process(_delta):
-	var apply_move = false
-	var move_vector: Vector2 = Vector2.ZERO
+func _reset_simulations():
+	if _simulations.is_empty():
+		return
+	for sim in _simulations:
+		sim.new_game()
 
-	if Input.is_key_pressed(KEY_W):
-		apply_move = true
-		move_vector += Vector2.UP
-	if Input.is_key_pressed(KEY_A):
-		apply_move = true
-		move_vector += Vector2.LEFT
-	if Input.is_key_pressed(KEY_S):
-		apply_move = true
-		move_vector += Vector2.DOWN
-	if Input.is_key_pressed(KEY_D):
-		apply_move = true
-		move_vector += Vector2.RIGHT
-
-	if apply_move:
-		_simulations[0].apply_action([1.0, move_vector.angle()], _display_simulation)
-		if _simulations[0].is_game_complete():
-			_new_simulations()
-			return
+	env_delegate.display_simulation(_simulations[0])
 
 func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
 	if !result:
 		return
-	result = await _ai_tcp.init_agent(4, 2, 256, 40, 2, 3)
+
+	var state_dim = env_delegate.get_state_dim()
+	var action_dim = env_delegate.get_action_dim()
+	#batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int
+	var batch_size = env_delegate.get_batch_size()
+	var num_actor_layers = env_delegate.get_num_actor_layers()
+	var num_critic_layers = env_delegate.get_num_critic_layers()
+	var hidden_size = env_delegate.get_hidden_size()
+	result = await _ai_tcp.init_agent(state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
 	_ai_tcp.load_agent(1)
 
-func _get_batch_from_playing_round(simulations: Array[PCGSimulation], deterministic: bool) -> Array[Replay]:
-	_new_simulations()
+func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
+	_reset_simulations()
 	var batch_replay: Array[Replay] = []
 	var average_reward = 0
 #
@@ -100,17 +95,11 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 
 		for simulation_index in range(simulations.size()):
 			var sim = simulations[simulation_index]
-			var action = actions[simulation_index] # Since we are not simulating in parallel, there is only 1 action
+			var action = actions[simulation_index]
 			sim.apply_action(action, null)
 			var state_ = sim.get_game_state()
 			var is_done = sim.is_game_complete()
-			var score_after = sim.get_score()
-			#var reward = score_after - scores_before[simulation_index] # Continuos reward
-			var reward = 0 # Discrete reward
-			if is_done:
-				reward += 100
-				sim.new_game()
-
+			var reward = sim.get_score()
 			var replay = Replay.new(batch_state[simulation_index], action, reward, state_, is_done)
 
 			batch_replay.append(replay)
@@ -118,7 +107,7 @@ func _get_batch_from_playing_round(simulations: Array[PCGSimulation], determinis
 			if is_done:
 				sim.new_game()
 
-		_display_simulation(simulations[0])
+		env_delegate.display_simulation(simulations[0])
 
 	average_reward /= float(batch_replay.size())
 	if deterministic:
@@ -133,7 +122,7 @@ func _loop_train():
 	_is_loop_training = true
 	var replays = await _get_batch_from_playing_round(_simulations, false)
 	var _response = await _ai_tcp.submit_batch_replay(replays)
-	_response = await _ai_tcp.train(10, true, true)
+	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
 
 	var average_reward = 0.0
 	for replay in replays:
@@ -150,15 +139,3 @@ func _loop_train():
 		return
 	else:
 		_loop_train()
-
-func _display_simulation(sim: PCGSimulation):
-	hero.position = sim.hero_position
-	coin.position = sim.coin_position
-
-func _new_simulations():
-	if _simulations.is_empty():
-		return
-	for sim in _simulations:
-		sim.new_game()
-
-	_display_simulation(_simulations[0])

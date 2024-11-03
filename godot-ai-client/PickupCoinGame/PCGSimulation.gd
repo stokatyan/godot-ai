@@ -1,4 +1,4 @@
-extends RefCounted
+extends BaseSimulation
 
 class_name PCGSimulation
 
@@ -16,7 +16,10 @@ func new_game():
 func is_game_complete() -> bool:
 	return hero_position.distance_to(coin_position) < 80
 
-func move_hero(force: float, direction: float, callback = null):
+func apply_action(action_vector: Array[float], callback):
+	_move_hero(action_vector[0], action_vector[1], callback)
+
+func _move_hero(force: float, direction: float, callback = null):
 	var move_vector = Vector2.from_angle(direction)
 	hero_position += move_vector * force * 20
 	if callback:
