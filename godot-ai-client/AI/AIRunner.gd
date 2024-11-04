@@ -2,7 +2,7 @@ extends Node
 
 class_name AIRunner
 
-var env_delegate
+var env_delegate: AIBaseEnvironment
 
 var _ai_tcp: AIServerTCP = AIServerTCP.new()
 
@@ -10,16 +10,12 @@ var _loop_train_count = 0
 var _is_loop_training = false
 var _is_testing = false
 
-var _simulation_count = 100
-
 var _simulations: Array[BaseSimulation] = []
 
 # Called when the node enters the scene tree for the first time.
-func _ready():
-	await get_tree().process_frame
-	for i in range(_simulation_count):
+func setup_simulations():
+	for i in range(env_delegate.get_simulation_count()):
 		_simulations.append(env_delegate.new_simulation())
-
 	_reset_simulations()
 
 func _input(event):
