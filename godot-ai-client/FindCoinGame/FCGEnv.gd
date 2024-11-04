@@ -79,8 +79,6 @@ func _draw_simulation(s: FCGSimulation):
 		s._hero._radius,
 		Color.RED,
 		true,
-		1,
-		true
 	)
 
 	## Hero Vision
