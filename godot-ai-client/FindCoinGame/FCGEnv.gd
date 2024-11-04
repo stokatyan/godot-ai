@@ -1,7 +1,11 @@
 extends AIBaseEnvironment
 
-@export var hero: Node2D
-@export var coin: Node2D
+var sim_to_display: FCGSimulation
+
+func _draw():
+	if !sim_to_display:
+		return
+	_draw_simulation(sim_to_display)
 
 func _physics_process(_delta):
 	var apply_move = false
@@ -21,20 +25,18 @@ func _physics_process(_delta):
 		move_vector += Vector2.RIGHT
 
 	if apply_move and !_ai_runner._simulations.is_empty():
-		var action: Array[float] = [1.0, move_vector.angle()]
+		var action: Array[float] = [move_vector.angle(), 1.0]
 		_ai_runner._simulations[0].apply_action(action, display_simulation)
 		if _ai_runner._simulations[0].is_game_complete():
 			_ai_runner._simulations[0].new_game()
 			display_simulation(_ai_runner._simulations[0])
-			return
 
 func display_simulation(s: BaseSimulation):
-	var simulation: PCGSimulation = s
-	hero.position = simulation.hero_position
-	coin.position = simulation.coin_position
+	sim_to_display = s
+	queue_redraw()
 
 func new_simulation() -> BaseSimulation:
-	return PCGSimulation.new() as BaseSimulation
+	return FCGSimulation.new() as FCGSimulation
 
 func get_simulation_count() -> int:
 	return 100
@@ -59,3 +61,48 @@ func get_hidden_size() -> int:
 
 func get_train_steps() -> int:
 	return 10
+
+func _draw_simulation(s: FCGSimulation):
+	## Target
+	draw_circle(
+		s._target._position,
+		s._target._radius,
+		Color.YELLOW,
+		true,
+		1,
+		true
+	)
+
+	## Hero
+	draw_circle(
+		s._hero._position,
+		s._hero._radius,
+		Color.RED,
+		true,
+		1,
+		true
+	)
+
+	## Hero Vision
+	var vision_angles = s._hero.get_vision_angles()
+	var game_state = s.get_game_state()
+	var h = s._hero
+	for i in range(vision_angles.size()):
+		var a = vision_angles[i]
+		var d = game_state[i + 3] # first 3 items are x, y, rotation
+		draw_line(
+			h._position,
+			h._position + Vector2.from_angle(a) * d,
+			Color.CADET_BLUE,
+			1,
+			true
+		)
+
+	## Hero Orientation
+	draw_line(
+		h._position,
+		h._position + Vector2.from_angle(h._rotation) * h._radius,
+		Color.WHITE_SMOKE,
+		3,
+		true
+	)

@@ -1,6 +1,15 @@
-extends Node
+extends CanvasItem
 
 class_name AIBaseEnvironment
+
+var _ai_tcp: AIServerTCP
+var _ai_runner = AIRunner.new()
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	_ai_runner.env_delegate = self
+	add_child(_ai_runner)
+	_ai_runner.setup_simulations()
 
 func new_simulation() -> BaseSimulation:
 	return BaseSimulation.new()

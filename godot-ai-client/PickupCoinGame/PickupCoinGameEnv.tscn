@@ -6,11 +6,10 @@
 [sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_o06rb"]
 size = Vector2(50, 50)
 
-[node name="PickupCoinGameEnv" type="Node2D" node_paths=PackedStringArray("hero", "coin", "_ai_tcp")]
+[node name="PickupCoinGameEnv" type="Node2D" node_paths=PackedStringArray("hero", "coin")]
 script = ExtResource("1_jejti")
 hero = NodePath("Hero")
 coin = NodePath("Coin")
-_ai_tcp = NodePath("")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 

@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://ct0pectxl2em4"]
+
+[ext_resource type="Script" path="res://FindCoinGame/FCGEnv.gd" id="1_js3hu"]
+
+[node name="FcgEnvironment" type="Node2D"]
+script = ExtResource("1_js3hu")
+
+[node name="Camera2D" type="Camera2D" parent="."]

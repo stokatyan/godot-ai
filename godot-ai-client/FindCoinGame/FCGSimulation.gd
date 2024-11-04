@@ -28,11 +28,11 @@ func is_game_complete() -> bool:
 func apply_action(action_vector: Array[float], callback):
 	_hero.move(action_vector[0], action_vector[1])
 	if callback:
-		callback.call()
+		callback.call(self)
 
 func get_game_state() -> Array[float]:
 	var angles = _hero.get_vision_angles()
-	var state = [
+	var state: Array[float] = [
 		_hero._position.x / 2.0 - _map_radius,
 		_hero._position.y / 2.0 - _map_radius,
 		_hero._rotation / (2 * PI)
