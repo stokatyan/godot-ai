@@ -42,7 +42,7 @@ func get_simulation_count() -> int:
 	return 100
 
 func get_state_dim() -> int:
-	return 4
+	return 10
 
 func get_action_dim() -> int:
 	return 2

@@ -80,7 +80,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 	var batch_replay: Array[Replay] = []
 	var average_reward = 0
 #
-	for step in range(20):
+	for step in range(env_delegate.get_steps_in_round()):
 		var scores_before: Array[float] = []
 		var batch_state: Array = []
 		for sim in simulations:

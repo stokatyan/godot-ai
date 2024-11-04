@@ -17,6 +17,9 @@ func new_simulation() -> BaseSimulation:
 func display_simulation(simulation: BaseSimulation):
 	pass
 
+func get_steps_in_round() -> int:
+	return 20
+
 func get_simulation_count() -> int:
 	return 1
 
