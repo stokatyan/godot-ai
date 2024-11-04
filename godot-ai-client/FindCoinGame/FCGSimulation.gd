@@ -63,6 +63,14 @@ func get_score() -> float:
 		return 200 - _actions_taken * 2
 	return 0
 
+func rescore_history(history: Array[Replay]):
+	if history.is_empty():
+		return
+	var final_reward = history[history.size() - 1].reward
+	for i in range(history.size()):
+		var rescore_scalar = float(i + 1.0) / float(history.size())
+		history[i].reward = final_reward * rescore_scalar
+
 ## Check if p2 will overlap the line from p1 to p3
 func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):
 	var min_distance = 2 * r

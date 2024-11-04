@@ -78,8 +78,12 @@ func _setup_ai():
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
 	_reset_simulations()
 	var batch_replay: Array[Replay] = []
-	var average_reward = 0
-#
+	var done_indecis = {}
+	var replay_history = {}
+	for s in simulations:
+		var history: Array[Replay] = []
+		replay_history[s] = history
+
 	for step in range(env_delegate.get_steps_in_round()):
 		var scores_before: Array[float] = []
 		var batch_state: Array = []
@@ -92,6 +96,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		var actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
 
 		for simulation_index in range(simulations.size()):
+			if done_indecis.has(simulation_index):
+				continue
+
 			var sim = simulations[simulation_index]
 			var action = actions[simulation_index]
 			sim.apply_action(action, null)
@@ -100,16 +107,24 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var reward = sim.get_score()
 			var replay = Replay.new(batch_state[simulation_index], action, reward, state_, is_done)
 
+			replay_history[sim].append(replay)
 			batch_replay.append(replay)
-			average_reward = reward
+
 			if is_done:
-				sim.new_game()
+				var simulations_replay_history = replay_history[sim]
+				sim.rescore_history(simulations_replay_history)
+				done_indecis[simulation_index] = true
+				continue
 
 		env_delegate.display_simulation(simulations[0])
 
-	average_reward /= float(batch_replay.size())
+
 	if deterministic:
-		print("Average Reward: " + str(average_reward))
+		var average_reward = 0
+		for replay in batch_replay:
+			average_reward += replay.reward
+		average_reward /= float(batch_replay.size())
+		print("Test Reward: " + str(average_reward))
 
 	return batch_replay
 

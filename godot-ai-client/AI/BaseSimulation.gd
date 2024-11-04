@@ -16,3 +16,6 @@ func get_game_state() -> Array[float]:
 
 func get_score() -> float:
 	return 0
+
+func rescore_history(history: Array[Replay]):
+	pass
