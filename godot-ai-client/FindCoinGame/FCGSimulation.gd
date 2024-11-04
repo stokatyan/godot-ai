@@ -10,7 +10,10 @@ var _map_radius: float:
 	get:
 		return _map_size/2
 
+var _actions_taken = 0
+
 func new_game():
+	_actions_taken = 0
 	var r1 = randf_range(0, _map_size) - _map_radius
 	var r2 = randf_range(0, _map_size) - _map_radius
 	_hero._position = Vector2(r1, r2)
@@ -26,6 +29,7 @@ func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
+	_actions_taken += 1
 	_hero.move(action_vector[0], action_vector[1])
 	if callback:
 		callback.call(self)
@@ -56,7 +60,7 @@ func get_game_state() -> Array[float]:
 
 func get_score() -> float:
 	if is_game_complete():
-		return 100
+		return 200 - _actions_taken * 2
 	return 0
 
 ## Check if p2 will overlap the line from p1 to p3
