@@ -92,7 +92,7 @@ func _draw_simulation(s: FCGSimulation):
 		var d = game_state[i + 3] # first 3 items are x, y, rotation
 		draw_line(
 			h._position,
-			h._position + Vector2.from_angle(a) * d,
+			h._position + Vector2.from_angle(a) * d * h.max_vision_distance,
 			Color.CADET_BLUE,
 			1,
 			true
