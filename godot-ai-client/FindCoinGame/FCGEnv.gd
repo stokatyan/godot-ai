@@ -68,8 +68,8 @@ func _draw_simulation(s: FCGSimulation):
 		s._target._position,
 		s._target._radius,
 		Color.YELLOW,
-		true,
-		1,
+		false,
+		2.0,
 		true
 	)
 
@@ -78,7 +78,9 @@ func _draw_simulation(s: FCGSimulation):
 		s._hero._position,
 		s._hero._radius,
 		Color.RED,
-		true,
+		false,
+		2.0,
+		true
 	)
 
 	## Hero Vision

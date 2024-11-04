@@ -8,7 +8,7 @@ func new_game():
 func is_game_complete() -> bool:
 	return false
 
-func apply_action(action_vector: Array[float], callback):
+func apply_action(_action_vector: Array[float], _callback):
 	pass
 
 func get_game_state() -> Array[float]:

@@ -2,7 +2,6 @@ extends CanvasItem
 
 class_name AIBaseEnvironment
 
-var _ai_tcp: AIServerTCP
 var _ai_runner = AIRunner.new()
 
 # Called when the node enters the scene tree for the first time.
@@ -14,7 +13,7 @@ func _ready():
 func new_simulation() -> BaseSimulation:
 	return BaseSimulation.new()
 
-func display_simulation(simulation: BaseSimulation):
+func display_simulation(_simulation: BaseSimulation):
 	pass
 
 func get_steps_in_round() -> int:
