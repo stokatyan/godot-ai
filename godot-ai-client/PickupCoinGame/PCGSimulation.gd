@@ -31,4 +31,4 @@ func get_game_state() -> Array[float]:
 	return [hero_position.x/x_r, hero_position.y/y_r, coin_position.x/x_r, coin_position.y/y_r]
 
 func get_score() -> float:
-	return 1.0 - hero_position.distance_to(coin_position)
+	return 1.0 - (hero_position.distance_to(coin_position) / 1000.0)

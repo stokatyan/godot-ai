@@ -12,6 +12,9 @@ var _is_testing = false
 
 var _simulations: Array[BaseSimulation] = []
 
+func _ready():
+	add_child(_ai_tcp)
+
 # Called when the node enters the scene tree for the first time.
 func setup_simulations():
 	for i in range(env_delegate.get_simulation_count()):
@@ -65,7 +68,6 @@ func _setup_ai():
 
 	var state_dim = env_delegate.get_state_dim()
 	var action_dim = env_delegate.get_action_dim()
-	#batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int
 	var batch_size = env_delegate.get_batch_size()
 	var num_actor_layers = env_delegate.get_num_actor_layers()
 	var num_critic_layers = env_delegate.get_num_critic_layers()
