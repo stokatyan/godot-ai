@@ -1,6 +1,7 @@
 extends AIBaseEnvironment
 
 var sim_to_display: FCGSimulation
+var _example_sim: FCGSimulation = FCGSimulation.new()
 
 func _draw():
 	if !sim_to_display:
@@ -45,7 +46,14 @@ func get_steps_in_round() -> int:
 	return 20
 
 func get_state_dim() -> int:
-	return 10
+	# hero_position.x
+	# hero_position.y
+	# hero_rotation
+	# 7 lines of sight
+	# prev move direction
+	# prev move magnitude
+	# steps elapsed
+	return _example_sim.get_game_state().size()
 
 func get_action_dim() -> int:
 	return 2

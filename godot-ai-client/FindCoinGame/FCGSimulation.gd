@@ -11,9 +11,11 @@ var _map_radius: float:
 		return _map_size/2
 
 var _actions_taken = 0
+var _prev_action: Array[float] = [0.0, 0.0]
 
 func new_game():
 	_actions_taken = 0
+	_prev_action = [0.0, 0.0]
 	var r1 = randf_range(0, _map_size) - _map_radius
 	var r2 = randf_range(0, _map_size) - _map_radius
 	_hero._position = Vector2(r1, r2)
@@ -31,6 +33,7 @@ func is_game_complete() -> bool:
 func apply_action(action_vector: Array[float], callback):
 	_actions_taken += 1
 	_hero.move(action_vector[0], action_vector[1])
+	_prev_action = action_vector
 	if callback:
 		callback.call(self)
 
@@ -55,6 +58,8 @@ func get_game_state() -> Array[float]:
 			distance = _hero._position.distance_to(overlap_point)
 		distance /= _hero.max_vision_distance # bound to range of 0 -> 1
 		state.append(distance)
+	state += _prev_action
+	state.append(_actions_taken)
 
 	return state
 
@@ -71,14 +76,14 @@ func rescore_history(history: Array[Replay]):
 	if !did_complete:
 		max_reward = -50.0
 
-	for i in range(history.size()):
-		var replay = history[i]
+	for replay in history:
+		var step = replay.state_[12]
 		var action_confidence = replay.action[1]
 		if did_complete:
-			var rescore_scalar = action_confidence * float(i + 1.0) / float(history.size())
-			history[i].reward = max_reward * rescore_scalar
+			var rescore_scalar = action_confidence * float(step + 1.0) / float(history.size())
+			replay.reward = max_reward * rescore_scalar
 		else:
-			history[i].reward = abs(action_confidence) * max_reward
+			replay.reward = abs(action_confidence) * max_reward
 
 func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	var hindsight_replays: Array[Replay] = []
