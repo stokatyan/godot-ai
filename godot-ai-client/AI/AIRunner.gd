@@ -111,8 +111,8 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			batch_replay.append(replay)
 
 			if is_done:
-				var simulations_replay_history = replay_history[sim]
-				sim.rescore_history(simulations_replay_history)
+				var replays = replay_history[sim]
+				sim.rescore_history(replays)
 				done_indecis[simulation_index] = true
 				continue
 
@@ -125,6 +125,14 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			average_reward += replay.reward
 		average_reward /= float(batch_replay.size())
 		print("Test Reward: " + str(average_reward))
+	else:
+		for simulation_index in range(simulations.size()):
+			if done_indecis.has(simulation_index):
+				continue
+			var sim = simulations[simulation_index]
+			var replays = replay_history[sim]
+			var hindsight_replays = sim.create_hindsight_replays(replays)
+			batch_replay += hindsight_replays
 
 	return batch_replay
 

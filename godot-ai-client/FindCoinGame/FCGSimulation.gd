@@ -71,6 +71,40 @@ func rescore_history(history: Array[Replay]):
 		var rescore_scalar = float(i + 1.0) / float(history.size())
 		history[i].reward = final_reward * rescore_scalar
 
+func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
+	var hindsight_replays: Array[Replay] = []
+	if history.size() < 2:
+		return hindsight_replays
+
+	var final_hero_state: Array[float] = history[history.size() - 1].state_
+	var final_hero_position: Vector2 = Vector2(
+		(final_hero_state[0] + _map_radius) * 2.0,
+		(final_hero_state[1] + _map_radius) * 2.0,
+	)
+	var initial_hero_state: Array[float] = history[0].state_
+	var initial_hero_position: Vector2 = Vector2(
+		(initial_hero_state[0] + _map_radius) * 2.0,
+		(initial_hero_state[1] + _map_radius) * 2.0,
+	)
+	var initial_hero_rotation = initial_hero_state[2] * 2 * PI
+
+	_target._position = final_hero_position
+	_hero._position = initial_hero_position
+	_hero._rotation = initial_hero_rotation
+	for replay in history:
+		var state = get_game_state()
+		var action = replay.action
+		apply_action(action, null)
+		var reward = get_score()
+		var is_done = is_game_complete()
+		var new_replay = Replay.new(state, action, reward, get_game_state(), is_done)
+		hindsight_replays.append(new_replay)
+		if is_done:
+			rescore_history(hindsight_replays)
+			break
+
+	return hindsight_replays
+
 ## Check if p2 will overlap the line from p1 to p3
 func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):
 	var min_distance = 2 * r

@@ -19,3 +19,7 @@ func get_score() -> float:
 
 func rescore_history(history: Array[Replay]):
 	pass
+
+func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
+	var hindsight_replays: Array[Replay] = []
+	return hindsight_replays
