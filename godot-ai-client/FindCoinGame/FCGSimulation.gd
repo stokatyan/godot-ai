@@ -80,7 +80,7 @@ func rescore_history(history: Array[Replay]):
 		var step = replay.state_[12]
 		var action_confidence = replay.action[1]
 		if did_complete:
-			var rescore_scalar = action_confidence * float(step + 1.0) / float(history.size())
+			var rescore_scalar = abs(action_confidence) * float(step + 1.0) / float(history.size())
 			replay.reward = max_reward * rescore_scalar
 		else:
 			replay.reward = abs(action_confidence) * max_reward
