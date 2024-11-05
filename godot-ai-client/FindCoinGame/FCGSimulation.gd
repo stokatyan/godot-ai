@@ -52,7 +52,7 @@ func get_game_state() -> Array[float]:
 			_hero._position,
 			_hero._position + vision_vector,
 			_target._position,
-			_target._radius + _hero._radius
+			(_target._radius + _hero._radius)/2
 		)
 		if overlap_point:
 			distance = _hero._position.distance_to(overlap_point)
