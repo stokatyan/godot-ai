@@ -51,7 +51,7 @@ func get_action_dim() -> int:
 	return 2
 
 func get_batch_size() -> int:
-	return 500
+	return 1000
 
 func get_num_actor_layers() -> int:
 	return 3
