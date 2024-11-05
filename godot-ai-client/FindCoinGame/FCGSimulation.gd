@@ -60,7 +60,7 @@ func get_game_state() -> Array[float]:
 
 func get_score() -> float:
 	if is_game_complete():
-		return 200 - _actions_taken * 2
+		return max(200 - _actions_taken * 2, 10)
 	return 0
 
 func rescore_history(history: Array[Replay]):
@@ -72,12 +72,12 @@ func rescore_history(history: Array[Replay]):
 		max_reward = -50.0
 
 	for i in range(history.size()):
+		var replay = history[i]
+		var action_confidence = replay.action[1]
 		if did_complete:
-			var rescore_scalar = float(i + 1.0) / float(history.size())
+			var rescore_scalar = action_confidence * float(i + 1.0) / float(history.size())
 			history[i].reward = max_reward * rescore_scalar
 		else:
-			var replay = history[i]
-			var action_confidence = replay.action[1]
 			history[i].reward = abs(action_confidence) * max_reward
 
 func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
