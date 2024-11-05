@@ -105,6 +105,10 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	_target._position = final_hero_position
 	_hero._position = initial_hero_position
 	_hero._rotation = initial_hero_rotation
+
+	if is_game_complete():
+		return hindsight_replays
+
 	for replay in history:
 		var state = get_game_state()
 		var action = replay.action
