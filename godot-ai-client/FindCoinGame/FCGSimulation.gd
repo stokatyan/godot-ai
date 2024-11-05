@@ -5,7 +5,7 @@ class_name FCGSimulation
 var _hero: FCGHero = FCGHero.new()
 var _target: FCGTarget = FCGTarget.new()
 
-var _map_size: float = 1000
+var _map_size: float = 500
 var _map_radius: float:
 	get:
 		return _map_size/2
@@ -81,7 +81,7 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 		(final_hero_state[0] + _map_radius) * 2.0,
 		(final_hero_state[1] + _map_radius) * 2.0,
 	)
-	var initial_hero_state: Array[float] = history[0].state_
+	var initial_hero_state: Array[float] = history[0].state
 	var initial_hero_position: Vector2 = Vector2(
 		(initial_hero_state[0] + _map_radius) * 2.0,
 		(initial_hero_state[1] + _map_radius) * 2.0,

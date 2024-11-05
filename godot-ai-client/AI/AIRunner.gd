@@ -108,7 +108,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var replay = Replay.new(batch_state[simulation_index], action, reward, state_, is_done)
 
 			replay_history[sim].append(replay)
-			batch_replay.append(replay)
 
 			if is_done:
 				var replays = replay_history[sim]
@@ -129,10 +128,18 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
 				continue
+			if randf() < 0.5:
+				continue
 			var sim = simulations[simulation_index]
 			var replays = replay_history[sim]
 			var hindsight_replays = sim.create_hindsight_replays(replays)
+			if randf() < 0.5:
+				replay_history.erase(sim)
 			batch_replay += hindsight_replays
+
+	for replays in replay_history.values():
+		for replay in replays:
+			batch_replay.append(replay)
 
 	return batch_replay
 
@@ -140,9 +147,13 @@ func _loop_train():
 	if _is_loop_training:
 		return
 
+	print("\n----- Loop Train -----")
+	print("Epoch: " + str(_loop_train_count))
 	_is_loop_training = true
 	var replays = await _get_batch_from_playing_round(_simulations, false)
+	print("Submitting ...")
 	var _response = await _ai_tcp.submit_batch_replay(replays)
+	print("Training ...")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
 
 	var average_reward = 0.0
@@ -150,8 +161,6 @@ func _loop_train():
 		average_reward += replay.reward
 	average_reward /= float(replays.size())
 
-	print("\n----------")
-	print("Epoch: " + str(_loop_train_count))
 	print("Average Reward: " + str(average_reward))
 	_loop_train_count += 1
 

@@ -11,7 +11,7 @@ func _init():
 
 func move(direction: float, magnitude: float):
 	_rotation = direction
-	_position += Vector2.from_angle(direction) * magnitude * _radius
+	_position += Vector2.from_angle(direction) * magnitude * (_radius * 2)
 
 func get_vision_angles() -> Array[float]:
 	var _angles: Array[float] = [

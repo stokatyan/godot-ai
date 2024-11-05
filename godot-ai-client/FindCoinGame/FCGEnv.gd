@@ -42,7 +42,7 @@ func get_simulation_count() -> int:
 	return 100
 
 func get_steps_in_round() -> int:
-	return 50
+	return 30
 
 func get_state_dim() -> int:
 	return 10
@@ -51,16 +51,16 @@ func get_action_dim() -> int:
 	return 2
 
 func get_batch_size() -> int:
-	return 256
+	return 500
 
 func get_num_actor_layers() -> int:
-	return 2
-
-func get_num_critic_layers() -> int:
 	return 3
 
+func get_num_critic_layers() -> int:
+	return 4
+
 func get_hidden_size() -> int:
-	return 40
+	return 100
 
 func get_train_steps() -> int:
 	return 10
