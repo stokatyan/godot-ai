@@ -117,6 +117,13 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 		env_delegate.display_simulation(simulations[0])
 
+	for simulation_index in range(simulations.size()):
+		if done_indecis.has(simulation_index):
+			continue
+
+		var sim = simulations[simulation_index]
+		var replays = replay_history[sim]
+		sim.rescore_history(replays)
 
 	if deterministic:
 		var average_reward = 0

@@ -42,7 +42,7 @@ func get_simulation_count() -> int:
 	return 100
 
 func get_steps_in_round() -> int:
-	return 30
+	return 20
 
 func get_state_dim() -> int:
 	return 10

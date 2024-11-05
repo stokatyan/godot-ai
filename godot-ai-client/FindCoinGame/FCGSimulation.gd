@@ -67,9 +67,13 @@ func rescore_history(history: Array[Replay]):
 	if history.is_empty():
 		return
 	var final_reward = history[history.size() - 1].reward
+	var did_complete = (float(history[history.size() - 1].done) - 0.5) * 2.0
+	if did_complete < 0:
+		final_reward = -20.0
+
 	for i in range(history.size()):
 		var rescore_scalar = float(i + 1.0) / float(history.size())
-		history[i].reward = final_reward * rescore_scalar
+		history[i].reward = final_reward * rescore_scalar * did_complete
 
 func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	var hindsight_replays: Array[Replay] = []
