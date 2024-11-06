@@ -43,7 +43,7 @@ func get_simulation_count() -> int:
 	return 100
 
 func get_steps_in_round() -> int:
-	return 35
+	return 20
 
 func get_state_dim() -> int:
 	# hero_position.x
