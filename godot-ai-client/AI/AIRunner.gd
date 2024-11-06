@@ -133,8 +133,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var sim = simulations[simulation_index]
 			var replays = replay_history[sim]
 			var hindsight_replays = sim.create_hindsight_replays(replays)
-			if randf() < 0.5:
-				replay_history.erase(sim)
 			batch_replay += hindsight_replays
 
 	for replays in replay_history.values():
