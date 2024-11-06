@@ -82,9 +82,10 @@ func rescore_history(history: Array[Replay]):
 	for replay in history:
 		var step: float = float(replay.state_[12])
 		var action_confidence = replay.action[1]
-		replay.reward = max_reward * abs(action_confidence)
-		replay.reward -= (history_size - step)
-		replay.reward += max_reward / history_size
+		replay.reward = max_reward / history_size
+		#replay.reward = max_reward * abs(action_confidence)
+		replay.reward -= (history_size - step) / 2.0
+
 
 
 func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
