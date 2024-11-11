@@ -62,13 +62,13 @@ func get_batch_size() -> int:
 	return 256
 
 func get_num_actor_layers() -> int:
-	return 3
+	return 2
 
 func get_num_critic_layers() -> int:
 	return 4
 
 func get_hidden_size() -> int:
-	return 150
+	return 100
 
 func get_train_steps() -> int:
 	return 10
