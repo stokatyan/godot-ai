@@ -62,8 +62,6 @@ func get_game_state() -> Array[float]:
 			distance = _hero._position.distance_to(overlap_point)
 		distance /= _hero.max_vision_distance # bound to range of 0 -> 1
 		state.append(distance)
-	state += _prev_action
-	state.append(_actions_taken)
 
 	return state
 
@@ -78,7 +76,7 @@ func rescore_history(history: Array[Replay]):
 	var max_reward = history[history.size() - 1].reward
 	var did_complete = history[history.size() - 1].done
 	if did_complete:
-		max_reward = 100.0
+		max_reward = 250.0
 	else:
 		max_reward = -100.0
 
@@ -87,7 +85,9 @@ func rescore_history(history: Array[Replay]):
 		var step: float = float(replay.state_[12])
 		var action_confidence = replay.action[1]
 		replay.reward = max_reward / history_size
-		#replay.reward = max_reward * abs(action_confidence)
+		if did_complete:
+			replay.reward *= abs(action_confidence)
+
 		replay.reward -= (history_size - step) / 4.0
 
 
