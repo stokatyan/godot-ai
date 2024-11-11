@@ -67,8 +67,8 @@ func get_game_state() -> Array[float]:
 
 func get_score() -> float:
 	if is_game_complete():
-		return 100
-	return -10
+		return 1
+	return -1
 
 func rescore_history(history: Array[Replay]):
 	pass
