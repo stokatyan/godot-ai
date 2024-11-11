@@ -67,27 +67,28 @@ func get_game_state() -> Array[float]:
 
 func get_score() -> float:
 	if is_game_complete():
-		return 200
-	return 0
+		return 100
+	return -10
 
 func rescore_history(history: Array[Replay]):
-	if history.is_empty():
-		return
-	var max_reward = history[history.size() - 1].reward
-	var did_complete = history[history.size() - 1].done
-	if did_complete:
-		max_reward = 250.0
-	else:
-		max_reward = -100.0
-
-	var history_size: float = float(history.size())
-	for replay in history:
-		var action_confidence = replay.action[1]
-		replay.reward = max_reward / history_size
-		if did_complete:
-			replay.reward *= abs(action_confidence)
-
-		replay.reward -= history_size / 2.0
+	pass
+	#if history.is_empty():
+		#return
+	#var max_reward = history[history.size() - 1].reward
+	#var did_complete = history[history.size() - 1].done
+	#if did_complete:
+		#max_reward = 250.0
+	#else:
+		#max_reward = -100.0
+#
+	#var history_size: float = float(history.size())
+	#for replay in history:
+		#var action_confidence = replay.action[1]
+		#replay.reward = max_reward / history_size
+		#if did_complete:
+			#replay.reward *= abs(action_confidence)
+#
+		#replay.reward -= history_size / 2.0
 
 
 
