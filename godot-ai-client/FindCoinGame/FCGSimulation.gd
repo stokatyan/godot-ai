@@ -44,8 +44,6 @@ func apply_action(action_vector: Array[float], callback):
 func get_game_state() -> Array[float]:
 	var angles = _hero.get_vision_angles()
 	var state: Array[float] = [
-		_hero._position.x / 2.0 - _map_radius,
-		_hero._position.y / 2.0 - _map_radius,
 		_hero._rotation / (2 * PI)
 	]
 	for a in angles:

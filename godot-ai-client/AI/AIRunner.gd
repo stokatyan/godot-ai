@@ -137,7 +137,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 	for r in replay_history.values():
 		var replays: Array = r
-		var n = 5
+		var n = randi_range(2, 15)
 		var start = max(0, replays.size() - n)
 		for replay in replays.slice(start, replays.size()):
 			batch_replay.append(replay)
