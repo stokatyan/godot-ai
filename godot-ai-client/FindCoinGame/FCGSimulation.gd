@@ -5,7 +5,7 @@ class_name FCGSimulation
 var _hero: FCGHero = FCGHero.new()
 var _target: FCGTarget = FCGTarget.new()
 
-var _map_size: float = 500
+var _map_size: float = 300
 var _map_radius: float:
 	get:
 		return _map_size/2
@@ -67,8 +67,8 @@ func get_game_state() -> Array[float]:
 
 func get_score() -> float:
 	if is_game_complete():
-		return 1
-	return -1
+		return 0.5
+	return -0.5
 
 func rescore_history(history: Array[Replay]):
 	pass

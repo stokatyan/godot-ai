@@ -40,29 +40,22 @@ func new_simulation() -> BaseSimulation:
 	return FCGSimulation.new() as FCGSimulation
 
 func get_simulation_count() -> int:
-	return 100
+	return 200
 
 func get_steps_in_round() -> int:
-	return 25
+	return 15
 
 func get_state_dim() -> int:
-	# hero_position.x
-	# hero_position.y
-	# hero_rotation
-	# 7 lines of sight
-	# prev move direction
-	# prev move magnitude
-	# steps elapsed
 	return _example_sim.get_game_state().size()
 
 func get_action_dim() -> int:
 	return 2
 
 func get_batch_size() -> int:
-	return 256
+	return 500
 
 func get_num_actor_layers() -> int:
-	return 2
+	return 3
 
 func get_num_critic_layers() -> int:
 	return 4
@@ -71,7 +64,7 @@ func get_hidden_size() -> int:
 	return 100
 
 func get_train_steps() -> int:
-	return 10
+	return 30
 
 func _draw_simulation(s: FCGSimulation):
 	## Target
