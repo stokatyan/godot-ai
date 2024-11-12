@@ -133,10 +133,13 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var sim = simulations[simulation_index]
 			var replays = replay_history[sim]
 			var hindsight_replays = sim.create_hindsight_replays(replays)
-			batch_replay += hindsight_replays
+			replay_history[env_delegate.new_simulation()] = hindsight_replays
 
-	for replays in replay_history.values():
-		for replay in replays:
+	for r in replay_history.values():
+		var replays: Array = r
+		var n = 5
+		var start = max(0, replays.size() - n)
+		for replay in replays.slice(start, replays.size()):
 			batch_replay.append(replay)
 
 	if deterministic:
