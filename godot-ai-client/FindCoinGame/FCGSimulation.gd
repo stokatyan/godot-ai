@@ -13,6 +13,8 @@ var _map_radius: float:
 var _actions_taken = 0
 var _prev_action: Array[float] = [0.0, 0.0]
 
+var _initial_hero_position: Vector2
+
 func new_game():
 	_actions_taken = 0
 	_prev_action = [0.0, 0.0]
@@ -26,6 +28,8 @@ func new_game():
 	_target._position = Vector2(r3, r4)
 	if is_game_complete():
 		new_game()
+
+	_initial_hero_position = _hero._position
 
 func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
@@ -95,17 +99,10 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	if history.size() < 2:
 		return hindsight_replays
 
-	var final_hero_state: Array[float] = history[history.size() - 1].state_
-	var final_hero_position: Vector2 = Vector2(
-		(final_hero_state[0] + _map_radius) * 2.0,
-		(final_hero_state[1] + _map_radius) * 2.0,
-	)
+	var final_hero_position: Vector2 = _hero._position
 	var initial_hero_state: Array[float] = history[0].state
-	var initial_hero_position: Vector2 = Vector2(
-		(initial_hero_state[0] + _map_radius) * 2.0,
-		(initial_hero_state[1] + _map_radius) * 2.0,
-	)
-	var initial_hero_rotation = initial_hero_state[2] * 2 * PI
+	var initial_hero_position: Vector2 = _initial_hero_position
+	var initial_hero_rotation = initial_hero_state[0] * 2 * PI
 
 	_target._position = final_hero_position
 	_hero._position = initial_hero_position
