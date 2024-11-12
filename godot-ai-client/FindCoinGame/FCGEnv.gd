@@ -93,7 +93,7 @@ func _draw_simulation(s: FCGSimulation):
 	var h = s._hero
 	for i in range(vision_angles.size()):
 		var a = vision_angles[i]
-		var d = game_state[i + 3] # first 3 items are x, y, rotation
+		var d = game_state[i + 1] # first item is rotation
 		draw_line(
 			h._position,
 			h._position + Vector2.from_angle(a) * d * h.max_vision_distance,
