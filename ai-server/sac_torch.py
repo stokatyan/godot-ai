@@ -131,7 +131,7 @@ class SAC_Agent:
         self.policy_optimizer = torch.optim.Adam(self.policy.parameters(), lr=lr)
         self.temp_optimizer = torch.optim.Adam([self.log_alpha], lr=lr)
 
-        self.replay_pool = ReplayPool(capacity=int(1e4))
+        self.replay_pool = ReplayPool(capacity=int(1e6))
     
     def get_action(self, state, state_filter=None, deterministic=False):
         if state_filter:
