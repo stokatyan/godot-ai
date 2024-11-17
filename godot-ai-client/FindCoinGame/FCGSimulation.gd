@@ -73,18 +73,19 @@ func get_score() -> float:
 	return -5.0
 
 func rescore_history(history: Array[Replay]):
-	if history.is_empty():
-		return
-	var final_reward = history[history.size() - 1].reward
-	var did_complete = history[history.size() - 1].done
-
-	var history_size: float = float(history.size())
-	var index: float = 0.0
-	for replay in history:
-		index += 1.0
-		var action_confidence = replay.action[1]
-		replay.reward = final_reward * (index / history_size) - history_size * 0.01
-		replay.reward *= action_confidence
+	return
+	#if history.is_empty():
+		#return
+	#var final_reward = history[history.size() - 1].reward
+	#var did_complete = history[history.size() - 1].done
+#
+	#var history_size: float = float(history.size())
+	#var index: float = 0.0
+	#for replay in history:
+		#index += 1.0
+		#var action_confidence = replay.action[1]
+		#replay.reward = final_reward * (index / history_size) - history_size * 0.01
+		#replay.reward *= action_confidence
 
 
 func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
