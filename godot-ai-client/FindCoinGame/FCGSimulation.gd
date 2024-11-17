@@ -5,7 +5,7 @@ class_name FCGSimulation
 var _hero: FCGHero = FCGHero.new()
 var _target: FCGTarget = FCGTarget.new()
 
-var _map_size: float = 300
+var _map_size: float = 600
 var _map_radius: float:
 	get:
 		return _map_size/2
