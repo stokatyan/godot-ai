@@ -37,7 +37,7 @@ func is_game_complete() -> bool:
 func apply_action(action_vector: Array[float], callback):
 	_actions_taken += 1
 
-	var direction: float = action_vector[0]
+	var direction: float = action_vector[0] * PI
 	var magnitude: float = (action_vector[1] + 1.0) / 2.0
 
 	_hero.move(direction, magnitude)
