@@ -117,6 +117,10 @@ func _draw_simulation(s: FCGSimulation):
 		true
 	)
 
-	## Walls
-	for wall in s._walls:
-		draw_line(Vector2(wall.x, wall.y), Vector2(wall.z, wall.w), Color.BLACK, s._wall_radius * 2, true)
+	for body in s._wall_bodies:
+		var transform = s.get_wall_transform(body)
+		var shape = s.get_wall_shape(body)
+		var direction = Vector2.from_angle(transform.get_rotation())
+		var p0 = transform.get_origin() + direction * shape.y
+		var p1 = transform.get_origin() - direction * shape.y
+		draw_line(p0, p1, Color.BLACK, shape.x * 2, true)

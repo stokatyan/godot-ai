@@ -16,14 +16,53 @@ var _prev_action: Array[float] = [0.0, 0.0]
 var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
-var _walls: Array[Vector4] = []
 var _wall_radius: float = 5
 
+var _physics_space: RID
+var _wall_bodies: Array[RID] = []
+
 func _init():
+	_setup_physics_server()
 	new_game()
 
+func _setup_physics_server():
+	_physics_space = PhysicsServer2D.space_create()
+	PhysicsServer2D.body_set_space(_hero._physics_body, _physics_space)
+
+	var wall_positions: Array[Vector2] = [
+		Vector2(-_map_radius, 0),
+		Vector2(_map_radius, 0),
+		Vector2(0, _map_radius),
+		Vector2(0, -_map_radius)
+	]
+
+	for p in wall_positions:
+		var wall_body = PhysicsServer2D.body_create()
+		_wall_bodies.append(wall_body)
+		var wall_shape = PhysicsServer2D.rectangle_shape_create()
+
+		PhysicsServer2D.body_set_space(wall_body, _physics_space)
+		PhysicsServer2D.body_add_shape(wall_body, wall_shape)
+		PhysicsServer2D.shape_set_data(wall_shape, Vector2(_wall_radius, _map_radius))
+		PhysicsServer2D.body_set_mode(wall_body, PhysicsServer2D.BodyMode.BODY_MODE_STATIC)
+
+		var rotation = 0
+		if p.x != 0:
+			rotation = PI / 2.0
+		var transform = Transform2D(rotation, p)
+
+		PhysicsServer2D.body_set_state(wall_body, PhysicsServer2D.BODY_STATE_TRANSFORM, transform)
+
+func get_wall_shape(body: RID) -> Vector2:
+	var shape = PhysicsServer2D.body_get_shape(body, 0)
+	return PhysicsServer2D.shape_get_data(shape)
+
+func get_wall_transform(body: RID) -> Transform2D:
+	var shape_count = PhysicsServer2D.body_get_shape_count(body)
+	var transform = PhysicsServer2D.body_get_state(body, PhysicsServer2D.BodyState.BODY_STATE_TRANSFORM)
+	return transform
+
 func new_game(is_recursive: bool = false):
-	_walls = []
 	_actions_taken = 0
 	var max_p = _map_radius - _hero._radius - 10
 
@@ -36,31 +75,10 @@ func new_game(is_recursive: bool = false):
 	var r4 = randf_range(-max_p , max_p)
 	_target._position = Vector2(r3, r4)
 
-	var interior_wall = Vector4(
-		randf_range(-max_p , max_p),
-		randf_range(-max_p , max_p),
-		randf_range(-max_p , max_p),
-		randf_range(-max_p , max_p)
-	)
-
-	var hero_overlaps_wall = _will_overlap(
-		Vector2(interior_wall.x, interior_wall.y),
-		Vector2(interior_wall.z, interior_wall.w),
-		_hero._position,
-		_hero._radius + _wall_radius
-	)
-
-	if hero_overlaps_wall or _hero._position.distance_to(_target._position) < _map_radius:
+	if _hero._position.distance_to(_target._position) < _map_radius:
 		new_game(true)
 	elif is_recursive:
 		return
-
-	_walls = []
-	_walls.append(interior_wall)
-	_walls.append(Vector4(-_map_radius, _map_radius, _map_radius, _map_radius))
-	_walls.append(Vector4(_map_radius, _map_radius, _map_radius, -_map_radius))
-	_walls.append(Vector4(_map_radius, -_map_radius, -_map_radius, -_map_radius))
-	_walls.append(Vector4(-_map_radius, -_map_radius, -_map_radius, _map_radius))
 
 	_initial_hero_position = _hero._position
 	_prev_action = [_hero._rotation/PI - 1, 0.0]
@@ -79,6 +97,8 @@ func apply_action(action_vector: Array[float], callback):
 	var magnitude: float = (action_vector[1] + 1.0) / 2.0
 	var prev_position = _hero._position
 	_hero.move(direction, magnitude)
+
+	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, _hero._position)
 
 	if callback:
 		callback.call(self)
