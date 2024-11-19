@@ -110,3 +110,7 @@ func _draw_simulation(s: FCGSimulation):
 		3,
 		true
 	)
+
+	## Walls
+	for wall in s._walls:
+		draw_line(Vector2(wall.x, wall.y), Vector2(wall.z, wall.w), Color.BLACK, 3, true)

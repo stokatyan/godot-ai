@@ -47,10 +47,12 @@ func new_game(is_recursive: bool = false):
 	elif is_recursive:
 		return
 
+	_walls = []
 	_walls.append(interior_wall)
-	#_walls.append(
-		#Vector4
-	#)
+	_walls.append(Vector4(-_map_radius, _map_radius, _map_radius, _map_radius))
+	_walls.append(Vector4(_map_radius, _map_radius, _map_radius, -_map_radius))
+	_walls.append(Vector4(_map_radius, -_map_radius, -_map_radius, -_map_radius))
+	_walls.append(Vector4(-_map_radius, -_map_radius, -_map_radius, _map_radius))
 
 	_initial_hero_position = _hero._position
 	_prev_action = [_hero._rotation/PI - 1, 0.0]
