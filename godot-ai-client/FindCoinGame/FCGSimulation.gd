@@ -55,7 +55,7 @@ func get_game_state() -> Array[float]:
 
 func _get_hero_observation() -> Array[float]:
 	var state: Array[float] = [
-		_hero._rotation / (2 * PI)
+		(_hero._rotation / PI) - 1.0
 	]
 	var angles = _hero.get_vision_angles()
 	for a in angles:
