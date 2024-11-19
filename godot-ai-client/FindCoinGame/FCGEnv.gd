@@ -32,7 +32,7 @@ func _handle_user_input(key: Key):
 		move_vector += Vector2.RIGHT
 
 	if apply_move and !_ai_runner._simulations.is_empty():
-		var action: Array[float] = [move_vector.angle() / PI, 0.5]
+		var action: Array[float] = [move_vector.x, move_vector.y]
 		_ai_runner._simulations[0].apply_action(action, display_simulation)
 		if _ai_runner._simulations[0].is_game_complete():
 			_ai_runner._simulations[0].new_game()

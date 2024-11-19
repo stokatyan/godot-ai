@@ -88,17 +88,33 @@ func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
+	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
+
+	# Prepare a shape for the hero
+	var hero_shape = PhysicsServer2D.body_get_shape(_hero._physics_body, 0)
+	var hero_transform = PhysicsServer2D.body_get_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM)
+	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
+
+	# Define the motion query
+	var motion_query = PhysicsShapeQueryParameters2D.new()
+	motion_query.collide_with_areas = false
+	motion_query.collide_with_bodies = true
+	motion_query.margin = 0.1
+	motion_query.motion = motion_vector
+	motion_query.shape_rid = hero_shape
+	motion_query.transform = hero_transform
+	var result = space_state.cast_motion(motion_query)
+	motion_vector *= result[0]
+
 	_prev_action = action_vector
 	_prev_observation = _get_hero_observation()
 
 	_actions_taken += 1
-
-	var direction: float = action_vector[0] * PI
-	var magnitude: float = (action_vector[1] + 1.0) / 2.0
-	var prev_position = _hero._position
-	_hero.move(direction, magnitude)
+	_hero._position += motion_vector
+	_hero._rotation = motion_vector.angle()
 
 	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, _hero._position)
+	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, _hero._rotation)
 
 	if callback:
 		callback.call(self)

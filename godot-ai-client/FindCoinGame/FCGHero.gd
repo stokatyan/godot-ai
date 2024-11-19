@@ -17,10 +17,6 @@ func _init():
 	PhysicsServer2D.body_add_shape(_physics_body, _physics_shape)
 	PhysicsServer2D.body_set_mode(_physics_body, PhysicsServer2D.BodyMode.BODY_MODE_KINEMATIC)
 
-func move(direction: float, magnitude: float):
-	_rotation = direction
-	_position += Vector2.from_angle(direction) * magnitude * (_radius * 2)
-
 func get_vision_angles() -> Array[float]:
 	var _angles: Array[float] = [
 		(0 + _rotation),
