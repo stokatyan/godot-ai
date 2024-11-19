@@ -17,11 +17,14 @@ func get_vision_angles() -> Array[float]:
 	var _angles: Array[float] = [
 		(0 + _rotation),
 
-		(PI * 0.125 + _rotation),
-		(PI * -0.125 + _rotation),
+		(PI * 0.1 + _rotation),
+		(PI * -0.1 + _rotation),
 
-		(PI * 0.25 + _rotation),
-		(PI * -0.25 + _rotation),
+		(PI * 0.21 + _rotation),
+		(PI * -0.21 + _rotation),
+
+		(PI * 0.33 + _rotation),
+		(PI * -0.33 + _rotation),
 
 		(PI * 0.45 + _rotation),
 		(PI * -0.45 + _rotation),

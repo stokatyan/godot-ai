@@ -26,7 +26,7 @@ func _physics_process(_delta):
 		move_vector += Vector2.RIGHT
 
 	if apply_move and !_ai_runner._simulations.is_empty():
-		var action: Array[float] = [move_vector.angle(), 1.0]
+		var action: Array[float] = [move_vector.angle() / PI, 0.5]
 		_ai_runner._simulations[0].apply_action(action, display_simulation)
 		if _ai_runner._simulations[0].is_game_complete():
 			_ai_runner._simulations[0].new_game()
@@ -43,7 +43,7 @@ func get_simulation_count() -> int:
 	return 50
 
 func get_steps_in_round() -> int:
-	return 25
+	return 30
 
 func get_state_dim() -> int:
 	return _example_sim.get_game_state().size()

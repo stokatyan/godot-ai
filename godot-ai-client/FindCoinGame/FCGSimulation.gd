@@ -5,19 +5,20 @@ class_name FCGSimulation
 var _hero: FCGHero = FCGHero.new()
 var _target: FCGTarget = FCGTarget.new()
 
-var _map_size: float = 600
+var _map_size: float = 500
 var _map_radius: float:
 	get:
 		return _map_size/2
 
 var _actions_taken = 0
-var _prev_action: Array[float] = [0.0, 0.0]
 
+var _prev_action: Array[float] = [0.0, 0.0]
+var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
 func new_game():
 	_actions_taken = 0
-	_prev_action = [0.0, 0.0]
+
 	var r1 = randf_range(0, _map_size) - _map_radius
 	var r2 = randf_range(0, _map_size) - _map_radius
 	_hero._position = Vector2(r1, r2)
@@ -30,26 +31,33 @@ func new_game():
 		new_game()
 
 	_initial_hero_position = _hero._position
+	_prev_action = [_hero._rotation, 0.0]
+	_prev_observation = _get_hero_observation()
 
 func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
+	_prev_action = action_vector
+	_prev_observation = _get_hero_observation()
+
 	_actions_taken += 1
 
 	var direction: float = action_vector[0] * PI
 	var magnitude: float = (action_vector[1] + 1.0) / 2.0
 
 	_hero.move(direction, magnitude)
-	_prev_action = action_vector
 	if callback:
 		callback.call(self)
 
 func get_game_state() -> Array[float]:
-	var angles = _hero.get_vision_angles()
+	return _get_hero_observation() + _prev_observation + _prev_action
+
+func _get_hero_observation() -> Array[float]:
 	var state: Array[float] = [
 		_hero._rotation / (2 * PI)
 	]
+	var angles = _hero.get_vision_angles()
 	for a in angles:
 		var vision_unit = Vector2.from_angle(a)
 		var vision_vector = vision_unit * _hero.max_vision_distance
