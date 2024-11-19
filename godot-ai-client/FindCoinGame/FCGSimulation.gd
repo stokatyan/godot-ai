@@ -16,6 +16,9 @@ var _prev_action: Array[float] = [0.0, 0.0]
 var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
+func _init():
+	new_game()
+
 func new_game():
 	_actions_taken = 0
 
@@ -31,7 +34,7 @@ func new_game():
 		new_game()
 
 	_initial_hero_position = _hero._position
-	_prev_action = [_hero._rotation, 0.0]
+	_prev_action = [_hero._rotation/PI - 1, 0.0]
 	_prev_observation = _get_hero_observation()
 
 func is_game_complete() -> bool:
@@ -51,7 +54,9 @@ func apply_action(action_vector: Array[float], callback):
 		callback.call(self)
 
 func get_game_state() -> Array[float]:
-	return _get_hero_observation() + _prev_observation + _prev_action
+	var current = _get_hero_observation()
+	var state = current + _prev_observation + _prev_action
+	return state
 
 func _get_hero_observation() -> Array[float]:
 	var state: Array[float] = [
