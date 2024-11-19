@@ -17,6 +17,7 @@ var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
 var _walls: Array[Vector4] = []
+var _wall_radius: float = 5
 
 func _init():
 	new_game()
@@ -42,7 +43,14 @@ func new_game(is_recursive: bool = false):
 		randf_range(-max_p , max_p)
 	)
 
-	if _hero._position.distance_to(_target._position) < _map_radius:
+	var hero_overlaps_wall = _will_overlap(
+		Vector2(interior_wall.x, interior_wall.y),
+		Vector2(interior_wall.z, interior_wall.w),
+		_hero._position,
+		_hero._radius + _wall_radius
+	)
+
+	if hero_overlaps_wall or _hero._position.distance_to(_target._position) < _map_radius:
 		new_game(true)
 	elif is_recursive:
 		return
@@ -69,8 +77,9 @@ func apply_action(action_vector: Array[float], callback):
 
 	var direction: float = action_vector[0] * PI
 	var magnitude: float = (action_vector[1] + 1.0) / 2.0
-
+	var prev_position = _hero._position
 	_hero.move(direction, magnitude)
+
 	if callback:
 		callback.call(self)
 

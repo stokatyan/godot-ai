@@ -8,20 +8,26 @@ func _draw():
 		return
 	_draw_simulation(sim_to_display)
 
-func _physics_process(_delta):
+func _input(event):
+	var keyboard_event = event as InputEventKey
+
+	if keyboard_event and keyboard_event.is_pressed() and !keyboard_event.is_echo():
+		_handle_user_input(keyboard_event.keycode)
+
+func _handle_user_input(key: Key):
 	var apply_move = false
 	var move_vector: Vector2 = Vector2.ZERO
 
-	if Input.is_key_pressed(KEY_W):
+	if key == KEY_W:
 		apply_move = true
 		move_vector += Vector2.UP
-	if Input.is_key_pressed(KEY_A):
+	if key == KEY_A:
 		apply_move = true
 		move_vector += Vector2.LEFT
-	if Input.is_key_pressed(KEY_S):
+	if key == KEY_S:
 		apply_move = true
 		move_vector += Vector2.DOWN
-	if Input.is_key_pressed(KEY_D):
+	if key == KEY_D:
 		apply_move = true
 		move_vector += Vector2.RIGHT
 
@@ -113,4 +119,4 @@ func _draw_simulation(s: FCGSimulation):
 
 	## Walls
 	for wall in s._walls:
-		draw_line(Vector2(wall.x, wall.y), Vector2(wall.z, wall.w), Color.BLACK, 3, true)
+		draw_line(Vector2(wall.x, wall.y), Vector2(wall.z, wall.w), Color.BLACK, s._wall_radius * 2, true)
