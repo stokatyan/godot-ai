@@ -5,7 +5,7 @@ class_name FCGSimulation
 var _hero: FCGHero = FCGHero.new()
 var _target: FCGTarget = FCGTarget.new()
 
-var _map_size: float = 500
+var _map_size: float = 600
 var _map_radius: float:
 	get:
 		return _map_size/2
@@ -16,22 +16,41 @@ var _prev_action: Array[float] = [0.0, 0.0]
 var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
+var _walls: Array[Vector4] = []
+
 func _init():
 	new_game()
 
-func new_game():
+func new_game(is_recursive: bool = false):
+	_walls = []
 	_actions_taken = 0
+	var max_p = _map_radius - _hero._radius - 10
 
-	var r1 = randf_range(0, _map_size) - _map_radius
-	var r2 = randf_range(0, _map_size) - _map_radius
+	var r1 = randf_range(-max_p , max_p)
+	var r2 = randf_range(-max_p , max_p)
 	_hero._position = Vector2(r1, r2)
 	_hero._rotation = randf_range(0, 2 * PI)
 
-	var r3 = randf_range(0, _map_size) - _map_radius
-	var r4 = randf_range(0, _map_size) - _map_radius
+	var r3 = randf_range(-max_p , max_p)
+	var r4 = randf_range(-max_p , max_p)
 	_target._position = Vector2(r3, r4)
-	if is_game_complete():
-		new_game()
+
+	var interior_wall = Vector4(
+		randf_range(-max_p , max_p),
+		randf_range(-max_p , max_p),
+		randf_range(-max_p , max_p),
+		randf_range(-max_p , max_p)
+	)
+
+	if _hero._position.distance_to(_target._position) < _map_radius:
+		new_game(true)
+	elif is_recursive:
+		return
+
+	_walls.append(interior_wall)
+	#_walls.append(
+		#Vector4
+	#)
 
 	_initial_hero_position = _hero._position
 	_prev_action = [_hero._rotation/PI - 1, 0.0]
