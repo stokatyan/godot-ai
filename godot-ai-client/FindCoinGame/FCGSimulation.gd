@@ -28,9 +28,14 @@ func _init():
 func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.space_set_active(_physics_space, true)
+
 	PhysicsServer2D.body_set_space(_hero._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, 1)
-	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, 1)
+	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, 0b0001)
+	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, 0b0001)
+
+	PhysicsServer2D.body_set_space(_target._physics_body, _physics_space)
+	PhysicsServer2D.body_set_collision_layer(_target._physics_body, 0b0010)
+	PhysicsServer2D.body_set_collision_mask(_target._physics_body, 0b0010)
 
 	var wall_segments: Array[Rect2] = [
 		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),
@@ -102,6 +107,7 @@ func apply_action(action_vector: Array[float], callback):
 	motion_query.motion = motion_vector
 	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform
+	motion_query.collision_mask = 0b0001
 
 	var result = space_state.cast_motion(motion_query)
 	var motion_magnitude = result[0]
