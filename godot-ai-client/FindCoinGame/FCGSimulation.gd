@@ -126,7 +126,7 @@ func apply_action(action_vector: Array[float], callback):
 	var new_transform = Transform2D(_hero.rotation, _hero.position)
 	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, new_transform)
 
-	print(str(origin_of_hero) + " --> " + str(new_transform.origin) + " :: " + str(get_transform(_hero._physics_body).origin))
+	print(str(origin_of_hero) + " --> " + str(new_transform.origin) + " :: " + str(_hero.position))
 
 	if callback:
 		callback.call(self)

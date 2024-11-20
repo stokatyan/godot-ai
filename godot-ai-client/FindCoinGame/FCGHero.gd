@@ -6,7 +6,13 @@ var _physics_body: RID
 var _physics_shape: RID
 
 var rotation: float = 0
-var position: Vector2 = Vector2.ZERO
+var position: Vector2:
+	get:
+		return PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM).origin
+	set(new_value):
+		var existing_transform: Transform2D = PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM) as Transform2D
+		var new_transform = Transform2D(existing_transform.get_rotation(), new_value)
+		PhysicsServer2D.body_set_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, new_transform)
 
 var max_vision_distance: float:
 	get:
