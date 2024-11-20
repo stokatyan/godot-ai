@@ -21,6 +21,9 @@ var _wall_thickness: float = 5
 var _physics_space: RID
 var _wall_bodies: Array[RID] = []
 
+var _target_layer = 0b0010
+var _hero_layer = 0b0001
+
 func _init():
 	_setup_physics_server()
 	new_game()
@@ -30,12 +33,12 @@ func _setup_physics_server():
 	PhysicsServer2D.space_set_active(_physics_space, true)
 
 	PhysicsServer2D.body_set_space(_hero._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, 0b0001)
-	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, 0b0001)
+	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, _hero_layer)
+	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, _hero_layer)
 
 	PhysicsServer2D.body_set_space(_target._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_target._physics_body, 0b0010)
-	PhysicsServer2D.body_set_collision_mask(_target._physics_body, 0b0010)
+	PhysicsServer2D.body_set_collision_layer(_target._physics_body, _target_layer)
+	PhysicsServer2D.body_set_collision_mask(_target._physics_body, _target_layer)
 
 	var wall_segments: Array[Rect2] = [
 		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),
@@ -92,14 +95,11 @@ func is_game_complete() -> bool:
 
 func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
-
-	# Prepare a shape for the hero
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 
 	var origin_of_hero = hero_transform.origin
 
-	# Define the motion query
 	var motion_query = PhysicsShapeQueryParameters2D.new()
 	motion_query.collide_with_areas = false
 	motion_query.collide_with_bodies = true
@@ -107,7 +107,7 @@ func apply_action(action_vector: Array[float], callback):
 	motion_query.motion = motion_vector
 	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform
-	motion_query.collision_mask = 0b0001
+	motion_query.collision_mask = _hero_layer
 
 	var result = space_state.cast_motion(motion_query)
 	var motion_magnitude = result[0]
@@ -133,21 +133,28 @@ func _get_hero_observation() -> Array[float]:
 	]
 	var angles = _hero.get_vision_angles()
 	for a in angles:
-		var vision_unit = Vector2.from_angle(a)
-		var vision_vector = vision_unit * _hero.max_vision_distance
-		var distance = _hero.max_vision_distance
-		var overlap_point = _will_overlap(
-			_hero._position,
-			_hero._position + vision_vector,
-			_target._position,
-			(_target._radius + _hero._radius)/2
-		)
-		if overlap_point:
-			distance = _hero._position.distance_to(overlap_point)
-		distance /= _hero.max_vision_distance # bound to range of 0 -> 1
-		state.append(distance)
+		var obs = _get_hero_target_observation(a, _hero.max_vision_distance)
+		state.append(obs)
 
 	return state
+
+func _get_hero_target_observation(angle: float, max_distance: float) -> float:
+	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
+	var hero_transform: Transform2D = get_transform(_hero._physics_body)
+	var origin_of_hero = hero_transform.origin
+
+	# Define the motion query
+	var motion_query = PhysicsShapeQueryParameters2D.new()
+	motion_query.collide_with_areas = false
+	motion_query.collide_with_bodies = true
+	motion_query.margin = _wall_thickness
+	motion_query.motion = Vector2.from_angle(angle) * max_distance
+	motion_query.shape_rid = _hero._physics_shape
+	motion_query.transform = hero_transform
+	motion_query.collision_mask = _target_layer
+
+	var result = space_state.cast_motion(motion_query)
+	return result[0]
 
 func get_score() -> float:
 	if is_game_complete():

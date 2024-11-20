@@ -15,19 +15,20 @@ func _init():
 	PhysicsServer2D.body_set_mode(_physics_body, PhysicsServer2D.BodyMode.BODY_MODE_KINEMATIC)
 
 func get_vision_angles() -> Array[float]:
+	var r: float = _rotation
 	var _angles: Array[float] = [
-		(0 + _rotation),
+		(0 + r),
 
-		(PI * 0.1 + _rotation),
-		(PI * -0.1 + _rotation),
+		(PI * 0.1 + r),
+		(PI * -0.1 + r),
 
-		(PI * 0.21 + _rotation),
-		(PI * -0.21 + _rotation),
+		(PI * 0.21 + r),
+		(PI * -0.21 + r),
 
-		(PI * 0.33 + _rotation),
-		(PI * -0.33 + _rotation),
+		(PI * 0.33 + r),
+		(PI * -0.33 + r),
 
-		(PI * 0.45 + _rotation),
-		(PI * -0.45 + _rotation),
+		(PI * 0.45 + r),
+		(PI * -0.45 + r),
 	]
 	return _angles
