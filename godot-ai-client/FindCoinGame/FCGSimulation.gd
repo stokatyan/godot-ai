@@ -91,7 +91,7 @@ func new_game():
 	_prev_observation = _get_hero_observation()
 
 func is_game_complete() -> bool:
-	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
+	return _hero._position.distance_to(_target._position) < _hero._radius * 2 + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
@@ -147,7 +147,7 @@ func _get_hero_target_observation(angle: float, max_distance: float) -> float:
 	var motion_query = PhysicsShapeQueryParameters2D.new()
 	motion_query.collide_with_areas = false
 	motion_query.collide_with_bodies = true
-	motion_query.margin = _wall_thickness
+	motion_query.margin = 0
 	motion_query.motion = Vector2.from_angle(angle) * max_distance
 	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform
