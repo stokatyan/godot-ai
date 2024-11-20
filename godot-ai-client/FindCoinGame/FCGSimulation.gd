@@ -28,6 +28,8 @@ func _init():
 func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.body_set_space(_hero._physics_body, _physics_space)
+	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, 1)
+	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, 1)
 
 	var wall_positions: Array[Vector2] = [
 		Vector2(-_map_radius, 0),
@@ -45,6 +47,8 @@ func _setup_physics_server():
 		PhysicsServer2D.body_add_shape(wall_body, wall_shape)
 		PhysicsServer2D.shape_set_data(wall_shape, Vector2(_wall_radius, _map_radius))
 		PhysicsServer2D.body_set_mode(wall_body, PhysicsServer2D.BodyMode.BODY_MODE_STATIC)
+		PhysicsServer2D.body_set_collision_layer(wall_body, 1)
+		PhysicsServer2D.body_set_collision_mask(wall_body, 1)
 
 		var rotation = 0
 		if p.x != 0:
@@ -57,8 +61,7 @@ func get_wall_shape(body: RID) -> Vector2:
 	var shape = PhysicsServer2D.body_get_shape(body, 0)
 	return PhysicsServer2D.shape_get_data(shape)
 
-func get_wall_transform(body: RID) -> Transform2D:
-	var shape_count = PhysicsServer2D.body_get_shape_count(body)
+func get_transform(body: RID) -> Transform2D:
 	var transform = PhysicsServer2D.body_get_state(body, PhysicsServer2D.BodyState.BODY_STATE_TRANSFORM)
 	return transform
 
@@ -68,32 +71,38 @@ func new_game(is_recursive: bool = false):
 
 	var r1 = randf_range(-max_p , max_p)
 	var r2 = randf_range(-max_p , max_p)
-	_hero._position = Vector2(r1, r2)
-	_hero._rotation = randf_range(0, 2 * PI)
+	_hero.position = Vector2(r1, r2)
+	_hero.rotation = randf_range(0, 2 * PI)
 
 	var r3 = randf_range(-max_p , max_p)
 	var r4 = randf_range(-max_p , max_p)
-	_target._position = Vector2(r3, r4)
+	_target.position = Vector2(r3, r4)
 
-	if _hero._position.distance_to(_target._position) < _map_radius:
+	if _hero.position.distance_to(_target.position) < _map_radius:
 		new_game(true)
 	elif is_recursive:
 		return
 
-	_initial_hero_position = _hero._position
-	_prev_action = [_hero._rotation/PI - 1, 0.0]
+	_initial_hero_position = _hero.position
+	_hero.rotation = randf_range(-PI, PI)
+	_prev_action = [_hero.rotation/PI - 1, 0.0]
 	_prev_observation = _get_hero_observation()
 
+	var hero_transform = Transform2D(_hero.rotation, _hero.position)
+	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, hero_transform)
+
 func is_game_complete() -> bool:
-	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
+	return _hero.position.distance_to(_target.position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
 
 	# Prepare a shape for the hero
 	var hero_shape = PhysicsServer2D.body_get_shape(_hero._physics_body, 0)
-	var hero_transform = PhysicsServer2D.body_get_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM)
+	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
+
+	var origin_of_hero = hero_transform.origin
 
 	# Define the motion query
 	var motion_query = PhysicsShapeQueryParameters2D.new()
@@ -103,6 +112,7 @@ func apply_action(action_vector: Array[float], callback):
 	motion_query.motion = motion_vector
 	motion_query.shape_rid = hero_shape
 	motion_query.transform = hero_transform
+
 	var result = space_state.cast_motion(motion_query)
 	motion_vector *= result[0]
 
@@ -110,11 +120,13 @@ func apply_action(action_vector: Array[float], callback):
 	_prev_observation = _get_hero_observation()
 
 	_actions_taken += 1
-	_hero._position += motion_vector
-	_hero._rotation = motion_vector.angle()
+	_hero.position += motion_vector
+	_hero.rotation = motion_vector.angle()
 
-	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, _hero._position)
-	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, _hero._rotation)
+	var new_transform = Transform2D(_hero.rotation, _hero.position)
+	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, new_transform)
+
+	print(str(origin_of_hero) + " --> " + str(new_transform.origin) + " :: " + str(get_transform(_hero._physics_body).origin))
 
 	if callback:
 		callback.call(self)
@@ -126,7 +138,7 @@ func get_game_state() -> Array[float]:
 
 func _get_hero_observation() -> Array[float]:
 	var state: Array[float] = [
-		(_hero._rotation / PI) - 1.0
+		(_hero.rotation / PI) - 1.0
 	]
 	var angles = _hero.get_vision_angles()
 	for a in angles:
@@ -134,13 +146,13 @@ func _get_hero_observation() -> Array[float]:
 		var vision_vector = vision_unit * _hero.max_vision_distance
 		var distance = _hero.max_vision_distance
 		var overlap_point = _will_overlap(
-			_hero._position,
-			_hero._position + vision_vector,
-			_target._position,
+			_hero.position,
+			_hero.position + vision_vector,
+			_target.position,
 			(_target._radius + _hero._radius)/2
 		)
 		if overlap_point:
-			distance = _hero._position.distance_to(overlap_point)
+			distance = _hero.position.distance_to(overlap_point)
 		distance /= _hero.max_vision_distance # bound to range of 0 -> 1
 		state.append(distance)
 
@@ -172,14 +184,14 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	if history.size() < 2:
 		return hindsight_replays
 
-	var final_hero_position: Vector2 = _hero._position
+	var final_hero_position: Vector2 = _hero.position
 	var initial_hero_state: Array[float] = history[0].state
 	var initial_hero_position: Vector2 = _initial_hero_position
 	var initial_hero_rotation = initial_hero_state[0] * 2 * PI
 
-	_target._position = final_hero_position
-	_hero._position = initial_hero_position
-	_hero._rotation = initial_hero_rotation
+	_target.position = final_hero_position
+	_hero.position = initial_hero_position
+	_hero.rotation = initial_hero_rotation
 
 	if is_game_complete():
 		return hindsight_replays
