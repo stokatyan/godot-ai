@@ -61,20 +61,19 @@ func get_transform(body: RID) -> Transform2D:
 	var transform = PhysicsServer2D.body_get_state(body, PhysicsServer2D.BodyState.BODY_STATE_TRANSFORM)
 	return transform
 
-func new_game(is_recursive: bool = false):
+func new_game():
 	_actions_taken = 0
-	var max_p = _map_radius - _hero._radius - 10
+	var max_p = _map_radius - _hero._radius - _wall_thickness
 
 	var r1 = randf_range(-max_p , max_p)
 	var r2 = randf_range(-max_p , max_p)
-
 	_hero.set_transform(Vector2(r1, r2), randf_range(0, 2 * PI))
 
 	var r3 = randf_range(-max_p , max_p)
 	var r4 = randf_range(-max_p , max_p)
-	_target.position = Vector2(r3, r4)
+	_target.set_transform(Vector2(r3, r4), 0)
 
-	if _hero._position.distance_to(_target.position) < _map_radius:
+	if _hero._position.distance_to(_target._position) < max_p / 2.0:
 		new_game(true)
 	elif is_recursive:
 		return
@@ -84,7 +83,7 @@ func new_game(is_recursive: bool = false):
 	_prev_observation = _get_hero_observation()
 
 func is_game_complete() -> bool:
-	return _hero._position.distance_to(_target.position) < _hero._radius + _target._radius
+	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
@@ -133,7 +132,7 @@ func _get_hero_observation() -> Array[float]:
 		var overlap_point = _will_overlap(
 			_hero._position,
 			_hero._position + vision_vector,
-			_target.position,
+			_target._position,
 			(_target._radius + _hero._radius)/2
 		)
 		if overlap_point:
@@ -174,7 +173,7 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	var initial_hero_position: Vector2 = _initial_hero_position
 	var initial_hero_rotation = initial_hero_state[0] * 2 * PI
 
-	_target.position = final_hero_position
+	_target._position = final_hero_position
 	_hero.set_transform(initial_hero_position, initial_hero_rotation)
 
 	if is_game_complete():

@@ -59,6 +59,9 @@ func _reset_simulations():
 	for sim in _simulations:
 		sim.new_game()
 
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
 	env_delegate.display_simulation(_simulations[0])
 
 func _setup_ai():
@@ -116,6 +119,8 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 				continue
 
 		env_delegate.display_simulation(simulations[0])
+		await get_tree().physics_frame
+		await get_tree().physics_frame
 
 	for simulation_index in range(simulations.size()):
 		if done_indecis.has(simulation_index):
