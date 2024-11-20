@@ -27,6 +27,7 @@ func _init():
 
 func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
+	PhysicsServer2D.space_set_active(_physics_space, true)
 	PhysicsServer2D.body_set_space(_hero._physics_body, _physics_space)
 	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, 1)
 	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, 1)
@@ -121,7 +122,6 @@ func apply_action(action_vector: Array[float], callback):
 	_hero.rotation = motion_vector.angle()
 
 	var new_transform = Transform2D(_hero.rotation, _hero.position)
-	print(str(origin_of_hero) + " --> " + str(new_transform.origin) + " :: " + str(_hero.position))
 
 	if callback:
 		callback.call(self)

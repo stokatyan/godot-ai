@@ -13,6 +13,7 @@ var position: Vector2:
 		var existing_transform: Transform2D = PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM) as Transform2D
 		existing_transform.origin = new_value
 		PhysicsServer2D.body_set_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, existing_transform)
+		var latest = PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM) as Transform2D
 
 var max_vision_distance: float:
 	get:
