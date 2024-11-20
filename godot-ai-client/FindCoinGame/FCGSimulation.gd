@@ -88,9 +88,6 @@ func new_game(is_recursive: bool = false):
 	_prev_action = [_hero.rotation/PI - 1, 0.0]
 	_prev_observation = _get_hero_observation()
 
-	var hero_transform = Transform2D(_hero.rotation, _hero.position)
-	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, hero_transform)
-
 func is_game_complete() -> bool:
 	return _hero.position.distance_to(_target.position) < _hero._radius + _target._radius
 
@@ -124,8 +121,6 @@ func apply_action(action_vector: Array[float], callback):
 	_hero.rotation = motion_vector.angle()
 
 	var new_transform = Transform2D(_hero.rotation, _hero.position)
-	PhysicsServer2D.body_set_state(_hero._physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, new_transform)
-
 	print(str(origin_of_hero) + " --> " + str(new_transform.origin) + " :: " + str(_hero.position))
 
 	if callback:

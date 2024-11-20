@@ -11,8 +11,8 @@ var position: Vector2:
 		return PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM).origin
 	set(new_value):
 		var existing_transform: Transform2D = PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM) as Transform2D
-		var new_transform = Transform2D(existing_transform.get_rotation(), new_value)
-		PhysicsServer2D.body_set_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, new_transform)
+		existing_transform.origin = new_value
+		PhysicsServer2D.body_set_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM, existing_transform)
 
 var max_vision_distance: float:
 	get:
