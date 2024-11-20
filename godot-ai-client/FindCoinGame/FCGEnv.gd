@@ -11,7 +11,7 @@ func _draw():
 func _input(event):
 	var keyboard_event = event as InputEventKey
 
-	if keyboard_event and keyboard_event.is_pressed() and !keyboard_event.is_echo():
+	if keyboard_event and keyboard_event.is_pressed():
 		_handle_user_input(keyboard_event.keycode)
 
 func _handle_user_input(key: Key):
@@ -40,6 +40,7 @@ func _handle_user_input(key: Key):
 			display_simulation(_ai_runner._simulations[0])
 
 func display_simulation(s: BaseSimulation):
+	await get_tree().physics_frame
 	await get_tree().physics_frame
 	sim_to_display = s
 	queue_redraw()
