@@ -32,33 +32,28 @@ func _setup_physics_server():
 	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, 1)
 	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, 1)
 
-	var wall_positions: Array[Vector2] = [
-		Vector2(-_map_radius, 0),
-		Vector2(_map_radius, 0),
-		Vector2(0, _map_radius),
-		Vector2(0, -_map_radius)
+	var wall_segments: Array[Rect2] = [
+		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),
+		Rect2(Vector2(_map_radius, _map_radius), Vector2(_map_radius, -_map_radius)),
+		Rect2(Vector2(_map_radius, -_map_radius), Vector2(-_map_radius, -_map_radius)),
+		Rect2(Vector2(-_map_radius, -_map_radius), Vector2(-_map_radius, _map_radius))
 	]
 
-	for p in wall_positions:
+	for segment in wall_segments:
 		var wall_body = PhysicsServer2D.body_create()
 		_wall_bodies.append(wall_body)
-		var wall_shape = PhysicsServer2D.rectangle_shape_create()
+		var segment_shape = PhysicsServer2D.segment_shape_create()
 
 		PhysicsServer2D.body_set_space(wall_body, _physics_space)
-		PhysicsServer2D.body_add_shape(wall_body, wall_shape)
-		PhysicsServer2D.shape_set_data(wall_shape, Vector2(_wall_radius, _map_radius))
+		PhysicsServer2D.body_add_shape(wall_body, segment_shape)
+		PhysicsServer2D.shape_set_data(segment_shape, segment)
 		PhysicsServer2D.body_set_mode(wall_body, PhysicsServer2D.BodyMode.BODY_MODE_STATIC)
 		PhysicsServer2D.body_set_collision_layer(wall_body, 1)
 		PhysicsServer2D.body_set_collision_mask(wall_body, 1)
 
-		var rotation = 0
-		if p.x != 0:
-			rotation = PI / 2.0
-		var transform = Transform2D(rotation, p)
+		PhysicsServer2D.body_set_state(wall_body, PhysicsServer2D.BODY_STATE_TRANSFORM, Transform2D())
 
-		PhysicsServer2D.body_set_state(wall_body, PhysicsServer2D.BODY_STATE_TRANSFORM, transform)
-
-func get_wall_shape(body: RID) -> Vector2:
+func get_wall_shape(body: RID) -> Rect2:
 	var shape = PhysicsServer2D.body_get_shape(body, 0)
 	return PhysicsServer2D.shape_get_data(shape)
 
@@ -95,7 +90,6 @@ func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
 
 	# Prepare a shape for the hero
-	var hero_shape = PhysicsServer2D.body_get_shape(_hero._physics_body, 0)
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 
@@ -107,7 +101,7 @@ func apply_action(action_vector: Array[float], callback):
 	motion_query.collide_with_bodies = true
 	motion_query.margin = 0.1
 	motion_query.motion = motion_vector
-	motion_query.shape_rid = hero_shape
+	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform
 
 	var result = space_state.cast_motion(motion_query)
