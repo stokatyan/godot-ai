@@ -72,25 +72,24 @@ func new_game(is_recursive: bool = false):
 
 	var r1 = randf_range(-max_p , max_p)
 	var r2 = randf_range(-max_p , max_p)
-	_hero.position = Vector2(r1, r2)
-	_hero.rotation = randf_range(0, 2 * PI)
+
+	_hero.set_transform(Vector2(r1, r2), randf_range(0, 2 * PI))
 
 	var r3 = randf_range(-max_p , max_p)
 	var r4 = randf_range(-max_p , max_p)
 	_target.position = Vector2(r3, r4)
 
-	if _hero.position.distance_to(_target.position) < _map_radius:
+	if _hero._position.distance_to(_target.position) < _map_radius:
 		new_game(true)
 	elif is_recursive:
 		return
 
-	_initial_hero_position = _hero.position
-	_hero.rotation = randf_range(-PI, PI)
-	_prev_action = [_hero.rotation/PI - 1, 0.0]
+	_initial_hero_position = _hero._position
+	_prev_action = [_hero._rotation/PI - 1, 0.0]
 	_prev_observation = _get_hero_observation()
 
 func is_game_complete() -> bool:
-	return _hero.position.distance_to(_target.position) < _hero._radius + _target._radius
+	return _hero._position.distance_to(_target.position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
@@ -118,10 +117,7 @@ func apply_action(action_vector: Array[float], callback):
 	_prev_observation = _get_hero_observation()
 
 	_actions_taken += 1
-	_hero.position += motion_vector
-	_hero.rotation = motion_vector.angle()
-
-	var new_transform = Transform2D(_hero.rotation, _hero.position)
+	_hero.set_transform(_hero._position + motion_vector, motion_vector.angle())
 
 	if callback:
 		callback.call(self)
@@ -133,7 +129,7 @@ func get_game_state() -> Array[float]:
 
 func _get_hero_observation() -> Array[float]:
 	var state: Array[float] = [
-		(_hero.rotation / PI) - 1.0
+		(_hero._rotation / PI) - 1.0
 	]
 	var angles = _hero.get_vision_angles()
 	for a in angles:
@@ -141,13 +137,13 @@ func _get_hero_observation() -> Array[float]:
 		var vision_vector = vision_unit * _hero.max_vision_distance
 		var distance = _hero.max_vision_distance
 		var overlap_point = _will_overlap(
-			_hero.position,
-			_hero.position + vision_vector,
+			_hero._position,
+			_hero._position + vision_vector,
 			_target.position,
 			(_target._radius + _hero._radius)/2
 		)
 		if overlap_point:
-			distance = _hero.position.distance_to(overlap_point)
+			distance = _hero._position.distance_to(overlap_point)
 		distance /= _hero.max_vision_distance # bound to range of 0 -> 1
 		state.append(distance)
 
@@ -179,14 +175,13 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 	if history.size() < 2:
 		return hindsight_replays
 
-	var final_hero_position: Vector2 = _hero.position
+	var final_hero_position: Vector2 = _hero._position
 	var initial_hero_state: Array[float] = history[0].state
 	var initial_hero_position: Vector2 = _initial_hero_position
 	var initial_hero_rotation = initial_hero_state[0] * 2 * PI
 
 	_target.position = final_hero_position
-	_hero.position = initial_hero_position
-	_hero.rotation = initial_hero_rotation
+	_hero.set_transform(initial_hero_position, initial_hero_rotation)
 
 	if is_game_complete():
 		return hindsight_replays
