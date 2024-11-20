@@ -35,7 +35,6 @@ func _input(event):
 			_is_testing = true
 			var _result = await _get_batch_from_playing_round([_simulations[0]], true)
 			_is_testing = false
-
 		KEY_N:
 			_reset_simulations()
 		KEY_UP:

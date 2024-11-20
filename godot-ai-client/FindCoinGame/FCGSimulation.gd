@@ -64,22 +64,22 @@ func get_transform(body: RID) -> Transform2D:
 func new_game():
 	_actions_taken = 0
 	var max_p = _map_radius - _hero._radius - _wall_thickness
+	var p_hero = Vector2.ZERO
+	var p_target = Vector2.ZERO
 
-	var r1 = randf_range(-max_p , max_p)
-	var r2 = randf_range(-max_p , max_p)
-	_hero.set_transform(Vector2(r1, r2), randf_range(0, 2 * PI))
+	while p_hero.distance_to(p_target) < max_p / 2.0:
+		var r1 = randf_range(-max_p , max_p)
+		var r2 = randf_range(-max_p , max_p)
+		p_hero = Vector2(r1, r2)
 
-	var r3 = randf_range(-max_p , max_p)
-	var r4 = randf_range(-max_p , max_p)
-	_target.set_transform(Vector2(r3, r4), 0)
+		var r3 = randf_range(-max_p , max_p)
+		var r4 = randf_range(-max_p , max_p)
+		p_target = Vector2(r3, r4)
 
-	if _hero._position.distance_to(_target._position) < max_p / 2.0:
-		new_game(true)
-	elif is_recursive:
-		return
-
+	_hero.set_transform(p_hero, randf_range(0, 2 * PI))
+	_target.set_transform(p_target, randf_range(0, 2 * PI))
 	_initial_hero_position = _hero._position
-	_prev_action = [_hero._rotation/PI - 1, 0.0]
+	_prev_action = [0.0, 0.0]
 	_prev_observation = _get_hero_observation()
 
 func is_game_complete() -> bool:
@@ -104,13 +104,14 @@ func apply_action(action_vector: Array[float], callback):
 	motion_query.transform = hero_transform
 
 	var result = space_state.cast_motion(motion_query)
-	motion_vector *= result[0]
+	var motion_magnitude = result[0]
 
 	_prev_action = action_vector
 	_prev_observation = _get_hero_observation()
 
 	_actions_taken += 1
-	_hero.set_transform(_hero._position + motion_vector, motion_vector.angle())
+
+	_hero.set_transform(_hero._position + motion_vector * motion_magnitude, motion_vector.angle())
 
 	if callback:
 		callback.call(self)

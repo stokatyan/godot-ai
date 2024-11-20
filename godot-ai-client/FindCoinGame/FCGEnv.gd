@@ -78,7 +78,7 @@ func get_train_steps() -> int:
 func _draw_simulation(s: FCGSimulation):
 	## Target
 	draw_circle(
-		s._target.position,
+		s._target._position,
 		s._target._radius,
 		Color.YELLOW,
 		false,
