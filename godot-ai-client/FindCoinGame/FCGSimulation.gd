@@ -16,7 +16,7 @@ var _prev_action: Array[float] = [0.0, 0.0]
 var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
-var _wall_radius: float = 5
+var _wall_thickness: float = 5
 
 var _physics_space: RID
 var _wall_bodies: Array[RID] = []
@@ -99,7 +99,7 @@ func apply_action(action_vector: Array[float], callback):
 	var motion_query = PhysicsShapeQueryParameters2D.new()
 	motion_query.collide_with_areas = false
 	motion_query.collide_with_bodies = true
-	motion_query.margin = 0.1
+	motion_query.margin = _wall_thickness
 	motion_query.motion = motion_vector
 	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform

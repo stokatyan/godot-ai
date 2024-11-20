@@ -18,16 +18,16 @@ func _handle_user_input(key: Key):
 	var apply_move = false
 	var move_vector: Vector2 = Vector2.ZERO
 
-	if key == KEY_W:
+	if Input.is_key_pressed(KEY_W):
 		apply_move = true
 		move_vector += Vector2.UP
-	if key == KEY_A:
+	if Input.is_key_pressed(KEY_A):
 		apply_move = true
 		move_vector += Vector2.LEFT
-	if key == KEY_S:
+	if Input.is_key_pressed(KEY_S):
 		apply_move = true
 		move_vector += Vector2.DOWN
-	if key == KEY_D:
+	if Input.is_key_pressed(KEY_D):
 		apply_move = true
 		move_vector += Vector2.RIGHT
 
@@ -124,4 +124,4 @@ func _draw_simulation(s: FCGSimulation):
 		var shape_rect = s.get_wall_shape(body)
 		var p0 = shape_rect.position
 		var p1 = shape_rect.size
-		draw_line(p0, p1, Color.BLACK, 5, true)
+		draw_line(p0, p1, Color.BLACK, s._wall_thickness, true)
