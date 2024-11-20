@@ -76,8 +76,8 @@ func new_game():
 		var r4 = randf_range(-max_p , max_p)
 		p_target = Vector2(r3, r4)
 
-	_hero.set_transform(p_hero, randf_range(0, 2 * PI))
-	_target.set_transform(p_target, randf_range(0, 2 * PI))
+	_hero.set_transform(p_hero, randf_range(-PI, PI))
+	_target.set_transform(p_target, 0)
 	_initial_hero_position = _hero._position
 	_prev_action = [0.0, 0.0]
 	_prev_observation = _get_hero_observation()
