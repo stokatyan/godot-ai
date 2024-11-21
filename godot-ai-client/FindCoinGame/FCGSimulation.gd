@@ -152,18 +152,8 @@ func new_game(physics_update: Signal) -> bool:
 		PhysicsServer2D.body_set_space(temp_target_body, _physics_space)
 		PhysicsServer2D.body_set_collision_layer(temp_target_body, _target_layer)
 
-		var direct_state = PhysicsServer2D.space_get_direct_state(_physics_space)
-		var query = PhysicsShapeQueryParameters2D.new()
-		query.margin = _hero._radius * 2
-		query.shape_rid = temp_hero_shape
-		query.transform = t_hero
-		query.collision_mask = _wall_layer | _target_layer
-		var result = direct_state.collide_shape(query, 1)
-
-		query.shape_rid = temp_target_shape
-		query.transform = t_target
-		query.collision_mask = _wall_layer
-		result += direct_state.collide_shape(query, 1)
+		var result = _get_collision_points(temp_hero_shape, t_hero, _hero._radius * 2, _wall_layer | _target_layer)
+		result += _get_collision_points(temp_target_shape, t_target, _hero._radius * 2, _wall_layer)
 
 		PhysicsServer2D.free_rid(temp_hero_shape)
 		PhysicsServer2D.free_rid(temp_hero_body)
@@ -239,6 +229,13 @@ func _get_hero_observation() -> Array[float]:
 		angle_to_wall_distance[a] = obs
 	for a in angles:
 		var obs = _get_hero_layer_observation(a, _hero.max_vision_distance, _target_layer)
+		var t = _hero._transform
+		t.origin += Vector2.from_angle(a) * _target._radius
+		var target_collision_points = _get_collision_points(_hero._physics_shape, t, 0, _target_layer)
+
+		if !target_collision_points.is_empty():
+			obs = 0.2 * _hero._position.distance_to(target_collision_points[1]) / _hero.max_vision_distance
+
 		if obs > angle_to_wall_distance[a]:
 			obs = 1
 		state.append(obs)
@@ -261,6 +258,16 @@ func _get_hero_layer_observation(angle: float, max_distance: float, layer: int) 
 
 	var result = space_state.cast_motion(motion_query)
 	return result[0]
+
+func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float, collision_mask: int) -> Array[Vector2]:
+	var direct_state = PhysicsServer2D.space_get_direct_state(_physics_space)
+	var query = PhysicsShapeQueryParameters2D.new()
+	query.margin = margin
+	query.shape_rid = shape_rid
+	query.transform = transform
+	query.collision_mask = collision_mask
+	var result = direct_state.collide_shape(query, 1)
+	return result
 
 func get_score() -> float:
 	if is_game_complete():

@@ -4,7 +4,7 @@ class_name FCGHero
 
 var max_vision_distance: float:
 	get:
-		return 1000
+		return 700
 
 func _init():
 	_radius = 20

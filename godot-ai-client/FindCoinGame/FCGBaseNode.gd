@@ -8,11 +8,15 @@ var _radius: float = 0
 
 var _rotation: float:
 	get:
-		return PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM).get_rotation()
+		return _transform.get_rotation()
 
 var _position: Vector2:
 	get:
-		return PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM).origin
+		return _transform.origin
+
+var _transform: Transform2D:
+	get:
+		return PhysicsServer2D.body_get_state(_physics_body, PhysicsServer2D.BODY_STATE_TRANSFORM)
 
 func set_transform(position: Vector2, rotation: float):
 	var new_transform = Transform2D(rotation, position)
