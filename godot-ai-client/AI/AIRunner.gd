@@ -135,10 +135,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 		env_delegate.display_simulation(simulations[0])
 
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-	await get_tree().physics_frame
-
 	for simulation_index in range(simulations.size()):
 		if done_indecis.has(simulation_index):
 			continue
