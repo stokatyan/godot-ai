@@ -3,6 +3,9 @@ extends AIBaseEnvironment
 var sim_to_display: FCGSimulation
 var _example_sim: FCGSimulation = FCGSimulation.new()
 
+@export var epoch_label: Label
+@export var state_label: Label
+
 func _draw():
 	if !sim_to_display:
 		return
@@ -136,3 +139,7 @@ func _draw_simulation(s: FCGSimulation):
 		var p0 = shape_rect.position
 		var p1 = shape_rect.size
 		draw_line(p0, p1, Color.BLACK, s._wall_thickness, true)
+
+func update_status(epoch: int, message: String):
+	epoch_label.text = str(epoch)
+	state_label.text = message

@@ -42,3 +42,6 @@ func get_hidden_size() -> int:
 
 func get_train_steps() -> int:
 	return 0
+
+func update_status(epoch: int, message: String):
+	pass

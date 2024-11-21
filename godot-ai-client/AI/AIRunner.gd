@@ -46,8 +46,11 @@ func _input(event):
 			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
 			_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
+			env_delegate.update_status(_loop_train_count, "playing")
 			var replays = await _get_batch_from_playing_round(_simulations, false)
+			env_delegate.update_status(_loop_train_count, "submitting")
 			var _response = await _ai_tcp.submit_batch_replay(replays)
+			env_delegate.update_status(_loop_train_count, "done submitting")
 		KEY_3: # Start training loop
 			_loop_train_count = 1
 			_loop_train()
@@ -162,11 +165,14 @@ func _loop_train():
 
 	print("\n----- Loop Train -----")
 	print("Epoch: " + str(_loop_train_count))
+	env_delegate.update_status(_loop_train_count, "playing")
 	_is_loop_training = true
 	var replays = await _get_batch_from_playing_round(_simulations, false)
 	print("Submitting ...")
+	env_delegate.update_status(_loop_train_count, "submitting")
 	var _response = await _ai_tcp.submit_batch_replay(replays)
 	print("Training ...")
+	env_delegate.update_status(_loop_train_count, "training")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
 
 	var average_reward = 0.0
