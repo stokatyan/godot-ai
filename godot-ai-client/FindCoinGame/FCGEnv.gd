@@ -36,7 +36,7 @@ func _handle_user_input(key: Key):
 		_ai_runner._simulations[0].apply_action(action, display_simulation)
 
 		if _ai_runner._simulations[0].is_game_complete():
-			await _ai_runner._simulations[0].new_game()
+			await _ai_runner._simulations[0].new_game(get_tree().physics_frame)
 			display_simulation(_ai_runner._simulations[0])
 
 func display_simulation(s: BaseSimulation):

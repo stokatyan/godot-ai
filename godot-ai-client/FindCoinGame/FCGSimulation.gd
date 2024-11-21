@@ -111,7 +111,7 @@ func new_game(physics_update: Signal) -> bool:
 		var query = PhysicsShapeQueryParameters2D.new()
 		query.shape_rid = temp_hero_shape
 		query.transform = t_hero
-		query.collision_mask = 0b1000
+		query.collision_mask = _wall_layer
 		var result = direct_state.collide_shape(query, 1)
 
 		PhysicsServer2D.free_rid(temp_hero_shape)
