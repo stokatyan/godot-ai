@@ -187,6 +187,8 @@ func apply_action(action_vector: Array[float], callback):
 
 func get_game_state() -> Array[float]:
 	var current = _get_hero_observation()
+	if _prev_observation.size() != current.size():
+		_prev_observation = current
 	var state = current + _prev_observation + _prev_action
 	return state
 

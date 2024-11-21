@@ -55,7 +55,8 @@ func get_steps_in_round() -> int:
 	return 40
 
 func get_state_dim() -> int:
-	return _example_sim.get_game_state().size()
+	var example = _example_sim.get_game_state()
+	return example.size()
 
 func get_action_dim() -> int:
 	return 2
