@@ -199,7 +199,7 @@ func _create_hindsight_replays_on_bg_thread(simulations: Array[BaseSimulation], 
 	_hindsight_creation_thread = Thread.new()
 	_hindsight_creation_thread.start(_bg_thread_create_hindsight_replays.bind(simulations, done_indecis, replay_history))
 
-func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], done_indecis: Dictionary, replay_history: Dictionary) -> BaseSimulation:
+func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], done_indecis: Dictionary, replay_history: Dictionary):
 	var start_time = Time.get_ticks_msec()
 	print("Creating hindsight replays ...")
 	var hindsight_replays_history = {}
@@ -216,13 +216,13 @@ func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], don
 	print("+++ Created hindsight replays in " + str(float(Time.get_ticks_msec() - start_time) / 1000.0) + "s")
 	print("++")
 
-	call_deferred("_set_pending_hindsight_replays", batch_replays)
-	return simulations[0]
+	call_deferred("_set_pending_hindsight_replays", batch_replays, simulations[0])
 
-func _set_pending_hindsight_replays(batch_replay: Array[Replay]):
+
+func _set_pending_hindsight_replays(batch_replay: Array[Replay], sim_to_display: BaseSimulation):
 	_pending_hindsight_replays += batch_replay
-	if _hindsight_creation_thread.is_alive():
-		_pending_hindsight_sim_to_display = _hindsight_creation_thread.wait_to_finish()
+	_pending_hindsight_sim_to_display = sim_to_display
+	_hindsight_creation_thread.wait_to_finish()
 	_hindsight_creation_thread = null
 
 func _get_batch_replays_from_replay_map(replay_history: Dictionary) -> Array[Replay]:
