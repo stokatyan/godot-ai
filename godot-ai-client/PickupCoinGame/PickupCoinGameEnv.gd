@@ -24,7 +24,7 @@ func _physics_process(_delta):
 		var action: Array[float] = [1.0, move_vector.angle()]
 		_ai_runner._simulations[0].apply_action(action, display_simulation)
 		if _ai_runner._simulations[0].is_game_complete():
-			_ai_runner._simulations[0].new_game()
+			await _ai_runner._simulations[0].new_game(get_tree().process_frame)
 			display_simulation(_ai_runner._simulations[0])
 			return
 

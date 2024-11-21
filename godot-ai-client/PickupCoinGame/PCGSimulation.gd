@@ -7,11 +7,13 @@ var coin_position: Vector2
 
 var _map_size = Vector2(1500.0, 800.0)
 
-func new_game():
+func new_game(physics_update: Signal) -> bool:
 	hero_position = Vector2(randf_range(-_map_size.x/2, _map_size.x/2), randf_range(-_map_size.y/2, _map_size.y/2))
 	coin_position = Vector2(randf_range(-_map_size.x/2, _map_size.x/2), randf_range(-_map_size.y/2, _map_size.y/2))
 	if is_game_complete():
-		new_game()
+		new_game(physics_update)
+
+	return true
 
 func is_game_complete() -> bool:
 	return hero_position.distance_to(coin_position) < 80

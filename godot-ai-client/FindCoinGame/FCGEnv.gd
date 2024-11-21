@@ -36,7 +36,7 @@ func _handle_user_input(key: Key):
 		_ai_runner._simulations[0].apply_action(action, display_simulation)
 
 		if _ai_runner._simulations[0].is_game_complete():
-			_ai_runner._simulations[0].new_game()
+			await _ai_runner._simulations[0].new_game()
 			display_simulation(_ai_runner._simulations[0])
 
 func display_simulation(s: BaseSimulation):
@@ -120,7 +120,7 @@ func _draw_simulation(s: FCGSimulation):
 		true
 	)
 
-	for body in s._wall_bodies:
+	for body in s._boundary_wall_bodies + s._inner_wall_bodies:
 		var shape_rect = s.get_wall_shape(body)
 		var p0 = shape_rect.position
 		var p1 = shape_rect.size

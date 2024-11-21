@@ -2,8 +2,9 @@ extends RefCounted
 
 class_name BaseSimulation
 
-func new_game():
-	pass
+func new_game(physics_update: Signal) -> bool:
+	await physics_update
+	return true
 
 func is_game_complete() -> bool:
 	return false

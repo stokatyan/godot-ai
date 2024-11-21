@@ -56,7 +56,7 @@ func _reset_simulations():
 	if _simulations.is_empty():
 		return
 	for sim in _simulations:
-		sim.new_game()
+		await sim.new_game(get_tree().physics_frame)
 
 	await get_tree().physics_frame
 	await get_tree().physics_frame

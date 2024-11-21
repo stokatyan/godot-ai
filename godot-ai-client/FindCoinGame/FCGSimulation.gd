@@ -19,14 +19,15 @@ var _initial_hero_position: Vector2
 var _wall_thickness: float = 5
 
 var _physics_space: RID
-var _wall_bodies: Array[RID] = []
+var _boundary_wall_bodies: Array[RID] = []
+var _inner_wall_bodies: Array[RID] = []
 
+var _hero_layer   = 0b0001
 var _target_layer = 0b0010
-var _hero_layer = 0b0001
+var _wall_layer   = 0b0100
 
 func _init():
 	_setup_physics_server()
-	new_game()
 
 func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
@@ -48,18 +49,22 @@ func _setup_physics_server():
 	]
 
 	for segment in wall_segments:
-		var wall_body = PhysicsServer2D.body_create()
-		_wall_bodies.append(wall_body)
-		var segment_shape = PhysicsServer2D.segment_shape_create()
+		var wall_body = _add_wall(segment)
+		_boundary_wall_bodies.append(wall_body)
 
-		PhysicsServer2D.body_set_space(wall_body, _physics_space)
-		PhysicsServer2D.body_add_shape(wall_body, segment_shape)
-		PhysicsServer2D.shape_set_data(segment_shape, segment)
-		PhysicsServer2D.body_set_mode(wall_body, PhysicsServer2D.BodyMode.BODY_MODE_STATIC)
-		PhysicsServer2D.body_set_collision_layer(wall_body, 1)
-		PhysicsServer2D.body_set_collision_mask(wall_body, 1)
+func _add_wall(segment: Rect2) -> RID:
+	var wall_body = PhysicsServer2D.body_create()
+	var segment_shape = PhysicsServer2D.segment_shape_create()
 
-		PhysicsServer2D.body_set_state(wall_body, PhysicsServer2D.BODY_STATE_TRANSFORM, Transform2D())
+	PhysicsServer2D.body_set_space(wall_body, _physics_space)
+	PhysicsServer2D.body_add_shape(wall_body, segment_shape)
+	PhysicsServer2D.shape_set_data(segment_shape, segment)
+	PhysicsServer2D.body_set_mode(wall_body, PhysicsServer2D.BodyMode.BODY_MODE_STATIC)
+	PhysicsServer2D.body_set_collision_layer(wall_body, _wall_layer)
+	PhysicsServer2D.body_set_collision_mask(wall_body, 0xFFFF)
+
+	PhysicsServer2D.body_set_state(wall_body, PhysicsServer2D.BODY_STATE_TRANSFORM, Transform2D())
+	return wall_body
 
 func get_wall_shape(body: RID) -> Rect2:
 	var shape = PhysicsServer2D.body_get_shape(body, 0)
@@ -69,26 +74,60 @@ func get_transform(body: RID) -> Transform2D:
 	var transform = PhysicsServer2D.body_get_state(body, PhysicsServer2D.BodyState.BODY_STATE_TRANSFORM)
 	return transform
 
-func new_game():
+func new_game(physics_update: Signal) -> bool:
+	for body in _inner_wall_bodies:
+		var shape_count = PhysicsServer2D.body_get_shape_count(body)
+		for i in range(shape_count):
+			var shape_rid = PhysicsServer2D.body_get_shape(body, i)
+			PhysicsServer2D.free_rid(shape_rid)  # Free the shape RID
+
+		# Free the body RID
+		PhysicsServer2D.free_rid(body)
+
+	_inner_wall_bodies = []
+
 	_actions_taken = 0
-	var max_p = _map_radius - _hero._radius - _wall_thickness
+	var max_p = _map_radius
 	var p_hero = Vector2.ZERO
 	var p_target = Vector2.ZERO
+	var wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+	var inner_wall = _add_wall(wall_segment)
+	_inner_wall_bodies.append(inner_wall)
 
-	while p_hero.distance_to(p_target) < max_p / 2.0:
-		var r1 = randf_range(-max_p , max_p)
-		var r2 = randf_range(-max_p , max_p)
-		p_hero = Vector2(r1, r2)
+	var is_done = false
+	while !is_done:
+		await physics_update
+		p_hero = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+		var t_hero = Transform2D(0, p_hero)
 
-		var r3 = randf_range(-max_p , max_p)
-		var r4 = randf_range(-max_p , max_p)
-		p_target = Vector2(r3, r4)
+		var temp_hero_body = PhysicsServer2D.body_create()
+		var temp_hero_shape = PhysicsServer2D.circle_shape_create()
+		PhysicsServer2D.shape_set_data(temp_hero_shape, _hero._radius)
+		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
+		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_hero)
+		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
+
+		var direct_state = PhysicsServer2D.space_get_direct_state(_physics_space)
+		var query = PhysicsShapeQueryParameters2D.new()
+		query.shape_rid = temp_hero_shape
+		query.transform = t_hero
+		query.collision_mask = 0b1000
+		var result = direct_state.collide_shape(query, 1)
+
+		PhysicsServer2D.free_rid(temp_hero_shape)
+		PhysicsServer2D.free_rid(temp_hero_body)
+
+		if result.is_empty():
+			break
 
 	_hero.set_transform(p_hero, randf_range(-PI, PI))
 	_target.set_transform(p_target, 0)
+
 	_initial_hero_position = _hero._position
 	_prev_action = [0.0, 0.0]
 	_prev_observation = _get_hero_observation()
+
+	return true
 
 func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius * 2 + _target._radius
@@ -107,7 +146,7 @@ func apply_action(action_vector: Array[float], callback):
 	motion_query.motion = motion_vector
 	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform
-	motion_query.collision_mask = _hero_layer
+	motion_query.collision_mask = _wall_layer
 
 	var result = space_state.cast_motion(motion_query)
 	var motion_magnitude = result[0]
