@@ -12,7 +12,9 @@ var _map_radius: float:
 
 var _actions_taken = 0
 
-var _prev_action: Array[float] = [0.0, 0.0]
+var _prev_actions: Array[float] = []
+var _action_history_size = 12
+
 var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2
 
@@ -27,6 +29,7 @@ var _target_layer = 0b0010
 var _wall_layer   = 0b0100
 
 func _init():
+	_reset_prev_actions()
 	_setup_physics_server()
 
 func cleanup_simulation():
@@ -174,10 +177,16 @@ func new_game(physics_update: Signal) -> bool:
 	_target.set_transform(p_target, 0)
 
 	_initial_hero_position = p_hero
-	_prev_action = [0.0, 0.0]
+	_reset_prev_actions()
 	_prev_observation = _get_hero_observation()
 
 	return true
+
+func _reset_prev_actions():
+	_prev_actions = []
+	for i in range(_action_history_size):
+		_prev_actions.append(0.0)
+		_prev_actions.append(0.0)
 
 func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
@@ -199,7 +208,9 @@ func apply_action(action_vector: Array[float], callback):
 	var result = space_state.cast_motion(motion_query)
 	var motion_magnitude = result[0]
 
-	_prev_action = action_vector
+	_prev_actions.pop_front()
+	_prev_actions.pop_front()
+	_prev_actions += action_vector
 	_prev_observation = _get_hero_observation()
 
 	_actions_taken += 1
@@ -213,7 +224,7 @@ func get_game_state() -> Array[float]:
 	var current = _get_hero_observation()
 	if _prev_observation.size() != current.size():
 		_prev_observation = current
-	var state = current + _prev_observation + _prev_action
+	var state = current + _prev_observation + _prev_actions
 	return state
 
 func _get_hero_observation() -> Array[float]:
