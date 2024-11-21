@@ -20,6 +20,7 @@ func setup_simulations():
 	for i in range(env_delegate.get_simulation_count()):
 		_simulations.append(env_delegate.new_simulation())
 	await _reset_simulations()
+	env_delegate.display_simulation(_simulations[0])
 
 func _input(event):
 	var key_input = event as InputEventKey
@@ -35,8 +36,6 @@ func _input(event):
 			_is_testing = true
 			var _result = await _get_batch_from_playing_round([_simulations[0]], true)
 			_is_testing = false
-		KEY_N:
-			await _reset_simulations()
 		KEY_UP:
 			_setup_ai()
 		KEY_1: # Get and Apply action
@@ -58,12 +57,15 @@ func _input(event):
 func _reset_simulations() -> bool:
 	if _simulations.is_empty():
 		return false
-	for sim in _simulations:
-		await sim.new_game(get_tree().physics_frame)
 
-	await get_tree().physics_frame
+	var num_old_sims = _simulations.size()
+	_simulations = []
 
-	env_delegate.display_simulation(_simulations[0])
+	for i in range(num_old_sims):
+		var s = env_delegate.new_simulation()
+		await s.new_game(get_tree().physics_frame)
+		_simulations.append(s)
+
 	return true
 
 func _setup_ai():
@@ -83,6 +85,7 @@ func _setup_ai():
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
 	env_delegate.update_status(_loop_train_count, "playing: _reset_simulations")
 	await _reset_simulations()
+	env_delegate.display_simulation(simulations[0])
 	var batch_replay: Array[Replay] = []
 	var done_indecis = {}
 	var replay_history = {}
