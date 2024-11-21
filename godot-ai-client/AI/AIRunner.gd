@@ -107,6 +107,15 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var sim = simulations[simulation_index]
 			var action = actions[simulation_index]
 			sim.apply_action(action, null)
+
+		await get_tree().physics_frame
+
+		for simulation_index in range(simulations.size()):
+			if done_indecis.has(simulation_index):
+				continue
+
+			var sim = simulations[simulation_index]
+			var action = actions[simulation_index]
 			var state_ = sim.get_game_state()
 			var is_done = sim.is_game_complete()
 			var reward = sim.get_score()
@@ -121,7 +130,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 				continue
 
 		env_delegate.display_simulation(simulations[0])
-		await get_tree().physics_frame
 		await get_tree().physics_frame
 
 	for simulation_index in range(simulations.size()):

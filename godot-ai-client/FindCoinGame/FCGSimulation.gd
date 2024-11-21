@@ -255,7 +255,6 @@ func create_hindsight_replays(history: Array[Replay], physics_update_signal = nu
 		return hindsight_replays
 
 	await physics_update_signal
-	await physics_update_signal
 
 	var final_hero_position: Vector2 = _hero._position
 	var initial_hero_state: Array[float] = history[0].state
@@ -264,6 +263,7 @@ func create_hindsight_replays(history: Array[Replay], physics_update_signal = nu
 
 	_target.set_transform(final_hero_position, 0)
 	_hero.set_transform(initial_hero_position, initial_hero_rotation)
+	await physics_update_signal
 
 	if is_game_complete():
 		return hindsight_replays
@@ -272,7 +272,6 @@ func create_hindsight_replays(history: Array[Replay], physics_update_signal = nu
 		var state = get_game_state()
 		var action = replay.action
 		apply_action(action, null)
-		await physics_update_signal
 		await physics_update_signal
 
 		var reward = get_score()
