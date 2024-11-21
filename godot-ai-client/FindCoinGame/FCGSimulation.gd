@@ -30,6 +30,8 @@ func _init():
 	_setup_physics_server()
 
 func cleanup_simulation():
+	if _is_cleaned:
+		return
 	super.cleanup_simulation()
 	_free_all_objects()
 
@@ -47,7 +49,6 @@ func _free_all_objects():
 			PhysicsServer2D.free_rid(shape)
 		PhysicsServer2D.free_rid(wall)
 	PhysicsServer2D.free_rid(_physics_space)
-
 
 
 func _setup_physics_server():
