@@ -48,6 +48,8 @@ func _free_all_objects():
 		PhysicsServer2D.free_rid(wall)
 	PhysicsServer2D.free_rid(_physics_space)
 
+
+
 func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.space_set_active(_physics_space, true)

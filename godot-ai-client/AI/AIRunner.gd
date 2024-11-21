@@ -200,6 +200,7 @@ func _loop_train():
 		_loop_train()
 
 func _create_hindsight_replays_on_bg_thread(simulations: Array[BaseSimulation], done_indecis: Dictionary, replay_history: Dictionary):
+	return
 	if _hindsight_creation_thread or simulations.is_empty():
 		return
 
