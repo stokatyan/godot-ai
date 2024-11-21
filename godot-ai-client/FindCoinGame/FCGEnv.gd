@@ -76,7 +76,23 @@ func get_train_steps() -> int:
 	return 100
 
 func _draw_simulation(s: FCGSimulation):
-	## Target
+	# Hero Vision
+	var vision_angles = s._hero.get_vision_angles()
+	var game_state = s.get_game_state()
+	var h = s._hero
+	for i in range(vision_angles.size()):
+		var a = vision_angles[i]
+		var depth = game_state[i + 1] # first item is rotation
+		var direction = Vector2.from_angle(a)
+		draw_line(
+			h._position + direction * h._radius,
+			h._position + direction * depth * h.max_vision_distance + direction * h._radius,
+			Color.CADET_BLUE,
+			1,
+			true
+		)
+
+	# Target
 	draw_circle(
 		s._target._position,
 		s._target._radius,
@@ -86,7 +102,7 @@ func _draw_simulation(s: FCGSimulation):
 		true
 	)
 
-	## Hero
+	# Hero
 	draw_circle(
 		s._hero._position,
 		s._hero._radius,
@@ -96,22 +112,7 @@ func _draw_simulation(s: FCGSimulation):
 		true
 	)
 
-	## Hero Vision
-	var vision_angles = s._hero.get_vision_angles()
-	var game_state = s.get_game_state()
-	var h = s._hero
-	for i in range(vision_angles.size()):
-		var a = vision_angles[i]
-		var d = game_state[i + 1] # first item is rotation
-		draw_line(
-			h._position,
-			h._position + Vector2.from_angle(a) * d * h.max_vision_distance,
-			Color.CADET_BLUE,
-			1,
-			true
-		)
-
-	## Hero Orientation
+	# Hero Orientation
 	draw_line(
 		h._position,
 		h._position + Vector2.from_angle(h._rotation) * h._radius,
@@ -120,6 +121,7 @@ func _draw_simulation(s: FCGSimulation):
 		true
 	)
 
+	# Walls
 	for body in s._boundary_wall_bodies + s._inner_wall_bodies:
 		var shape_rect = s.get_wall_shape(body)
 		var p0 = shape_rect.position

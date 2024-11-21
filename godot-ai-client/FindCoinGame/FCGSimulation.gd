@@ -192,12 +192,12 @@ func _get_hero_observation() -> Array[float]:
 	]
 	var angles = _hero.get_vision_angles()
 	for a in angles:
-		var obs = _get_hero_target_observation(a, _hero.max_vision_distance)
+		var obs = _get_hero_layer_observation(a, _hero.max_vision_distance, _target_layer)
 		state.append(obs)
 
 	return state
 
-func _get_hero_target_observation(angle: float, max_distance: float) -> float:
+func _get_hero_layer_observation(angle: float, max_distance: float, layer: int) -> float:
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var origin_of_hero = hero_transform.origin
@@ -210,7 +210,7 @@ func _get_hero_target_observation(angle: float, max_distance: float) -> float:
 	motion_query.motion = Vector2.from_angle(angle) * max_distance
 	motion_query.shape_rid = _hero._physics_shape
 	motion_query.transform = hero_transform
-	motion_query.collision_mask = _target_layer
+	motion_query.collision_mask = layer
 
 	var result = space_state.cast_motion(motion_query)
 	return result[0]
