@@ -184,12 +184,6 @@ func _loop_train():
 	env_delegate.update_status(_loop_train_count, "training")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
 
-	var average_reward = 0.0
-	for replay in replays:
-		average_reward += replay.reward
-	average_reward /= float(replays.size())
-
-	print("Average Reward: " + str(average_reward))
 	_loop_train_count += 1
 
 	_is_loop_training = false

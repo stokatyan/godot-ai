@@ -53,7 +53,7 @@ func new_simulation() -> BaseSimulation:
 	return FCGSimulation.new() as FCGSimulation
 
 func get_simulation_count() -> int:
-	return 15
+	return 50
 
 func get_steps_in_round() -> int:
 	return 40
@@ -66,7 +66,7 @@ func get_action_dim() -> int:
 	return 2
 
 func get_batch_size() -> int:
-	return 256
+	return 500
 
 func get_num_actor_layers() -> int:
 	return 3
