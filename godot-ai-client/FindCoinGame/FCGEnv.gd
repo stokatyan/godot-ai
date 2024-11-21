@@ -34,14 +34,14 @@ func _handle_user_input(_key: Key):
 		apply_move = true
 		move_vector += Vector2.RIGHT
 
-	if apply_move and !_ai_runner._simulations.is_empty():
+	if apply_move and !_ai_runner._initial_simulations.is_empty():
 		var action: Array[float] = [move_vector.x, move_vector.y]
-		_ai_runner._simulations[0].apply_action(action, display_simulation)
+		_ai_runner._initial_simulations[0].apply_action(action, display_simulation)
 		await get_tree().physics_frame
 		await get_tree().physics_frame
-		if _ai_runner._simulations[0].is_game_complete():
-			await _ai_runner._simulations[0].new_game(get_tree().physics_frame)
-			display_simulation(_ai_runner._simulations[0])
+		if _ai_runner._initial_simulations[0].is_game_complete():
+			await _ai_runner._initial_simulations[0].new_game(get_tree().physics_frame)
+			display_simulation(_ai_runner._sim_initial_simulations[0])
 
 func display_simulation(s: BaseSimulation):
 	await get_tree().physics_frame

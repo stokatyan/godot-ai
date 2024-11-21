@@ -1,3 +1,4 @@
+import gzip
 import json
 import socket
 import traceback
@@ -28,6 +29,7 @@ try:
         data = connection.recv(1024)  # Receive data (1024 is buffer size)
         try:
             if data:
+                # decompressed_data = gzip.decompress(data)
                 message = data.decode('utf-8').strip()  # Strip removes any newlines
                 message_buffer += message
                 # Parse the received JSON

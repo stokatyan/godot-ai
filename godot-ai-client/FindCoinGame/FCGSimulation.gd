@@ -13,7 +13,7 @@ var _map_radius: float:
 var _actions_taken = 0
 
 var _prev_actions: Array[float] = []
-var _action_history_size = 12
+var _action_history_size = 6
 
 var _prev_observation: Array[float] = []
 var _initial_hero_position: Vector2

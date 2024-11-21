@@ -39,7 +39,33 @@ func _launch_python_ai_server():
 func _send_json(data: Dictionary):
 	_client.poll()
 	var json_string = JSON.stringify(data)
-	_client.put_data(json_string.to_utf8_buffer())
+	var utf8_buffer = json_string.to_utf8_buffer()
+
+	## Wrap StreamPeerTCP with StreamPeerGZIP
+	#var gzip = StreamPeerGZIP.new()
+	#var chunk_size = 1024 # 1 MB chunks
+	#var data_length = utf8_buffer.size()
+	#var offset = 0
+#
+	#gzip.start_compression(false, data_length * chunk_size)
+	#while offset < data_length:
+		#var end = min(offset + chunk_size, data_length)
+		#var chunk = utf8_buffer.slice(offset, end)
+#
+		#var put_error = gzip.put_data(chunk)
+		#if put_error != OK:
+			#print("Error while compressing chunk:", put_error)
+			#break
+		#offset = end
+#
+	#var error = gzip.finish()
+	#if error:
+		#pass
+	#var compressed_data = gzip.get_data(gzip.get_available_bytes())[1]
+	#var compressed_data_size = compressed_data.size()
+#
+	#_client.put_data(compressed_data)
+	_client.put_data(utf8_buffer)
 
 func _receive_json() -> Dictionary:
 	var response_buffer = ""
