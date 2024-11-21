@@ -46,6 +46,7 @@ func _handle_user_input(key: Key):
 func display_simulation(s: BaseSimulation):
 	await get_tree().physics_frame
 	await get_tree().physics_frame
+
 	sim_to_display = s
 	queue_redraw()
 
@@ -81,6 +82,8 @@ func get_train_steps() -> int:
 	return 100
 
 func _draw_simulation(s: FCGSimulation):
+	if s._is_cleaned:
+		return
 	# Hero Vision
 	var vision_angles = s._hero.get_vision_angles()
 	var game_state = s.get_game_state()

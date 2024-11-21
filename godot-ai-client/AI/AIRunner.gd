@@ -10,22 +10,21 @@ var _loop_train_count = 0
 var _is_loop_training = false
 var _is_testing = false
 
-var _simulations: Array[BaseSimulation] = []
-
 var _pending_hindsight_replays: Array[Replay] = []
 var _pending_hindsight_sim_to_display: BaseSimulation
+var _simulations_used_in_hindsight_creation = {}
 
 var _hindsight_creation_thread: Thread
+
+var _initial_simulations: Array[BaseSimulation] = []
 
 func _ready():
 	add_child(_ai_tcp)
 
 # Called when the node enters the scene tree for the first time.
 func setup_simulations():
-	for i in range(env_delegate.get_simulation_count()):
-		_simulations.append(env_delegate.new_simulation())
-	await _reset_simulations()
-	env_delegate.display_simulation(_simulations[0])
+	_initial_simulations = await _create_simulations()
+	env_delegate.display_simulation(_initial_simulations[0])
 
 func _input(event):
 	var key_input = event as InputEventKey
@@ -39,39 +38,49 @@ func _input(event):
 			if _is_loop_training or _is_testing:
 				return
 			_is_testing = true
-			var _result = await _get_batch_from_playing_round([_simulations[0]], true)
+			var simulations = await _create_simulations()
+			var _result = await _get_batch_from_playing_round([simulations[0]], true)
+			_cleanup_simulations(simulations)
 			_is_testing = false
 		KEY_UP:
 			_setup_ai()
 		KEY_1: # Get and Apply action
-			var current_state = _simulations[0].get_game_state()
+			if _initial_simulations.is_empty():
+				return
+			var current_state = _initial_simulations[0].get_game_state()
 			var start_time = Time.get_ticks_msec()
 			var action = await _ai_tcp.get_action(current_state)
 			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
-			_simulations[0].apply_action(action, env_delegate.display_simulation)
+			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
 			env_delegate.update_status(_loop_train_count, "playing")
-			var replays = await _get_batch_from_playing_round(_simulations, false)
+			var simulations = await _create_simulations()
+			var replays = await _get_batch_from_playing_round(simulations, false)
 			env_delegate.update_status(_loop_train_count, "submitting")
 			var _response = await _ai_tcp.submit_batch_replay(replays)
 			env_delegate.update_status(_loop_train_count, "done submitting")
+			_cleanup_simulations(simulations)
 		KEY_3: # Start training loop
 			_loop_train_count = 1
 			_loop_train()
 
-func _reset_simulations() -> bool:
-	if _simulations.is_empty():
-		return false
+func _create_simulations() -> Array[BaseSimulation]:
+	env_delegate.update_status(_loop_train_count, "playing: _creating_simulations")
 
-	var num_old_sims = _simulations.size()
-	_simulations = []
+	var simulations: Array[BaseSimulation] = []
 
-	for i in range(num_old_sims):
+	for i in range(env_delegate.get_simulation_count()):
 		var s = env_delegate.new_simulation()
 		await s.new_game(get_tree().physics_frame)
-		_simulations.append(s)
+		simulations.append(s)
 
-	return true
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
+	_cleanup_simulations(_initial_simulations)
+	_initial_simulations = []
+
+	return simulations
 
 func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
@@ -88,8 +97,6 @@ func _setup_ai():
 	_ai_tcp.load_agent(1)
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
-	env_delegate.update_status(_loop_train_count, "playing: _reset_simulations")
-	await _reset_simulations()
 	env_delegate.display_simulation(simulations[0])
 	var batch_replay: Array[Replay] = []
 	var done_indecis = {}
@@ -150,10 +157,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		var replays = replay_history[sim]
 		sim.rescore_history(replays)
 
+	batch_replay = _get_batch_replays_from_replay_map(replay_history)
 	if !deterministic:
 		_create_hindsight_replays_on_bg_thread(simulations, done_indecis, replay_history)
-
-	batch_replay = _get_batch_replays_from_replay_map(replay_history)
 
 	if deterministic:
 		var average_reward = 0
@@ -172,17 +178,18 @@ func _loop_train():
 	print("Epoch: " + str(_loop_train_count))
 	env_delegate.update_status(_loop_train_count, "playing")
 	_is_loop_training = true
-	var replays = await _get_batch_from_playing_round(_simulations, false)
+	var simulations = await _create_simulations()
+	var replays = await _get_batch_from_playing_round(simulations, false)
 	replays += _pending_hindsight_replays
+	print(str(_pending_hindsight_replays.size()) + "hindsight replays appended")
 	_pending_hindsight_replays = []
-	if _pending_hindsight_sim_to_display:
-		env_delegate.display_simulation(_pending_hindsight_sim_to_display)
 	print("Submitting ...")
 	env_delegate.update_status(_loop_train_count, "submitting")
 	var _response = await _ai_tcp.submit_batch_replay(replays)
 	print("Training ...")
 	env_delegate.update_status(_loop_train_count, "training")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
+	_cleanup_simulations(simulations)
 
 	_loop_train_count += 1
 
@@ -196,6 +203,8 @@ func _create_hindsight_replays_on_bg_thread(simulations: Array[BaseSimulation], 
 	if _hindsight_creation_thread or simulations.is_empty():
 		return
 
+	for sim in simulations:
+		_simulations_used_in_hindsight_creation[sim] = true
 	_hindsight_creation_thread = Thread.new()
 	_hindsight_creation_thread.start(_bg_thread_create_hindsight_replays.bind(simulations, done_indecis, replay_history))
 
@@ -216,14 +225,15 @@ func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], don
 	print("+++ Created hindsight replays in " + str(float(Time.get_ticks_msec() - start_time) / 1000.0) + "s")
 	print("++")
 
-	call_deferred("_set_pending_hindsight_replays", batch_replays, simulations[0])
+	call_deferred("_set_pending_hindsight_replays", batch_replays, simulations)
 
-
-func _set_pending_hindsight_replays(batch_replay: Array[Replay], sim_to_display: BaseSimulation):
+func _set_pending_hindsight_replays(batch_replay: Array[Replay], simulations: Array[BaseSimulation]):
 	_pending_hindsight_replays += batch_replay
-	_pending_hindsight_sim_to_display = sim_to_display
+	#_pending_hindsight_sim_to_display = simulations[0]
 	_hindsight_creation_thread.wait_to_finish()
 	_hindsight_creation_thread = null
+	_simulations_used_in_hindsight_creation = {}
+	_cleanup_simulations(simulations)
 
 func _get_batch_replays_from_replay_map(replay_history: Dictionary) -> Array[Replay]:
 	var batch_replay: Array[Replay] = []
@@ -232,3 +242,8 @@ func _get_batch_replays_from_replay_map(replay_history: Dictionary) -> Array[Rep
 		for replay in replays:
 			batch_replay.append(replay)
 	return batch_replay
+
+func _cleanup_simulations(simulations: Array[BaseSimulation]):
+	for sim in simulations:
+		if !_simulations_used_in_hindsight_creation.has(sim):
+			sim.cleanup_simulation()

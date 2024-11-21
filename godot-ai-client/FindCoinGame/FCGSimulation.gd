@@ -29,6 +29,25 @@ var _wall_layer   = 0b0100
 func _init():
 	_setup_physics_server()
 
+func cleanup_simulation():
+	super.cleanup_simulation()
+	_free_all_objects()
+
+func _free_all_objects():
+	PhysicsServer2D.free_rid(_hero._physics_shape)
+	PhysicsServer2D.free_rid(_hero._physics_body)
+	PhysicsServer2D.free_rid(_target._physics_shape)
+	PhysicsServer2D.free_rid(_target._physics_body)
+	for wall in _boundary_wall_bodies + _inner_wall_bodies:
+		var shape_count = PhysicsServer2D.body_get_shape_count(wall)
+		var range = range(shape_count)
+		range.reverse()
+		for index in range:
+			var shape = PhysicsServer2D.body_get_shape(wall, index)
+			PhysicsServer2D.free_rid(shape)
+		PhysicsServer2D.free_rid(wall)
+	PhysicsServer2D.free_rid(_physics_space)
+
 func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.space_set_active(_physics_space, true)

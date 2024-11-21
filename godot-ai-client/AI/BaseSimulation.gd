@@ -2,6 +2,8 @@ extends RefCounted
 
 class_name BaseSimulation
 
+var _is_cleaned = false
+
 func new_game(physics_update: Signal) -> bool:
 	await physics_update
 	return true
@@ -26,3 +28,6 @@ func create_hindsight_replays(history: Array[Replay], physics_update_signal = nu
 	if physics_update_signal:
 		await physics_update_signal
 	return hindsight_replays
+
+func cleanup_simulation():
+	_is_cleaned = true
