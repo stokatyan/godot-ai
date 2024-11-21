@@ -147,7 +147,7 @@ func new_game(physics_update: Signal) -> bool:
 	_hero.set_transform(p_hero, randf_range(-PI, PI))
 	_target.set_transform(p_target, 0)
 
-	_initial_hero_position = _hero._position
+	_initial_hero_position = p_hero
 	_prev_action = [0.0, 0.0]
 	_prev_observation = _get_hero_observation()
 

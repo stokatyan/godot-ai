@@ -19,7 +19,7 @@ func _ready():
 func setup_simulations():
 	for i in range(env_delegate.get_simulation_count()):
 		_simulations.append(env_delegate.new_simulation())
-	_reset_simulations()
+	await _reset_simulations()
 
 func _input(event):
 	var key_input = event as InputEventKey
@@ -36,7 +36,7 @@ func _input(event):
 			var _result = await _get_batch_from_playing_round([_simulations[0]], true)
 			_is_testing = false
 		KEY_N:
-			_reset_simulations()
+			await _reset_simulations()
 		KEY_UP:
 			_setup_ai()
 		KEY_1: # Get and Apply action
@@ -55,16 +55,16 @@ func _input(event):
 			_loop_train_count = 1
 			_loop_train()
 
-func _reset_simulations():
+func _reset_simulations() -> bool:
 	if _simulations.is_empty():
-		return
+		return false
 	for sim in _simulations:
 		await sim.new_game(get_tree().physics_frame)
 
 	await get_tree().physics_frame
-	await get_tree().physics_frame
 
 	env_delegate.display_simulation(_simulations[0])
+	return true
 
 func _setup_ai():
 	var result = _ai_tcp.attempt_connection_to_ai_server()
@@ -81,7 +81,8 @@ func _setup_ai():
 	_ai_tcp.load_agent(1)
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
-	_reset_simulations()
+	env_delegate.update_status(_loop_train_count, "playing: _reset_simulations")
+	await _reset_simulations()
 	var batch_replay: Array[Replay] = []
 	var done_indecis = {}
 	var replay_history = {}
@@ -98,7 +99,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var state = sim.get_game_state()
 			batch_state.append(state)
 
+		env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
 		var actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
+		env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
 
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
@@ -130,7 +133,10 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 				continue
 
 		env_delegate.display_simulation(simulations[0])
-		await get_tree().physics_frame
+
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await get_tree().physics_frame
 
 	for simulation_index in range(simulations.size()):
 		if done_indecis.has(simulation_index):
@@ -140,6 +146,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		sim.rescore_history(replays)
 
 	if !deterministic:
+		env_delegate.update_status(_loop_train_count, "playing: creating her ...")
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
 				continue
@@ -147,7 +154,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var replays = replay_history[sim]
 			var hindsight_replays = await sim.create_hindsight_replays(replays, get_tree().physics_frame)
 			replay_history[env_delegate.new_simulation()] = hindsight_replays
-			env_delegate.display_simulation(simulations[0])
+
+		env_delegate.display_simulation(simulations[0])
+		env_delegate.update_status(_loop_train_count, "playing: created her")
 
 	for r in replay_history.values():
 		var replays: Array = r
