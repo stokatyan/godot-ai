@@ -5,7 +5,7 @@ class_name FCGSimulation
 var _hero: FCGHero = FCGHero.new()
 var _target: FCGTarget = FCGTarget.new()
 
-var _map_size: float = 600
+var _map_size: float = 500
 var _map_radius: float:
 	get:
 		return _map_size/2
@@ -87,10 +87,14 @@ func new_game(physics_update: Signal) -> bool:
 	_inner_wall_bodies = []
 
 	_actions_taken = 0
-	var max_p = _map_radius
+	var max_p = _map_radius * 0.75
 	var p_hero = Vector2.ZERO
 	var p_target = Vector2.ZERO
 	var wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+
+	while wall_segment.position.distance_to(wall_segment.size) < max_p * 0.75:
+		wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+
 	var inner_wall = _add_wall(wall_segment)
 	_inner_wall_bodies.append(inner_wall)
 
@@ -121,7 +125,7 @@ func new_game(physics_update: Signal) -> bool:
 
 		var direct_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 		var query = PhysicsShapeQueryParameters2D.new()
-		query.margin = _wall_thickness * 2
+		query.margin = _hero._radius * 2
 		query.shape_rid = temp_hero_shape
 		query.transform = t_hero
 		query.collision_mask = _wall_layer | _target_layer
