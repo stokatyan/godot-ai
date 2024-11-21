@@ -100,22 +100,42 @@ func new_game(physics_update: Signal) -> bool:
 		p_hero = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
 		var t_hero = Transform2D(0, p_hero)
 
+		p_target = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+		var t_target = Transform2D(0, p_target)
+
 		var temp_hero_body = PhysicsServer2D.body_create()
 		var temp_hero_shape = PhysicsServer2D.circle_shape_create()
 		PhysicsServer2D.shape_set_data(temp_hero_shape, _hero._radius)
 		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
 		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_hero)
 		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
+		PhysicsServer2D.body_set_collision_layer(temp_hero_body, _hero_layer)
+
+		var temp_target_body = PhysicsServer2D.body_create()
+		var temp_target_shape = PhysicsServer2D.circle_shape_create()
+		PhysicsServer2D.shape_set_data(temp_target_shape, _target._radius)
+		PhysicsServer2D.body_add_shape(temp_target_body, temp_target_shape)
+		PhysicsServer2D.body_set_state(temp_target_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_target)
+		PhysicsServer2D.body_set_space(temp_target_body, _physics_space)
+		PhysicsServer2D.body_set_collision_layer(temp_target_body, _target_layer)
 
 		var direct_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 		var query = PhysicsShapeQueryParameters2D.new()
+		query.margin = _wall_thickness * 2
 		query.shape_rid = temp_hero_shape
 		query.transform = t_hero
-		query.collision_mask = _wall_layer
+		query.collision_mask = _wall_layer | _target_layer
 		var result = direct_state.collide_shape(query, 1)
+
+		query.shape_rid = temp_target_shape
+		query.transform = t_target
+		query.collision_mask = _wall_layer
+		result += direct_state.collide_shape(query, 1)
 
 		PhysicsServer2D.free_rid(temp_hero_shape)
 		PhysicsServer2D.free_rid(temp_hero_body)
+		PhysicsServer2D.free_rid(temp_target_shape)
+		PhysicsServer2D.free_rid(temp_target_body)
 
 		if result.is_empty():
 			break
