@@ -101,10 +101,14 @@ func new_game(physics_update: Signal) -> bool:
 	var is_done = false
 	while !is_done:
 		await physics_update
-		p_hero = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
-		var t_hero = Transform2D(0, p_hero)
 
-		p_target = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+		p_hero = Vector2.ZERO
+		p_target = Vector2.ZERO
+		while p_hero.distance_to(p_target) < _map_radius:
+			p_hero = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+			p_target = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+
+		var t_hero = Transform2D(0, p_hero)
 		var t_target = Transform2D(0, p_target)
 
 		var temp_hero_body = PhysicsServer2D.body_create()
