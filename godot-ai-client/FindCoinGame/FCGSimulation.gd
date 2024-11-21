@@ -154,7 +154,7 @@ func new_game(physics_update: Signal) -> bool:
 	return true
 
 func is_game_complete() -> bool:
-	return _hero._position.distance_to(_target._position) < _hero._radius * 2 + _target._radius
+	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
 func apply_action(action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
@@ -272,6 +272,7 @@ func create_hindsight_replays(history: Array[Replay], physics_update_signal = nu
 		var state = get_game_state()
 		var action = replay.action
 		apply_action(action, null)
+		await physics_update_signal
 		await physics_update_signal
 
 		var reward = get_score()

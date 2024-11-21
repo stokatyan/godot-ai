@@ -112,6 +112,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			sim.apply_action(action, null)
 
 		await get_tree().physics_frame
+		await get_tree().physics_frame
 
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
@@ -154,8 +155,8 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var replays = replay_history[sim]
 			var hindsight_replays = await sim.create_hindsight_replays(replays, get_tree().physics_frame)
 			replay_history[env_delegate.new_simulation()] = hindsight_replays
-
-		env_delegate.display_simulation(simulations[0])
+			if simulation_index == 0:
+				env_delegate.display_simulation(simulations[0])
 		env_delegate.update_status(_loop_train_count, "playing: created her")
 
 	for r in replay_history.values():
