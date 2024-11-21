@@ -42,9 +42,9 @@ func _free_all_objects():
 	PhysicsServer2D.free_rid(_target._physics_body)
 	for wall in _boundary_wall_bodies + _inner_wall_bodies:
 		var shape_count = PhysicsServer2D.body_get_shape_count(wall)
-		var range = range(shape_count)
-		range.reverse()
-		for index in range:
+		var range_of_count = range(shape_count)
+		range_of_count.reverse()
+		for index in range_of_count:
 			var shape = PhysicsServer2D.body_get_shape(wall, index)
 			PhysicsServer2D.free_rid(shape)
 		PhysicsServer2D.free_rid(wall)
@@ -187,8 +187,6 @@ func apply_action(action_vector: Array[float], callback):
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 
-	var origin_of_hero = hero_transform.origin
-
 	var motion_query = PhysicsShapeQueryParameters2D.new()
 	motion_query.collide_with_areas = false
 	motion_query.collide_with_bodies = true
@@ -239,7 +237,6 @@ func _get_hero_observation() -> Array[float]:
 func _get_hero_layer_observation(angle: float, max_distance: float, layer: int) -> float:
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
-	var origin_of_hero = hero_transform.origin
 
 	# Define the motion query
 	var motion_query = PhysicsShapeQueryParameters2D.new()
@@ -259,7 +256,7 @@ func get_score() -> float:
 		return 1.0
 	return -1.0
 
-func rescore_history(history: Array[Replay]):
+func rescore_history(_history: Array[Replay]):
 	return
 	#if history.is_empty():
 		#return

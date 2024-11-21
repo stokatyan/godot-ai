@@ -20,10 +20,10 @@ func get_game_state() -> Array[float]:
 func get_score() -> float:
 	return 0
 
-func rescore_history(history: Array[Replay]):
+func rescore_history(_history: Array[Replay]):
 	pass
 
-func create_hindsight_replays(history: Array[Replay], physics_update_signal = null) -> Array[Replay]:
+func create_hindsight_replays(_history: Array[Replay], physics_update_signal = null) -> Array[Replay]:
 	var hindsight_replays: Array[Replay] = []
 	if physics_update_signal:
 		await physics_update_signal

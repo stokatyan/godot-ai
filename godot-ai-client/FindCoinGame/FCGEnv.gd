@@ -17,7 +17,7 @@ func _input(event):
 	if keyboard_event and keyboard_event.is_pressed():
 		_handle_user_input(keyboard_event.keycode)
 
-func _handle_user_input(key: Key):
+func _handle_user_input(_key: Key):
 	var apply_move = false
 	var move_vector: Vector2 = Vector2.ZERO
 

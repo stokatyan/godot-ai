@@ -11,7 +11,6 @@ var _is_loop_training = false
 var _is_testing = false
 
 var _pending_hindsight_replays: Array[Replay] = []
-var _pending_hindsight_sim_to_display: BaseSimulation
 var _simulations_used_in_hindsight_creation = {}
 
 var _hindsight_creation_thread: Thread
@@ -229,7 +228,6 @@ func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], don
 
 func _set_pending_hindsight_replays(batch_replay: Array[Replay], simulations: Array[BaseSimulation]):
 	_pending_hindsight_replays += batch_replay
-	#_pending_hindsight_sim_to_display = simulations[0]
 	_hindsight_creation_thread.wait_to_finish()
 	_hindsight_creation_thread = null
 	_simulations_used_in_hindsight_creation = {}
