@@ -12,6 +12,8 @@ var _is_testing = false
 
 var _simulations: Array[BaseSimulation] = []
 
+var _pending_hindsight_replays: Array[Replay] = []
+
 func _ready():
 	add_child(_ai_tcp)
 
@@ -184,6 +186,7 @@ func _loop_train():
 	env_delegate.update_status(_loop_train_count, "playing")
 	_is_loop_training = true
 	var replays = await _get_batch_from_playing_round(_simulations, false)
+	replays += _pending_hindsight_replays
 	print("Submitting ...")
 	env_delegate.update_status(_loop_train_count, "submitting")
 	var _response = await _ai_tcp.submit_batch_replay(replays)
