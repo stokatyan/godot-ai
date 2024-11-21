@@ -21,6 +21,8 @@ func get_score() -> float:
 func rescore_history(history: Array[Replay]):
 	pass
 
-func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
+func create_hindsight_replays(history: Array[Replay], physics_update_signal = null) -> Array[Replay]:
 	var hindsight_replays: Array[Replay] = []
+	if physics_update_signal:
+		await physics_update_signal
 	return hindsight_replays

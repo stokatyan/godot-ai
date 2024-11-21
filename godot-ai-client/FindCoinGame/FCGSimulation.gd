@@ -249,17 +249,20 @@ func rescore_history(history: Array[Replay]):
 		#replay.reward *= action_confidence
 
 
-func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
+func create_hindsight_replays(history: Array[Replay], physics_update_signal = null) -> Array[Replay]:
 	var hindsight_replays: Array[Replay] = []
 	if history.size() < 2:
 		return hindsight_replays
 
+	await physics_update_signal
+	await physics_update_signal
+
 	var final_hero_position: Vector2 = _hero._position
 	var initial_hero_state: Array[float] = history[0].state
 	var initial_hero_position: Vector2 = _initial_hero_position
-	var initial_hero_rotation = initial_hero_state[0] * 2 * PI
+	var initial_hero_rotation = (initial_hero_state[0] + 1) * PI
 
-	_target._position = final_hero_position
+	_target.set_transform(final_hero_position, 0)
 	_hero.set_transform(initial_hero_position, initial_hero_rotation)
 
 	if is_game_complete():
@@ -269,6 +272,9 @@ func create_hindsight_replays(history: Array[Replay]) -> Array[Replay]:
 		var state = get_game_state()
 		var action = replay.action
 		apply_action(action, null)
+		await physics_update_signal
+		await physics_update_signal
+
 		var reward = get_score()
 		var is_done = is_game_complete()
 		var new_replay = Replay.new(state, action, reward, get_game_state(), is_done)

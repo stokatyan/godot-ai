@@ -127,11 +127,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 	for simulation_index in range(simulations.size()):
 		if done_indecis.has(simulation_index):
 			continue
-
 		var sim = simulations[simulation_index]
 		var replays = replay_history[sim]
 		sim.rescore_history(replays)
-
 
 	if !deterministic:
 		for simulation_index in range(simulations.size()):
@@ -139,8 +137,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 				continue
 			var sim = simulations[simulation_index]
 			var replays = replay_history[sim]
-			var hindsight_replays = sim.create_hindsight_replays(replays)
+			var hindsight_replays = await sim.create_hindsight_replays(replays, get_tree().physics_frame)
 			replay_history[env_delegate.new_simulation()] = hindsight_replays
+			env_delegate.display_simulation(simulations[0])
 
 	for r in replay_history.values():
 		var replays: Array = r
