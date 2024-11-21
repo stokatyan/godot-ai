@@ -82,11 +82,19 @@ func _draw_simulation(s: FCGSimulation):
 	var h = s._hero
 	for i in range(vision_angles.size()):
 		var a = vision_angles[i]
-		var depth = game_state[i + 1] # first item is rotation
+		var wall_depth = game_state[i + 1] # first item is rotation
+		var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
 		var direction = Vector2.from_angle(a)
 		draw_line(
 			h._position + direction * h._radius,
-			h._position + direction * depth * h.max_vision_distance + direction * h._radius,
+			h._position + direction * wall_depth * h.max_vision_distance + direction * h._radius,
+			Color.BURLYWOOD,
+			4,
+			true
+		)
+		draw_line(
+			h._position + direction * h._radius,
+			h._position + direction * target_depth * h.max_vision_distance + direction * h._radius,
 			Color.CADET_BLUE,
 			1,
 			true

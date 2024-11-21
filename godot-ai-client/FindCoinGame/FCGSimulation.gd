@@ -191,8 +191,15 @@ func _get_hero_observation() -> Array[float]:
 		(_hero._rotation / PI) - 1.0
 	]
 	var angles = _hero.get_vision_angles()
+	var angle_to_wall_distance = {}
+	for a in angles:
+		var obs = _get_hero_layer_observation(a, _hero.max_vision_distance, _wall_layer)
+		state.append(obs)
+		angle_to_wall_distance[a] = obs
 	for a in angles:
 		var obs = _get_hero_layer_observation(a, _hero.max_vision_distance, _target_layer)
+		if obs > angle_to_wall_distance[a]:
+			obs = 1
 		state.append(obs)
 
 	return state
