@@ -218,9 +218,9 @@ func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], don
 		hindsight_replays_history[sim] = hindsight_replays
 
 	var batch_replays = _get_batch_replays_from_replay_map(hindsight_replays_history)
-	print("___")
-	print("Created hindsight replays in " + str(float(Time.get_ticks_msec() - start_time) / 1000.0) + "s")
-	print("___")
+	print("++")
+	print("+++ Created hindsight replays in " + str(float(Time.get_ticks_msec() - start_time) / 1000.0) + "s")
+	print("++")
 
 	call_deferred("_set_pending_hindsight_replays", batch_replays)
 	return simulations[0]
