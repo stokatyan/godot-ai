@@ -55,10 +55,10 @@ func new_simulation() -> BaseSimulation:
 	return FCGSimulation.new() as FCGSimulation
 
 func get_simulation_count() -> int:
-	return 30
+	return 40
 
 func get_steps_in_round() -> int:
-	return 30
+	return 36
 
 func get_state_dim() -> int:
 	var example = _example_sim.get_game_state()
