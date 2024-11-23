@@ -180,7 +180,7 @@ func _loop_train():
 	var simulations = await _create_simulations()
 	var replays = await _get_batch_from_playing_round(simulations, false)
 	replays += _pending_hindsight_replays
-	print(str(_pending_hindsight_replays.size()) + "hindsight replays appended")
+	print("+ " + str(_pending_hindsight_replays.size()) + " hindsight replays appended")
 	_pending_hindsight_replays = []
 	print("Submitting ...")
 	env_delegate.update_status(_loop_train_count, "submitting")
@@ -209,7 +209,7 @@ func _create_hindsight_replays_on_bg_thread(simulations: Array[BaseSimulation], 
 
 func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], done_indecis: Dictionary, replay_history: Dictionary):
 	var start_time = Time.get_ticks_msec()
-	print("Creating hindsight replays ...")
+	print("+ Creating hindsight replays ...")
 	var hindsight_replays_history = {}
 	for simulation_index in range(simulations.size()):
 		if done_indecis.has(simulation_index):
