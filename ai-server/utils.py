@@ -149,3 +149,12 @@ def load_checkpoint(agent, step_count):
     agent.log_alpha = checkpoint['log_alpha_state_dict']
     
     print(f"Checkpoint loaded successfully from {load_path}")
+
+def write_policy(policy):
+    write_path = "checkpoints/policy.txt"
+    
+    with open(write_path, "w") as f:
+        for name, param in policy.named_parameters():
+            f.write(f"Layer: {name}\n")
+            f.write(f"Weights:\n{param.data.cpu().numpy()}\n")
+            f.write("\n")

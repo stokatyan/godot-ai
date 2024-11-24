@@ -272,3 +272,24 @@ func load_agent(step_count: int):
 
 	_is_communicating = false
 	return action
+
+func write_policy():
+	while _is_communicating:
+		await get_tree().create_timer(1).timeout
+
+	_is_communicating = true
+	var action: Array[float] = []
+
+	var data = {}
+	data[AICommands.new().command] = AICommands.new().write_policy
+
+	_send_json(data)
+
+	var response: Dictionary
+	while !response:
+		await get_tree().create_timer(0.1).timeout
+		_client.poll()
+		response = _receive_json()
+
+	_is_communicating = false
+	return action

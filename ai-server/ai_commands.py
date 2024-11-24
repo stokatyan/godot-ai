@@ -1,6 +1,6 @@
 import json
 from sac_torch import SAC_Agent as Agent
-from utils import MeanStdevFilter, Transition, make_checkpoint, load_checkpoint
+from utils import MeanStdevFilter, Transition, make_checkpoint, load_checkpoint, write_policy
 
 COMMAND = "command"
 GET_ACTION = "get_action"
@@ -9,6 +9,7 @@ SUBMIT_BATCH_REPLAY = "submit_batch_replay"
 TRAIN = "train"
 INIT = "init"
 LOAD = "load"
+WRITE_POLICY = "write_policy"
 
 agent = Agent(
     state_dim=6, 
@@ -19,6 +20,8 @@ agent = Agent(
 
 def respond_to_command(command_json):
     response = {}
+    
+    print(command_json)
 
     if command_json[COMMAND] == GET_ACTION:
         response = _get_action(command_json)
@@ -32,6 +35,8 @@ def respond_to_command(command_json):
         response = _init_agent(command_json)
     elif command_json[COMMAND] == LOAD:
         response = _load_agent(command_json)
+    elif command_json[COMMAND] == WRITE_POLICY:
+        response = _write_agent_policy_matrix(command_json)
     else:
         response = {}
 
@@ -143,5 +148,16 @@ def _load_agent(command_json):
     }
     
     print("Agent loaded")
+
+    return response
+
+def _write_agent_policy_matrix(command_json):
+    write_policy(agent.policy)
+    
+    response = {
+        "done": True
+    }
+    
+    print("Agent written to policy.txt file")
 
     return response

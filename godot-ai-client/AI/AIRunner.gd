@@ -62,6 +62,8 @@ func _input(event):
 		KEY_3: # Start training loop
 			_loop_train_count = 1
 			_loop_train()
+		KEY_O:
+			_ai_tcp.write_policy()
 
 func _create_simulations() -> Array[BaseSimulation]:
 	env_delegate.update_status(_loop_train_count, "playing: _creating_simulations")
