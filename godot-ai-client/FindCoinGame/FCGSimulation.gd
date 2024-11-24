@@ -240,6 +240,9 @@ func _get_hero_observation() -> Array[float]:
 			obs = 1
 		state.append(obs)
 
+	state.append(_hero._position.x)
+	state.append(_hero._position.y)
+
 	return state
 
 func _get_hero_layer_observation(angle: float, max_distance: float, layer: int) -> float:
