@@ -51,10 +51,9 @@ func _input(event):
 			var current_state = _initial_simulations[0].get_game_state()
 			var action: Array[float]
 			if _nn:
-				print("Using local Neural Net")
 				action = _nn.feed_forward(current_state)
+				action = action.slice(0, 2)
 			else:
-				print("Using server's Neural Net")
 				action = await _ai_tcp.get_action(current_state)
 			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch

@@ -18,7 +18,12 @@ func feed_forward(input: Array[float]) -> Array[float]:
 		var w = _weights[i]
 		var b = _biases[i]
 		output = _process_layer(output, w, b)
-	return output
+
+	var actions: Array[float] = []
+	for i in output[0]:
+		actions.append(output[0][i] as float)
+
+	return actions
 
 func _process_layer(input_matrix: Array, weights: Array, bias: Array) -> Array:
 	var output = _matmul(input_matrix, weights)  # Matrix multiplication
@@ -31,10 +36,10 @@ func _matmul(A: Array, B: Array) -> Array:
 	var result = []
 	for i in range(A.size()):
 		var row = []
-		for j in range(B[0].size()):
+		for j in range(B.size()):
 			var value = 0
 			for k in range(A[0].size()):
-				value += A[i][k] * B[k][j]
+				value += A[i][k] * B[j][k]
 			row.append(value)
 		result.append(row)
 	return result

@@ -26,6 +26,10 @@ func try_to_load_policy_data():
 		print("Policy File does not exist: ", _policy_path)
 
 func _set_policy_data(json_data: Dictionary):
+	_did_load_policy_data = false
+	_policy_weights.clear()
+	_policy_biases.clear()
+
 	var keys: Array[String] = []
 
 	for k in json_data.keys():
