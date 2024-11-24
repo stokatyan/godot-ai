@@ -240,8 +240,8 @@ func _get_hero_observation() -> Array[float]:
 			obs = 1
 		state.append(obs)
 
-	state.append(_hero._position.x)
-	state.append(_hero._position.y)
+	state.append(_hero._position.x / _map_radius)
+	state.append(_hero._position.y / _map_radius)
 
 	return state
 
