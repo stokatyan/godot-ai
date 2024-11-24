@@ -17,6 +17,8 @@ var _hindsight_creation_thread: Thread
 
 var _initial_simulations: Array[BaseSimulation] = []
 
+var _nn: NeuralNetwork
+
 func _ready():
 	add_child(_ai_tcp)
 
@@ -47,9 +49,13 @@ func _input(event):
 			if _initial_simulations.is_empty():
 				return
 			var current_state = _initial_simulations[0].get_game_state()
-			var start_time = Time.get_ticks_msec()
-			var action = await _ai_tcp.get_action(current_state)
-			var _time_elapsed = (Time.get_ticks_msec() - start_time) / 1000.0
+			var action: Array[float]
+			if _nn:
+				print("Using local Neural Net")
+				action = _nn.feed_forward(current_state)
+			else:
+				print("Using server's Neural Net")
+				action = await _ai_tcp.get_action(current_state)
 			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
 			env_delegate.update_status(_loop_train_count, "playing")
@@ -64,6 +70,15 @@ func _input(event):
 			_loop_train()
 		KEY_O:
 			_ai_tcp.write_policy()
+		KEY_N:
+			print("Loading nn ...")
+			var loader = PolicyLoader.new()
+			loader.try_to_load_policy_data()
+			if loader._did_load_policy_data:
+				_nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
+				print("Successfully loaded nn")
+			if !_nn:
+				print("Failed to load nn")
 
 func _create_simulations() -> Array[BaseSimulation]:
 	env_delegate.update_status(_loop_train_count, "playing: _creating_simulations")

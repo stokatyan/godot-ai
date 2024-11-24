@@ -158,6 +158,6 @@ def _write_agent_policy_matrix(command_json):
         "done": True
     }
     
-    print("Agent written to policy.txt file")
+    print("Agent's policy written to policy.json file")
 
     return response

@@ -10,6 +10,7 @@ from moviepy.editor import ImageSequenceClip
 from torch.distributions import constraints
 from torch.distributions.transforms import Transform
 from torch.nn.functional import softplus
+import json
 
 Transition = namedtuple('Transition', ('state', 'action', 'reward', 'nextstate', 'done'))
 
@@ -151,10 +152,16 @@ def load_checkpoint(agent, step_count):
     print(f"Checkpoint loaded successfully from {load_path}")
 
 def write_policy(policy):
-    write_path = "checkpoints/policy.txt"
+    write_path = "checkpoints/policy.json"
     
-    with open(write_path, "w") as f:
-        for name, param in policy.named_parameters():
-            f.write(f"Layer: {name}\n")
-            f.write(f"Weights:\n{param.data.cpu().numpy()}\n")
-            f.write("\n")
+    # Create a dictionary to store the weights
+    weights_dict = {}
+
+    # Extract weights and biases from the model
+    for name, param in policy.named_parameters():
+        # Convert tensor to CPU and then to a list for JSON serialization
+        weights_dict[name] = param.data.cpu().numpy().tolist()
+
+    # Save the weights to a JSON file
+    with open(write_path, "w") as json_file:
+        json.dump(weights_dict, json_file)
