@@ -17,7 +17,7 @@ var _hindsight_creation_thread: Thread
 
 var _initial_simulations: Array[BaseSimulation] = []
 
-var _nn: NeuralNetwork
+var _policy_agent: PolicyAgent
 
 func _ready():
 	add_child(_ai_tcp)
@@ -50,8 +50,8 @@ func _input(event):
 				return
 			var current_state = _initial_simulations[0].get_game_state()
 			var action: Array[float]
-			if _nn:
-				action = _nn.feed_forward(current_state)
+			if _policy_agent:
+				action = _policy_agent.get_action(current_state)
 				action = action.slice(0, 2)
 			else:
 				action = await _ai_tcp.get_action(current_state)
@@ -74,9 +74,10 @@ func _input(event):
 			var loader = PolicyLoader.new()
 			loader.try_to_load_policy_data()
 			if loader._did_load_policy_data:
-				_nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
+				var _nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
+				_policy_agent = PolicyAgent.new(_nn)
 				print("Successfully loaded nn")
-			if !_nn:
+			if !_policy_agent:
 				print("Failed to load nn")
 
 func _create_simulations() -> Array[BaseSimulation]:
