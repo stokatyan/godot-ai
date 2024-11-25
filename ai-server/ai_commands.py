@@ -21,8 +21,6 @@ agent = Agent(
 def respond_to_command(command_json):
     response = {}
     
-    print(command_json)
-
     if command_json[COMMAND] == GET_ACTION:
         response = _get_action(command_json)
     elif command_json[COMMAND] == GET_BATCH_ACTIONS:

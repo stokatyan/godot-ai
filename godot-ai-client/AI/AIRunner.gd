@@ -50,11 +50,13 @@ func _input(event):
 				return
 			var current_state = _initial_simulations[0].get_game_state()
 			var action: Array[float]
+			action = await _ai_tcp.get_action(current_state)
 			if _policy_agent:
-				action = _policy_agent.get_action(current_state)
+				print("pytorch action: " + str(action[0]) + ", " + str(action[1]))
+				action = _policy_agent.get_action(current_state, true)
 				action = action.slice(0, 2)
-			else:
-				action = await _ai_tcp.get_action(current_state)
+				print("godot-agent action: " + str(action[0]) + ", " + str(action[1]))
+
 			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
 			env_delegate.update_status(_loop_train_count, "playing")

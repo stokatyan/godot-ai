@@ -18,7 +18,7 @@ print("AI Server is waiting for a connection...")
 # Accept a connection
 connection, client_address = server_socket.accept()
 
-log_errors = True
+log_errors = False
 
 try:
     print(f"Connection from {client_address}")
