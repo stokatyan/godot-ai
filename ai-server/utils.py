@@ -153,7 +153,7 @@ def load_checkpoint(agent, step_count):
     return True
 
 def write_policy(policy):
-    write_path = "checkpoints/policy.json"
+    write_path = "AIServerCommFiles/policy.json"
     
     # Create a dictionary to store the weights
     weights_dict = {}

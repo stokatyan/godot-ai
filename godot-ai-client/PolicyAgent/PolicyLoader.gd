@@ -2,7 +2,7 @@ extends RefCounted
 
 class_name PolicyLoader
 
-var _policy_path = "res://checkpoints/policy.json"
+var _policy_path = "res://AIServerCommFiles/policy.json"
 
 var _did_load_policy_data = false
 

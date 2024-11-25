@@ -175,14 +175,18 @@ func submit_batch_replay(replays: Array[Replay]):
 	_is_communicating = true
 	var action: Array[float] = []
 
+	var batch_replays_path = "AIServerCommFiles/batch_replays.json"
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().submit_batch_replay
+	data["batch_replays_path"] = batch_replays_path
 
 	var replay_data = []
 	for replay in replays:
 		replay_data.append(replay.to_data())
 
-	data["batch_replays"] = replay_data
+	var replay_dictionary = {}
+	replay_dictionary["replays"] = replay_data
+	_save_dict_to_json(batch_replays_path, replay_dictionary)
 
 	_send_json(data)
 
@@ -292,3 +296,16 @@ func write_policy():
 
 	_is_communicating = false
 	return action
+
+func _save_dict_to_json(file_path: String, data: Dictionary) -> bool:
+	# Open the file for writing
+	var file := FileAccess.open(file_path, FileAccess.WRITE)
+	if file:
+		# Convert the dictionary to a JSON string
+		var json_string = JSON.stringify(data)
+		# Write the JSON string to the file
+		file.store_string(json_string)
+		file.close()
+		return true
+	else:
+		return false

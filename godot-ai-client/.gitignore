@@ -1,3 +1,8 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Ignore all contents of folders named "example_folder", located anywhere
+AIServerCommFiles/**
+# Do not ignore the folders themselves
+!AIServerCommFiles/

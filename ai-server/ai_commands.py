@@ -77,7 +77,21 @@ def _get_batch_actions(command_json):
     return response
 
 def _submit_batch_replay(command_json):
-    batch_replay = command_json["batch_replays"]
+    batch_replays_path = command_json["batch_replays_path"]
+    print(batch_replays_path)
+    
+    batch_replay_json = {}
+    try:
+        with open(batch_replays_path, 'r') as file:
+            batch_replay_json = json.load(file)  # Parse the JSON content
+    except FileNotFoundError:
+        print(f"[_submit_batch_replay] -> File not found: {batch_replays_path}")
+    except json.JSONDecodeError as e:
+        print(f"[_submit_batch_replay] -> Error decoding JSON: {e}")
+    
+    print("Decoded JSON")
+
+    batch_replay = batch_replay_json["replays"]
     
     for replay in batch_replay:
         state = replay["state"]
@@ -86,6 +100,8 @@ def _submit_batch_replay(command_json):
         state_ = replay["state_"]
         done = replay["done"]
         agent.replay_pool.push(Transition(state, action, reward, state_, done))
+    
+    print(f"Received {len(batch_replay)} replays")
     
     response = {
         "done": True
