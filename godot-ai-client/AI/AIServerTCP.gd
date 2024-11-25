@@ -132,16 +132,20 @@ func get_batch_actions(states_2d_array: Array, deterministic: bool) -> Array:
 
 	_is_communicating = true
 
+	var batch_state_path = "AIServerCommFiles/batch_state.json"
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().get_batch_actions
 	data["deterministic"] = deterministic
+	data["path"] = batch_state_path
 
 	var batch = []
 	for state in states_2d_array:
 		for s in state:
 			batch.append(snapped(s, rounding_precision))
 
-	data["batch_state"] = batch
+	var batch_state_dict = {}
+	batch_state_dict["batch_state"] = batch
+	_save_dict_to_json(batch_state_path, batch_state_dict)
 
 	_send_json(data)
 
@@ -178,7 +182,7 @@ func submit_batch_replay(replays: Array[Replay]):
 	var batch_replays_path = "AIServerCommFiles/batch_replays.json"
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().submit_batch_replay
-	data["batch_replays_path"] = batch_replays_path
+	data["path"] = batch_replays_path
 
 	var replay_data = []
 	for replay in replays:

@@ -55,9 +55,20 @@ def _get_action(command_json):
 
 def _get_batch_actions(command_json):
     deterministic = ["deterministic"]
-    batch = command_json["batch_state"]
+    batch_state_path = command_json["path"]
+    batch = []
     current_state = []
     batch_actions = []
+    
+    batch_state_json = {}
+    try:
+        with open(batch_state_path, 'r') as file:
+            batch_state_json = json.load(file)  # Parse the JSON content
+            batch = batch_state_json["batch_state"]
+    except FileNotFoundError:
+        print(f"[_submit_batch_replay] -> File not found: {batch_state_path}")
+    except json.JSONDecodeError as e:
+        print(f"[_submit_batch_replay] -> Error decoding JSON: {e}")
     
     for i in range(len(batch)):
         current_state.append(batch[i])
@@ -77,7 +88,7 @@ def _get_batch_actions(command_json):
     return response
 
 def _submit_batch_replay(command_json):
-    batch_replays_path = command_json["batch_replays_path"]
+    batch_replays_path = command_json["path"]
     print(batch_replays_path)
     
     batch_replay_json = {}
@@ -89,8 +100,6 @@ def _submit_batch_replay(command_json):
     except json.JSONDecodeError as e:
         print(f"[_submit_batch_replay] -> Error decoding JSON: {e}")
     
-    print("Decoded JSON")
-
     batch_replay = batch_replay_json["replays"]
     
     for replay in batch_replay:
