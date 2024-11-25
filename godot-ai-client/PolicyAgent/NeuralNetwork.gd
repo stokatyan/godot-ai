@@ -12,8 +12,6 @@ func _init(weights: Array, biases: Array):
 		push_error("Expected weights and biases to have same size.")
 
 func feed_forward(input: Array[float]) -> Array[float]:
-	print("--input--------")
-	print(input)
 	var output = [input]
 	var _weights_size = _weights.size()
 	for i in range(_weights.size()):
@@ -39,17 +37,38 @@ func _process_layer(input_matrix: Array, weights: Array, bias: Array, apply_acti
 	else:
 		return output
 
-func _matmul(A: Array, B: Array) -> Array:
+func _matmul(A: Array, B_: Array) -> Array:
+	var B = _transpose(B_)
+	# Validate matrix dimensions
+	if A.size() == 0 or B.size() == 0:
+		push_error("Matrix dimensions are invalid. A or B is empty.")
+		return []
+	if A[0].size() != B.size():
+		push_error("Matrix dimensions do not match for multiplication.")
+		return []
+
 	var result = []
-	for i in range(A.size()):
+	for i in range(A.size()):  # Rows of A
 		var row = []
-		for j in range(B.size()):
+		for j in range(B[0].size()):  # Columns of B
 			var value = 0
-			for k in range(A[0].size()):
-				value += A[i][k] * B[j][k]
+			for k in range(A[0].size()):  # Columns of A / Rows of B
+				value += A[i][k] * B[k][j]
 			row.append(value)
 		result.append(row)
 	return result
+
+func _transpose(B: Array) -> Array:
+	if B.size() == 0:
+		return []  # Handle empty input gracefully
+
+	var transposed = []
+	for j in range(B[0].size()):  # Iterate over columns of B
+		var row = []
+		for i in range(B.size()):  # Iterate over rows of B
+			row.append(B[i][j])  # Append the element at (i, j) to the transposed row
+		transposed.append(row)
+	return transposed
 
 func _relu(matrix: Array) -> Array:
 	var result = []
