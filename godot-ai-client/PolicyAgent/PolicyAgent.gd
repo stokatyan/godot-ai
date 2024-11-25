@@ -18,8 +18,6 @@ func _exp(value: float) -> float:
 # Forward function (replicates your PyTorch policy logic)
 func get_action(x: Array[float], is_deterministic: bool = false) -> Array[float]:
 	var mu_logstd = _nn.feed_forward(x)
-	print("----------")
-	print(mu_logstd)
 	var mu = mu_logstd.slice(0, mu_logstd.size() / 2)
 
 	if !is_deterministic:
