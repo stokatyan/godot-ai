@@ -52,10 +52,10 @@ func _input(event):
 			var action: Array[float]
 			action = await _ai_tcp.get_action(current_state)
 			if _policy_agent:
-				print("pytorch action: " + str(action[0]) + ", " + str(action[1]))
+				print("pytorch action     : " + str(action[0]) + ", " + str(action[1]))
 				action = _policy_agent.get_action(current_state, true)
 				action = action.slice(0, 2)
-				print("godot-agent action: " + str(action[0]) + ", " + str(action[1]))
+				print("godot-agent action : " + str(action[0]) + ", " + str(action[1]))
 
 			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch

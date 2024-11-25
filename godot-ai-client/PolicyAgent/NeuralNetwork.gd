@@ -12,12 +12,15 @@ func _init(weights: Array, biases: Array):
 		push_error("Expected weights and biases to have same size.")
 
 func feed_forward(input: Array[float]) -> Array[float]:
+	print("--input--------")
+	print(input)
 	var output = [input]
 	var _weights_size = _weights.size()
 	for i in range(_weights.size()):
 		var w = _weights[i]
 		var b = _biases[i]
-		output = _process_layer(output, w, b)
+		var apply_activation = i != _weights.size() - 1
+		output = _process_layer(output, w, b, apply_activation)
 
 	var actions: Array[float] = []
 	for i in output[0]:
@@ -25,12 +28,16 @@ func feed_forward(input: Array[float]) -> Array[float]:
 
 	return actions
 
-func _process_layer(input_matrix: Array, weights: Array, bias: Array) -> Array:
+func _process_layer(input_matrix: Array, weights: Array, bias: Array, apply_activation: bool) -> Array:
 	var output = _matmul(input_matrix, weights)  # Matrix multiplication
 	for i in range(output.size()):  # Add bias to each row
 		for j in range(output[i].size()):
 			output[i][j] += bias[j]
-	return _relu(output)  # Apply ReLU activation
+
+	if apply_activation:
+		return _relu(output)  # Apply ReLU activation
+	else:
+		return output
 
 func _matmul(A: Array, B: Array) -> Array:
 	var result = []

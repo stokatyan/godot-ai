@@ -40,6 +40,7 @@ class Policy(nn.Module):
 
     def forward(self, x, get_logprob=False):
         mu_logstd = self.network(x)
+        print(mu_logstd)
         mu, logstd = mu_logstd.chunk(2, dim=1)
         logstd = torch.clamp(logstd, -20, 2)
         std = logstd.exp()
