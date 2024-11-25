@@ -157,12 +157,13 @@ func get_batch_actions(states_2d_array: Array, deterministic: bool) -> Array:
 
 	_is_communicating = false
 
+	var actions_path = response["path"]
+	var batch_actions_dict = _get_dict_from_json(actions_path)
 	var batch_actions: Array[float] = []
-	for f in response["batch_actions"]:
+	for f in batch_actions_dict["actions"]:
 		batch_actions.append(f)
 
 	var action_size = batch_actions.size() / states_2d_array.size()
-
 	var actions: Array = []
 	for i in range(batch_actions.size()):
 		if i % action_size == 0:
@@ -313,3 +314,21 @@ func _save_dict_to_json(file_path: String, data: Dictionary) -> bool:
 		return true
 	else:
 		return false
+
+func _get_dict_from_json(file_path: String) -> Dictionary:
+	if FileAccess.file_exists(file_path):
+		var file = FileAccess.open(file_path, FileAccess.READ)
+		var json_string = file.get_as_text()
+		var json = JSON.new()
+		var error = json.parse(json_string)
+
+		if error == OK:
+			var json_data = json.data
+			if typeof(json_data) == TYPE_DICTIONARY:
+				return json_data
+			else:
+				push_error("Unexpected data when parsing json")
+	else:
+		push_error("JSON File does not exist: ", file_path)
+
+	return {}

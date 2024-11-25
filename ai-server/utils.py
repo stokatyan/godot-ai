@@ -166,3 +166,7 @@ def write_policy(policy):
     # Save the weights to a JSON file
     with open(write_path, "w") as json_file:
         json.dump(weights_dict, json_file)
+
+def write_to_file(write_path, dict):
+    with open(write_path, "w") as file:
+        json.dump(dict, file)

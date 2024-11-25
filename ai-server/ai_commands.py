@@ -1,6 +1,6 @@
 import json
 from sac_torch import SAC_Agent as Agent
-from utils import MeanStdevFilter, Transition, make_checkpoint, load_checkpoint, write_policy
+from utils import MeanStdevFilter, Transition, make_checkpoint, load_checkpoint, write_policy, write_to_file
 
 COMMAND = "command"
 GET_ACTION = "get_action"
@@ -81,8 +81,13 @@ def _get_batch_actions(command_json):
                     batch_actions.append(float(a))
             current_state = []
     
+    
+    actions_path = "AIServerCommFiles/batch_action.json"
+    batch_actions_data = {}
+    batch_actions_data["actions"] = batch_actions
+    write_to_file(actions_path, batch_actions_data)
     response = {
-        "batch_actions": batch_actions
+        "path": actions_path
     }
     
     return response
