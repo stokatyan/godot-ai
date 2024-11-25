@@ -21,8 +21,8 @@ func feed_forward(input: Array[float]) -> Array[float]:
 		output = _process_layer(output, w, b, apply_activation)
 
 	var actions: Array[float] = []
-	for i in output[0]:
-		actions.append(output[0][i] as float)
+	for value in output[0]:
+		actions.append(value as float)
 
 	return actions
 
