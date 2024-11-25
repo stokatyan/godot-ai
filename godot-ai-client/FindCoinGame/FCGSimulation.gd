@@ -13,9 +13,10 @@ var _map_radius: float:
 var _actions_taken = 0
 
 var _prev_actions: Array[float] = []
-var _action_history_size = 11
+var _action_history_size = 10
 
-var _prev_observation: Array[float] = []
+var _prev_observations: Array = []
+var _observation_history_size = 6
 var _initial_hero_position: Vector2
 
 var _wall_thickness: float = 5
@@ -168,7 +169,7 @@ func new_game(physics_update: Signal) -> bool:
 
 	_initial_hero_position = p_hero
 	_reset_prev_actions()
-	_prev_observation = _get_hero_observation()
+	_reset_prev_observations()
 
 	return true
 
@@ -177,6 +178,12 @@ func _reset_prev_actions():
 	for i in range(_action_history_size):
 		_prev_actions.append(0.0)
 		_prev_actions.append(0.0)
+
+func _reset_prev_observations():
+	var obs = _get_hero_observation()
+	_prev_observations = []
+	for i in range(_observation_history_size):
+		_prev_observations.append(obs)
 
 func is_game_complete() -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
@@ -201,7 +208,9 @@ func apply_action(action_vector: Array[float], callback):
 	_prev_actions.pop_front()
 	_prev_actions.pop_front()
 	_prev_actions += action_vector
-	_prev_observation = _get_hero_observation()
+
+	_prev_observations.pop_front()
+	_prev_observations.append(_get_hero_observation())
 
 	_actions_taken += 1
 
@@ -212,9 +221,13 @@ func apply_action(action_vector: Array[float], callback):
 
 func get_game_state() -> Array[float]:
 	var current = _get_hero_observation()
-	if _prev_observation.size() != current.size():
-		_prev_observation = current
-	var state = current + _prev_observation + _prev_actions
+	if _prev_observations.size() != _observation_history_size:
+		_reset_prev_observations()
+	var flattened_prev_observatations: Array[float]
+	for obs in _prev_observations:
+		flattened_prev_observatations += obs
+
+	var state = current + flattened_prev_observatations + _prev_actions
 	return state
 
 func _get_hero_observation() -> Array[float]:
