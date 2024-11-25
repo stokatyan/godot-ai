@@ -21,6 +21,7 @@ var _policy_agent: PolicyAgent
 
 func _ready():
 	add_child(_ai_tcp)
+	_try_to_load_policy_agent()
 
 # Called when the node enters the scene tree for the first time.
 func setup_simulations():
@@ -83,7 +84,6 @@ func _try_to_load_policy_agent():
 		print("Successfully loaded policy")
 	if !_policy_agent:
 		print("Failed to load policy")
-	print()
 
 func _create_simulations() -> Array[BaseSimulation]:
 	env_delegate.update_status(_loop_train_count, "playing: _creating_simulations")
@@ -137,8 +137,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			scores_before.append(score_before)
 			var state = sim.get_game_state()
 			batch_state.append(state)
-			#var action = _policy_agent.get_action(state, false)
-			#actions.append(action)
 
 		env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
 		actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
