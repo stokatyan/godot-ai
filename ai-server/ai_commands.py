@@ -89,7 +89,6 @@ def _get_batch_actions(command_json):
 
 def _submit_batch_replay(command_json):
     batch_replays_path = command_json["path"]
-    print(batch_replays_path)
     
     batch_replay_json = {}
     try:
