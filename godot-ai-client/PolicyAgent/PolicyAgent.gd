@@ -31,7 +31,7 @@ func get_action(x: Array[float], is_deterministic: bool = false) -> Array[float]
 		var std = logstd.map(_exp)
 
 		# Create a normal distribution (mean = mu, std = std)
-		var action = []
+		var action: Array[float] = []
 		for i in range(mu.size()):
 			action.append(mu[i] + randf() * std[i])  # Simplified rsample
 

@@ -255,7 +255,6 @@ func load_agent(step_count: int):
 		await get_tree().create_timer(2).timeout
 
 	_is_communicating = true
-	var action: Array[float] = []
 
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().load_agent
@@ -271,7 +270,7 @@ func load_agent(step_count: int):
 		response = _receive_json()
 
 	_is_communicating = false
-	return action
+	return response
 
 func write_policy():
 	while _is_communicating:

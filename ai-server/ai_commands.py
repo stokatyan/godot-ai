@@ -99,6 +99,7 @@ def _train(command_json):
     
     q1_loss, q2_loss, pi_loss, a_loss = agent.optimize(steps)
     
+    _write_agent_policy_matrix(command_json)
     if "checkpoint" in command_json:
         checkpoint = command_json["checkpoint"]
         make_checkpoint(agent, checkpoint)
@@ -139,7 +140,10 @@ def _init_agent(command_json):
     return response
 
 def _load_agent(command_json):
-    load_checkpoint(agent, command_json["step_count"])
+    did_load = load_checkpoint(agent, command_json["step_count"])
+    
+    if not did_load:
+        _write_agent_policy_matrix(command_json)
     
     response = {
         "done": True

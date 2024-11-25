@@ -50,13 +50,10 @@ func _input(event):
 				return
 			var current_state = _initial_simulations[0].get_game_state()
 			var action: Array[float]
-			action = await _ai_tcp.get_action(current_state)
 			if _policy_agent:
-				print("pytorch action     : " + str(action[0]) + ", " + str(action[1]))
-				var godot_action = _policy_agent.get_action(current_state, true)
-				print("godot-agent action : " + str(godot_action[0]) + ", " + str(godot_action[1]))
-				print()
-				action = godot_action
+				action = _policy_agent.get_action(current_state, true)
+			else:
+				action = await _ai_tcp.get_action(current_state)
 
 			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
@@ -73,15 +70,20 @@ func _input(event):
 		KEY_O:
 			_ai_tcp.write_policy()
 		KEY_N:
-			print("Loading nn ...")
-			var loader = PolicyLoader.new()
-			loader.try_to_load_policy_data()
-			if loader._did_load_policy_data:
-				var _nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
-				_policy_agent = PolicyAgent.new(_nn)
-				print("Successfully loaded nn")
-			if !_policy_agent:
-				print("Failed to load nn")
+			_try_to_load_policy_agent()
+
+func _try_to_load_policy_agent():
+	print()
+	print("Loading policy ...")
+	var loader = PolicyLoader.new()
+	loader.try_to_load_policy_data()
+	if loader._did_load_policy_data:
+		var _nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
+		_policy_agent = PolicyAgent.new(_nn)
+		print("Successfully loaded policy")
+	if !_policy_agent:
+		print("Failed to load policy")
+	print()
 
 func _create_simulations() -> Array[BaseSimulation]:
 	env_delegate.update_status(_loop_train_count, "playing: _creating_simulations")
@@ -114,6 +116,7 @@ func _setup_ai():
 	var hidden_size = env_delegate.get_hidden_size()
 	result = await _ai_tcp.init_agent(state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
 	_ai_tcp.load_agent(1)
+	_try_to_load_policy_agent()
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
 	env_delegate.display_simulation(simulations[0])
@@ -127,14 +130,18 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 	for step in range(env_delegate.get_steps_in_round()):
 		var scores_before: Array[float] = []
 		var batch_state: Array = []
+
+		var actions: Array = []
 		for sim in simulations:
 			var score_before = sim.get_score()
 			scores_before.append(score_before)
 			var state = sim.get_game_state()
 			batch_state.append(state)
+			#var action = _policy_agent.get_action(state, false)
+			#actions.append(action)
 
 		env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
-		var actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
+		actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
 		env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
 
 		for simulation_index in range(simulations.size()):
@@ -208,6 +215,7 @@ func _loop_train():
 	print("Training ...")
 	env_delegate.update_status(_loop_train_count, "training")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
+	_try_to_load_policy_agent()
 	_cleanup_simulations(simulations)
 
 	_loop_train_count += 1

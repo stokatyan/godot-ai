@@ -140,7 +140,7 @@ def load_checkpoint(agent, step_count):
 
     if not os.path.isfile(load_path):
         print("Checkpoint not loaded")
-        return
+        return False
 
     checkpoint = torch.load(load_path)
 
@@ -150,6 +150,7 @@ def load_checkpoint(agent, step_count):
     agent.log_alpha = checkpoint['log_alpha_state_dict']
     
     print(f"Checkpoint loaded successfully from {load_path}")
+    return True
 
 def write_policy(policy):
     write_path = "checkpoints/policy.json"
