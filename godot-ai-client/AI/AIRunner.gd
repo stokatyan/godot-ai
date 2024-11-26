@@ -213,7 +213,7 @@ func _loop_train():
 	print("Training ...")
 	env_delegate.update_status(_loop_train_count, "training")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
-	_try_to_load_policy_agent()
+	#_try_to_load_policy_agent()
 	_cleanup_simulations(simulations)
 
 	_loop_train_count += 1
