@@ -16,7 +16,7 @@ var _prev_actions: Array[float] = []
 var _action_history_size = 10
 
 var _prev_observations: Array = []
-var _observation_history_size = 6
+var _observation_history_size = 10
 var _initial_hero_position: Vector2
 
 var _wall_thickness: float = 5
