@@ -77,7 +77,7 @@ func get_num_critic_layers() -> int:
 	return 4
 
 func get_hidden_size() -> int:
-	return 200
+	return 100
 
 func get_train_steps() -> int:
 	return 100
