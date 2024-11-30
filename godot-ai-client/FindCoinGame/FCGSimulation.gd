@@ -308,6 +308,7 @@ func rescore_history(_history: Array[Replay]):
 
 func create_hindsight_replays(history: Array[Replay], physics_update_signal = null) -> Array[Replay]:
 	var hindsight_replays: Array[Replay] = []
+	return hindsight_replays
 	if history.size() < 2:
 		return hindsight_replays
 
