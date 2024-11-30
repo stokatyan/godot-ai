@@ -183,6 +183,9 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 	batch_replay = _get_batch_replays_from_replay_map(replay_history)
 	if !deterministic:
+		await get_tree().physics_frame
+		await get_tree().physics_frame
+		await get_tree().physics_frame
 		_create_hindsight_replays_on_bg_thread(simulations, done_indecis, replay_history)
 
 	if deterministic:
