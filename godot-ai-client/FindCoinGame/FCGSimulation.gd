@@ -185,10 +185,10 @@ func _reset_prev_observations():
 	for i in range(_observation_history_size):
 		_prev_observations.append(obs)
 
-func is_game_complete() -> bool:
+func is_game_complete(agent_index: int) -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
-func apply_action(action_vector: Array[float], callback):
+func apply_action(agent_index: int, action_vector: Array[float], callback):
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
@@ -219,8 +219,8 @@ func apply_action(action_vector: Array[float], callback):
 	if callback:
 		callback.call(self)
 
-func get_game_state() -> Array[float]:
-	var current = _get_hero_observation()
+func get_observation(agent_index: int) -> Array[float]:
+	var current = _get_current_observation(agent_index)
 	if _prev_observations.size() != _observation_history_size:
 		_reset_prev_observations()
 	var flattened_prev_observatations: Array[float]
@@ -230,7 +230,7 @@ func get_game_state() -> Array[float]:
 	var state = current + flattened_prev_observatations + _prev_actions
 	return state
 
-func _get_hero_observation() -> Array[float]:
+func _get_current_observation(agent_index: int) -> Array[float]:
 	var state: Array[float] = [
 		(_hero._rotation / PI) - 1.0
 	]
@@ -285,63 +285,10 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 	var result = direct_state.collide_shape(query, 1)
 	return result
 
-func get_score() -> float:
-	if is_game_complete():
+func get_score(agent_index: int) -> float:
+	if is_game_complete(agent_index):
 		return 1.0
 	return -1.0
-
-func rescore_history(_history: Array[Replay]):
-	return
-	#if history.is_empty():
-		#return
-	#var final_reward = history[history.size() - 1].reward
-	#var did_complete = history[history.size() - 1].done
-#
-	#var history_size: float = float(history.size())
-	#var index: float = 0.0
-	#for replay in history:
-		#index += 1.0
-		#var action_confidence = replay.action[1]
-		#replay.reward = final_reward * (index / history_size) - history_size * 0.01
-		#replay.reward *= action_confidence
-
-
-func create_hindsight_replays(history: Array[Replay], physics_update_signal = null) -> Array[Replay]:
-	var hindsight_replays: Array[Replay] = []
-	return hindsight_replays
-	if history.size() < 2:
-		return hindsight_replays
-
-	await physics_update_signal
-
-	var final_hero_position: Vector2 = _hero._position
-	var initial_hero_state: Array[float] = history[0].state
-	var initial_hero_position: Vector2 = _initial_hero_position
-	var initial_hero_rotation = (initial_hero_state[0] + 1) * PI
-
-	_target.set_transform(final_hero_position, 0)
-	_hero.set_transform(initial_hero_position, initial_hero_rotation)
-	await physics_update_signal
-
-	if is_game_complete():
-		return hindsight_replays
-
-	for replay in history:
-		var state = get_game_state()
-		var action = replay.action
-		apply_action(action, null)
-		await physics_update_signal
-		await physics_update_signal
-
-		var reward = get_score()
-		var is_done = is_game_complete()
-		var new_replay = Replay.new(state, action, reward, get_game_state(), is_done)
-		hindsight_replays.append(new_replay)
-		if is_done:
-			rescore_history(hindsight_replays)
-			break
-
-	return hindsight_replays
 
 ## Check if p2 will overlap the line from p1 to p3
 func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):

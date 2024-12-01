@@ -60,26 +60,26 @@ func get_simulation_count() -> int:
 func get_steps_in_round() -> int:
 	return 36
 
-func get_state_dim() -> int:
+func get_state_dim(agent_name: String) -> int:
 	var example = _example_sim.get_game_state()
 	return example.size()
 
-func get_action_dim() -> int:
+func get_action_dim(agent_name: String) -> int:
 	return 2
 
-func get_batch_size() -> int:
+func get_batch_size(agent_name: String) -> int:
 	return 500
 
-func get_num_actor_layers() -> int:
+func get_num_actor_layers(agent_name: String) -> int:
 	return 3
 
-func get_num_critic_layers() -> int:
+func get_num_critic_layers(agent_name: String) -> int:
 	return 4
 
-func get_hidden_size() -> int:
+func get_hidden_size(agent_name: String) -> int:
 	return 200
 
-func get_train_steps() -> int:
+func get_train_steps(agent_name: String) -> int:
 	return 100
 
 func _draw_simulation(s: FCGSimulation):
