@@ -11,6 +11,7 @@ INIT = "init"
 LOAD = "load"
 WRITE_POLICY = "write_policy"
 
+agents = {}
 agent = Agent(
     state_dim=6, 
     action_dim=2,

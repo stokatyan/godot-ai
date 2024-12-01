@@ -23,11 +23,6 @@ window/size/initial_position_type=3
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
-[physics]
-
-common/physics_ticks_per_second=600
-common/max_physics_steps_per_frame=80
-
 [rendering]
 
 renderer/rendering_method="mobile"

@@ -42,6 +42,10 @@ func _input(event):
 			_is_testing = true
 			var simulations = await _create_simulations()
 			var _result = await _get_batch_from_playing_round([simulations[0]], true)
+			await get_tree().physics_frame
+			await get_tree().physics_frame
+			await get_tree().physics_frame
+			await get_tree().physics_frame
 			_cleanup_simulations(simulations)
 			_is_testing = false
 		KEY_UP:
@@ -138,9 +142,12 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			var state = sim.get_game_state()
 			batch_state.append(state)
 
-		env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
-		actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
-		env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
+		if deterministic and _policy_agent and simulations.size() == 1:
+			actions = [_policy_agent.get_action(batch_state[0], true)]
+		else:
+			env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
+			actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
+			env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
 
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
