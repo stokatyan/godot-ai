@@ -12,12 +12,6 @@ LOAD = "load"
 WRITE_POLICY = "write_policy"
 
 agents = {}
-# agent = Agent(
-#     state_dim=6, 
-#     action_dim=2,
-#     batchsize=500,
-#     hidden_size=50
-# )
 
 def respond_to_command(command_json):
     response = {}
@@ -45,6 +39,8 @@ def respond_to_command(command_json):
 
 def _get_action(command_json):
     state = command_json["state"]
+    agent_name = command_json["file_name"]
+    agent = agents[agent_name]
     
     action = agent.get_action(state, deterministic=True)
 
