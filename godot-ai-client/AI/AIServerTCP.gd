@@ -65,7 +65,7 @@ func _receive_json() -> Dictionary:
 
 	return response
 
-func get_action(state: Array[float]) -> Array[float]:
+func get_action(state: Array[float], file_name: String) -> Array[float]:
 	while _is_communicating:
 		await get_tree().create_timer(0.05).timeout
 
@@ -78,6 +78,7 @@ func get_action(state: Array[float]) -> Array[float]:
 	for val in state:
 		snapped_state.append(snapped(val, rounding_precision))
 	data["state"] = snapped_state
+	data["file_name"] = file_name
 
 	_send_json(data)
 
@@ -100,9 +101,7 @@ func get_action(state: Array[float]) -> Array[float]:
 
 	return action
 
-# input  : [state0, state1, ..., stateN]
-# returns: [action0, action1, ..., actionN]
-func get_batch_actions(states_2d_array: Array, deterministic: bool) -> Array:
+func get_batch_actions(agent_to_states_map: Dictionary, deterministic_map: Dictionary) -> Dictionary:
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -111,16 +110,20 @@ func get_batch_actions(states_2d_array: Array, deterministic: bool) -> Array:
 	var batch_state_path = "AIServerCommFiles/batch_state.json"
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().get_batch_actions
-	data["deterministic"] = deterministic
+	data["deterministic_map"] = deterministic_map
 	data["path"] = batch_state_path
 
-	var batch = []
-	for state in states_2d_array:
-		for s in state:
-			batch.append(snapped(s, rounding_precision))
+	var agent_to_consumable_batch_states = {}
+	for agent_name in agent_to_states_map.keys():
+		var states_2d_array: Array = agent_to_states_map[agent_name]
+		var batch = []
+		for state in states_2d_array:
+			for s in state:
+				batch.append(snapped(s, rounding_precision))
+		agent_to_consumable_batch_states[agent_name] = batch
 
 	var batch_state_dict = {}
-	batch_state_dict["batch_state"] = batch
+	batch_state_dict["batch_state"] = agent_to_consumable_batch_states
 	_save_dict_to_json(batch_state_path, batch_state_dict)
 
 	_send_json(data)
@@ -135,19 +138,23 @@ func get_batch_actions(states_2d_array: Array, deterministic: bool) -> Array:
 
 	var actions_path = response["path"]
 	var batch_actions_dict = _get_dict_from_json(actions_path)
-	var batch_actions: Array[float] = []
-	for f in batch_actions_dict["actions"]:
-		batch_actions.append(f)
+	var batch_actions_map = {}
 
-	var action_size = batch_actions.size() / states_2d_array.size()
-	var actions: Array = []
-	for i in range(batch_actions.size()):
-		if i % action_size == 0:
-			var arr: Array[float] = []
-			actions.append(arr)
-		actions[actions.size() - 1].append(batch_actions[i])
+	for agent_name in batch_actions_dict.keys():
+		var batch_actions: Array[float] = []
+		for float_value in batch_actions_dict[agent_name]:
+			batch_actions.append(float_value)
 
-	return actions
+		var action_size = batch_actions.size() / agent_to_states_map[agent_name].size()
+		var actions: Array = []
+		for i in range(batch_actions.size()):
+			if i % action_size == 0:
+				var arr: Array[float] = []
+				actions.append(arr)
+			actions[actions.size() - 1].append(batch_actions[i])
+		batch_actions_map[agent_name] = actions
+
+	return batch_actions_map
 
 func submit_batch_replay(replays: Array[Replay]):
 	while _is_communicating:
@@ -163,7 +170,11 @@ func submit_batch_replay(replays: Array[Replay]):
 
 	var replay_data = []
 	for replay in replays:
-		replay_data.append(replay.to_data())
+		var d = replay.to_data()
+		if d.has("agent_name"):
+			replay_data.append(d)
+		else:
+			push_error("Expected replay to have corresponding agent's name.")
 
 	var replay_dictionary = {}
 	replay_dictionary["replays"] = replay_data

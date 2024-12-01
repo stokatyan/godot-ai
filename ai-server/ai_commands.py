@@ -51,7 +51,7 @@ def _get_action(command_json):
     return response
 
 def _get_batch_actions(command_json):    
-    deterministic = ["deterministic"]
+    deterministic_map = ["deterministic_map"]
     batch_state_path = command_json["path"]
     batch = []
     current_state = []
@@ -70,6 +70,7 @@ def _get_batch_actions(command_json):
     for name in batch_state_json["batch_state"]:
         batch = batch_state_json[name]
         agent = agents[name]
+        deterministic = name in deterministic_map and deterministic_map[name]
         for i in range(len(batch)):
             current_state.append(batch[i])
             if len(current_state) == agent.state_dim:
