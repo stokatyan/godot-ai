@@ -17,11 +17,11 @@ var _hindsight_creation_thread: Thread
 
 var _initial_simulations: Array[BaseSimulation] = []
 
-var _policy_agent: PolicyAgent
+var _policy_agents: Array[PolicyAgent]
 
 func _ready():
 	add_child(_ai_tcp)
-	_try_to_load_policy_agent()
+	_try_to_load_policy_agents()
 
 # Called when the node enters the scene tree for the first time.
 func setup_simulations():
@@ -41,30 +41,14 @@ func _input(event):
 				return
 			_is_testing = true
 			var simulations = await _create_simulations()
-			var _result = await _get_batch_from_playing_round([simulations[0]], true)
-			await get_tree().physics_frame
-			await get_tree().physics_frame
-			await get_tree().physics_frame
-			await get_tree().physics_frame
-			_cleanup_simulations(simulations)
+
 			_is_testing = false
 		KEY_UP:
 			_setup_ai()
-		KEY_1: # Get and Apply action
-			if _initial_simulations.is_empty():
-				return
-			var current_state = _initial_simulations[0].get_game_state()
-			var action: Array[float]
-			if _policy_agent:
-				action = _policy_agent.get_action(current_state, true)
-			else:
-				action = await _ai_tcp.get_action(env_delegate.get_agent_names()[0], current_state)
-
-			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
 			env_delegate.update_status(_loop_train_count, "playing")
 			var simulations = await _create_simulations()
-			var replays = await _get_batch_from_playing_round(simulations, false)
+			var replays = await _get_batch_from_playing_round(simulations, {})
 			env_delegate.update_status(_loop_train_count, "submitting")
 			var _response = await _ai_tcp.submit_batch_replay(replays)
 			env_delegate.update_status(_loop_train_count, "done submitting")
@@ -74,20 +58,21 @@ func _input(event):
 			_loop_train()
 		KEY_O:
 			_ai_tcp.write_policy(env_delegate.get_agent_names()[0])
-		KEY_N:
-			_try_to_load_policy_agent()
 
-func _try_to_load_policy_agent():
+func _try_to_load_policy_agents():
 	print()
 	print("Loading policy ...")
-	var loader = PolicyLoader.new()
-	loader.try_to_load_policy_data()
-	if loader._did_load_policy_data:
-		var _nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
-		_policy_agent = PolicyAgent.new(_nn)
-		print("Successfully loaded policy")
-	if !_policy_agent:
-		print("Failed to load policy")
+	for agent_name in env_delegate.get_agent_names():
+		var loader = PolicyLoader.new()
+		loader.try_to_load_policy_data(agent_name)
+		if loader._did_load_policy_data:
+			var _nn = NeuralNetwork.new(loader._policy_weights, loader._policy_biases)
+			var _policy_agent = PolicyAgent.new(_nn)
+
+			if !_policy_agent:
+				print("Failed to load policy")
+			else:
+				print("Successfully loaded policy")
 
 func _create_simulations() -> Array[BaseSimulation]:
 	env_delegate.update_status(_loop_train_count, "playing: _creating_simulations")
@@ -121,9 +106,9 @@ func _setup_ai():
 		var hidden_size = env_delegate.get_hidden_size(agent_name)
 		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
 		_ai_tcp.load_agent(agent_name)
-	_try_to_load_policy_agent()
+	_try_to_load_policy_agents()
 
-func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:
+func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:
 	env_delegate.display_simulation(simulations[0])
 	var batch_replay: Array[Replay] = []
 	var done_indecis = {}
@@ -134,29 +119,39 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 	for step in range(env_delegate.get_steps_in_round()):
 		var scores_before: Array[float] = []
-		var batch_state: Array = []
 
-		var actions: Array = []
+		var agent_to_move_index = {}
+		var agent_to_states_map = {}
 		for sim in simulations:
-			var score_before = sim.get_score()
-			scores_before.append(score_before)
-			var state = sim.get_game_state()
-			batch_state.append(state)
+			for agent_index in sim.get_agent_indicis():
+				var agent_name = sim.get_agent_name(agent_index)
+				agent_to_move_index[agent_name] = 0
+				var score_before = sim.get_score(agent_index)
+				scores_before.append(score_before)
+				var state = sim.get_observation(agent_index)
+				var batch_state: Array = []
+				if agent_to_states_map.has(agent_name):
+					batch_state = agent_to_states_map[agent_name]
+				batch_state.append(state)
+				agent_to_states_map[agent_name] = batch_state
 
-		if deterministic and _policy_agent and simulations.size() == 1:
-			actions = [_policy_agent.get_action(batch_state[0], true)]
-		else:
-			env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
-			actions = await _ai_tcp.get_batch_actions(batch_state, deterministic)
-			env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
+		var actions_dictionary = {}
+		env_delegate.update_status(_loop_train_count, "playing: get_batch_actions ...")
+		actions_dictionary = await _ai_tcp.get_batch_actions(agent_to_states_map, deterministic_map)
+		env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
 
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
 				continue
 
 			var sim = simulations[simulation_index]
-			var action = actions[simulation_index]
-			sim.apply_action(action, null)
+
+			for agent_index in sim.get_agent_indicis():
+				var agent_name = sim.get_agent_name(agent_index)
+				var agent_move_index = agent_to_move_index[agent_name]
+				var action = actions_dictionary[agent_name][agent_move_index]
+				agent_to_move_index[agent_name] = agent_move_index + 1
+				sim.apply_action(agent_index, action, null)
 
 		await get_tree().physics_frame
 		await get_tree().physics_frame
@@ -182,26 +177,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 		env_delegate.display_simulation(simulations[0])
 
-	for simulation_index in range(simulations.size()):
-		if done_indecis.has(simulation_index):
-			continue
-		var sim = simulations[simulation_index]
-		var replays = replay_history[sim]
-		sim.rescore_history(replays)
-
 	batch_replay = _get_batch_replays_from_replay_map(replay_history)
-	if !deterministic:
-		await get_tree().physics_frame
-		await get_tree().physics_frame
-		await get_tree().physics_frame
-		_create_hindsight_replays_on_bg_thread(simulations, done_indecis, replay_history)
-
-	if deterministic:
-		var average_reward = 0
-		for replay in batch_replay:
-			average_reward += replay.reward
-		average_reward /= float(batch_replay.size())
-		print("Test Reward: " + str(average_reward))
 
 	return batch_replay
 
@@ -224,7 +200,6 @@ func _loop_train():
 	print("Training ...")
 	env_delegate.update_status(_loop_train_count, "training")
 	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
-	#_try_to_load_policy_agent()
 	_cleanup_simulations(simulations)
 
 	_loop_train_count += 1

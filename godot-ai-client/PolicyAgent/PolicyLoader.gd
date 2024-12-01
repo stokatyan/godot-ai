@@ -2,16 +2,18 @@ extends RefCounted
 
 class_name PolicyLoader
 
-var _policy_path = "res://AIServerCommFiles/policy.json"
-
 var _did_load_policy_data = false
 
 var _policy_weights: Array
 var _policy_biases: Array
 
-func try_to_load_policy_data():
-	if FileAccess.file_exists(_policy_path):
-		var file = FileAccess.open(_policy_path, FileAccess.READ)
+func get_policy_path(file_name: String) -> String:
+	return "res://AIServerCommFiles/" + file_name + ".json"
+
+func try_to_load_policy_data(file_name: String):
+	var policy_path = get_policy_path(file_name)
+	if FileAccess.file_exists(policy_path):
+		var file = FileAccess.open(policy_path, FileAccess.READ)
 		var json_string = file.get_as_text()
 		var json = JSON.new()
 		var error = json.parse(json_string)
@@ -23,7 +25,7 @@ func try_to_load_policy_data():
 			else:
 				print("Unexpected data when parsing json")
 	else:
-		print("Policy File does not exist: ", _policy_path)
+		print("Policy File does not exist: ", policy_path)
 
 func _set_policy_data(json_data: Dictionary):
 	_did_load_policy_data = false
