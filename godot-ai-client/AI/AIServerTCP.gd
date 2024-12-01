@@ -268,7 +268,7 @@ func load_agent(file_name: String):
 	_is_communicating = false
 	return response
 
-func write_policy():
+func write_policy(file_name: String):
 	while _is_communicating:
 		await get_tree().create_timer(1).timeout
 
@@ -277,6 +277,7 @@ func write_policy():
 
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().write_policy
+	data["file_name"] = file_name
 
 	_send_json(data)
 
