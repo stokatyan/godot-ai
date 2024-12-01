@@ -217,7 +217,7 @@ func train(steps: int, file_name: String, print_logs: bool):
 	_is_communicating = false
 	return action
 
-func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int):
+func init_agent(file_name: String, state_dim: int, action_dim: int, batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -227,6 +227,7 @@ func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: in
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().init_agent
 
+	data["file_name"] = file_name
 	data["state_dim"] = state_dim
 	data["action_dim"] = action_dim
 	data["batchsize"] = batchsize
@@ -245,7 +246,7 @@ func init_agent(state_dim: int, action_dim: int, batchsize: int, hidden_size: in
 	_is_communicating = false
 	return action
 
-func load_agent(step_count: int):
+func load_agent(file_name: String):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -254,7 +255,7 @@ func load_agent(step_count: int):
 	var data = {}
 	data[AICommands.new().command] = AICommands.new().load_agent
 
-	data["step_count"] = step_count
+	data["file_name"] = file_name
 
 	_send_json(data)
 
