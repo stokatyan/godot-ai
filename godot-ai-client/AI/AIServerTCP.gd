@@ -191,7 +191,7 @@ func submit_batch_replay(replays: Array[Replay]):
 	_is_communicating = false
 	return action
 
-func train(steps: int, make_checkpoint: bool, file_name: String, print_logs: bool):
+func train(steps: int, file_name: String, print_logs: bool):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -204,8 +204,7 @@ func train(steps: int, make_checkpoint: bool, file_name: String, print_logs: boo
 	data["print_logs"] = print_logs
 	data["steps"] = steps
 
-	if make_checkpoint:
-		data["file_name"] = file_name
+	data["file_name"] = file_name
 
 	_send_json(data)
 

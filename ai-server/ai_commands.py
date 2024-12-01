@@ -143,6 +143,7 @@ def _train(command_json):
     
     if print_logs:
         print("----- Training Report -----")
+        print(file_name)
         print(f'q1_loss : {q1_loss/float(steps)}')
         print(f'q2_loss : {q2_loss/float(steps)}')
         print(f'pi_loss : {pi_loss/float(steps)}')
