@@ -148,3 +148,6 @@ func _draw_simulation(s: FCGSimulation):
 func update_status(epoch: int, message: String):
 	epoch_label.text = str(epoch)
 	state_label.text = message
+
+func get_agent_names() -> Array[String]:
+	return _example_sim.get_agent_names()

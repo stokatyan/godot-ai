@@ -22,26 +22,30 @@ func get_steps_in_round() -> int:
 func get_simulation_count() -> int:
 	return 1
 
-func get_state_dim() -> int:
+func get_state_dim(agent_name: String) -> int:
 	return 0
 
-func get_action_dim() -> int:
+func get_action_dim(agent_name: String) -> int:
 	return 0
 
-func get_batch_size() -> int:
+func get_batch_size(agent_name: String) -> int:
 	return 0
 
-func get_num_actor_layers() -> int:
+func get_num_actor_layers(agent_name: String) -> int:
 	return 0
 
-func get_num_critic_layers() -> int:
+func get_num_critic_layers(agent_name: String) -> int:
 	return 0
 
-func get_hidden_size() -> int:
+func get_hidden_size(agent_name: String) -> int:
 	return 0
 
-func get_train_steps() -> int:
+func get_train_steps(agent_name: String) -> int:
 	return 0
 
 func update_status(_epoch: int, _message: String):
 	pass
+
+func get_agent_names() -> Array[String]:
+	var agent_names: Array[String] = []
+	return agent_names

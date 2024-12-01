@@ -31,3 +31,13 @@ func create_hindsight_replays(_history: Array[Replay], physics_update_signal = n
 
 func cleanup_simulation():
 	_is_cleaned = true
+
+func get_agent_names() -> Array[String]:
+	var agent_names = []
+	return agent_names
+
+func get_state_dim(agent_name: String) -> int:
+	return 0
+
+func get_action_dim(agent_name: String) -> int:
+	return 0

@@ -58,7 +58,7 @@ func _input(event):
 			if _policy_agent:
 				action = _policy_agent.get_action(current_state, true)
 			else:
-				action = await _ai_tcp.get_action(current_state)
+				action = await _ai_tcp.get_action(env_delegate.get_agent_names()[0], current_state)
 
 			_initial_simulations[0].apply_action(action, env_delegate.display_simulation)
 		KEY_2: # Get and Submit batch
@@ -73,7 +73,7 @@ func _input(event):
 			_loop_train_count = 1
 			_loop_train()
 		KEY_O:
-			_ai_tcp.write_policy()
+			_ai_tcp.write_policy(env_delegate.get_agent_names()[0])
 		KEY_N:
 			_try_to_load_policy_agent()
 
@@ -112,14 +112,15 @@ func _setup_ai():
 	if !result:
 		return
 
-	var state_dim = env_delegate.get_state_dim()
-	var action_dim = env_delegate.get_action_dim()
-	var batch_size = env_delegate.get_batch_size()
-	var num_actor_layers = env_delegate.get_num_actor_layers()
-	var num_critic_layers = env_delegate.get_num_critic_layers()
-	var hidden_size = env_delegate.get_hidden_size()
-	result = await _ai_tcp.init_agent(state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
-	_ai_tcp.load_agent(1)
+	for agent_name in env_delegate.get_agent_names():
+		var state_dim = env_delegate.get_state_dim(agent_name)
+		var action_dim = env_delegate.get_action_dim(agent_name)
+		var batch_size = env_delegate.get_batch_size(agent_name)
+		var num_actor_layers = env_delegate.get_num_actor_layers(agent_name)
+		var num_critic_layers = env_delegate.get_num_critic_layers(agent_name)
+		var hidden_size = env_delegate.get_hidden_size(agent_name)
+		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
+		_ai_tcp.load_agent(agent_name)
 	_try_to_load_policy_agent()
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic: bool) -> Array[Replay]:

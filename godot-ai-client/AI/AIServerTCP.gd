@@ -65,7 +65,7 @@ func _receive_json() -> Dictionary:
 
 	return response
 
-func get_action(state: Array[float], file_name: String) -> Array[float]:
+func get_action(file_name: String, state: Array[float]) -> Array[float]:
 	while _is_communicating:
 		await get_tree().create_timer(0.05).timeout
 
