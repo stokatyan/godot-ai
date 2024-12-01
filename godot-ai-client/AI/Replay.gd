@@ -7,6 +7,7 @@ var action: Array[float]
 var reward: float
 var state_: Array[float]
 var done: int
+var agent_name: String = ""
 
 var rounding_precision = 0.0001
 
@@ -37,5 +38,8 @@ func to_data() -> Dictionary:
 	data["reward"] = reward
 	data["state_"] = state_
 	data["done"] = done
+
+	if agent_name.length() > 0:
+		data["agent_name"] = agent_name
 
 	return data

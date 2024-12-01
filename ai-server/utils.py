@@ -117,10 +117,10 @@ class TanhTransform(Transform):
         return 2. * (math.log(2.) - x - softplus(-2. * x))
 
 
-def make_checkpoint(agent, step_count):
+def make_checkpoint(agent, file_name):
     q_funcs, target_q_funcs, policy, log_alpha = agent.q_funcs, agent.target_q_funcs, agent.policy, agent.log_alpha
     
-    save_path = "checkpoints/model-{}.pt".format(step_count)
+    save_path = f"checkpoints/{file_name}.pt"
 
     if not os.path.isdir('checkpoints'):
         os.makedirs('checkpoints')
@@ -134,13 +134,13 @@ def make_checkpoint(agent, step_count):
     
     print(f"checkpoint saved as: {save_path}")
 
-def load_checkpoint(agent, step_count):
+def load_checkpoint(agent, file_name):
     print("Current working directory:", os.getcwd())
-    load_path = "checkpoints/model-{}.pt".format(step_count)
+    load_path = f"checkpoints/{file_name}.pt"
 
     if not os.path.isfile(load_path):
         print("Checkpoint not loaded")
-        return False
+        return
 
     checkpoint = torch.load(load_path)
 
@@ -150,10 +150,10 @@ def load_checkpoint(agent, step_count):
     agent.log_alpha = checkpoint['log_alpha_state_dict']
     
     print(f"Checkpoint loaded successfully from {load_path}")
-    return True
+    return agent
 
-def write_policy(policy):
-    write_path = "AIServerCommFiles/policy.json"
+def write_policy(policy, file_name):
+    write_path = f"AIServerCommFiles/{file_name}_policy.json"
     
     # Create a dictionary to store the weights
     weights_dict = {}
@@ -166,6 +166,8 @@ def write_policy(policy):
     # Save the weights to a JSON file
     with open(write_path, "w") as json_file:
         json.dump(weights_dict, json_file)
+    
+    print(f"Agent's policy written to: {write_path}")
 
 def write_to_file(write_path, dict):
     with open(write_path, "w") as file:

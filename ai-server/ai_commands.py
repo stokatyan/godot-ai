@@ -12,12 +12,12 @@ LOAD = "load"
 WRITE_POLICY = "write_policy"
 
 agents = {}
-agent = Agent(
-    state_dim=6, 
-    action_dim=2,
-    batchsize=500,
-    hidden_size=50
-)
+# agent = Agent(
+#     state_dim=6, 
+#     action_dim=2,
+#     batchsize=500,
+#     hidden_size=50
+# )
 
 def respond_to_command(command_json):
     response = {}
@@ -54,7 +54,7 @@ def _get_action(command_json):
     
     return response
 
-def _get_batch_actions(command_json):
+def _get_batch_actions(command_json):    
     deterministic = ["deterministic"]
     batch_state_path = command_json["path"]
     batch = []
@@ -65,27 +65,29 @@ def _get_batch_actions(command_json):
     try:
         with open(batch_state_path, 'r') as file:
             batch_state_json = json.load(file)  # Parse the JSON content
-            batch = batch_state_json["batch_state"]
     except FileNotFoundError:
         print(f"[_submit_batch_replay] -> File not found: {batch_state_path}")
     except json.JSONDecodeError as e:
         print(f"[_submit_batch_replay] -> Error decoding JSON: {e}")
     
-    for i in range(len(batch)):
-        current_state.append(batch[i])
-        if len(current_state) == agent.state_dim:
-            action = agent.get_action(current_state, deterministic=deterministic)
-            if agent.action_dim == 1:
-                batch_actions.append(float(action))
-            else:
-                for a in action:
-                    batch_actions.append(float(a))
-            current_state = []
+    batch_actions_data = {}
+    for name in batch_state_json["batch_state"]:
+        batch = batch_state_json[name]
+        agent = agents[name]
+        for i in range(len(batch)):
+            current_state.append(batch[i])
+            if len(current_state) == agent.state_dim:
+                action = agent.get_action(current_state, deterministic=deterministic)
+                if agent.action_dim == 1:
+                    batch_actions.append(float(action))
+                else:
+                    for a in action:
+                        batch_actions.append(float(a))
+                current_state = []
+        batch_actions_data[name] = batch_actions
     
     
     actions_path = "AIServerCommFiles/batch_action.json"
-    batch_actions_data = {}
-    batch_actions_data["actions"] = batch_actions
     write_to_file(actions_path, batch_actions_data)
     response = {
         "path": actions_path
@@ -106,6 +108,7 @@ def _submit_batch_replay(command_json):
         print(f"[_submit_batch_replay] -> Error decoding JSON: {e}")
     
     batch_replay = batch_replay_json["replays"]
+    replay_counts = {}
     
     for replay in batch_replay:
         state = replay["state"]
@@ -113,9 +116,16 @@ def _submit_batch_replay(command_json):
         reward = replay["reward"]
         state_ = replay["state_"]
         done = replay["done"]
+        agent_name = replay["agent_name"]
+        agent = agents[agent_name]
         agent.replay_pool.push(Transition(state, action, reward, state_, done))
-    
-    print(f"Received {len(batch_replay)} replays")
+        if agent_name in replay_counts:
+            replay_counts[agent_name] += 1
+        else:
+            replay_counts[agent_name] = 1
+        
+    for name in replay_counts:
+        print(f"Received {replay_counts[name]} replays for {name}")
     
     response = {
         "done": True
@@ -126,13 +136,13 @@ def _submit_batch_replay(command_json):
 def _train(command_json):
     print_logs = command_json["print_logs"]
     steps = command_json["steps"]
+    file_name = command_json["file_name"]
+    agent = agents[file_name]
     
     q1_loss, q2_loss, pi_loss, a_loss = agent.optimize(steps)
     
     _write_agent_policy_matrix(command_json)
-    if "checkpoint" in command_json:
-        checkpoint = command_json["checkpoint"]
-        make_checkpoint(agent, checkpoint)
+    make_checkpoint(agent, file_name)
     
     if print_logs:
         print("----- Training Report -----")
@@ -149,8 +159,8 @@ def _train(command_json):
     return response
 
 def _init_agent(command_json):
-    global agent 
     try:
+        agent_name = command_json["file_name"]
         agent = Agent(
             state_dim=command_json["state_dim"], 
             action_dim=command_json["action_dim"],
@@ -159,9 +169,10 @@ def _init_agent(command_json):
             num_actor_layers=command_json["num_actor_layers"],
             num_critic_layers=command_json["num_critic_layers"]
         )
-        print("New Agent initialized")
+        agents[agent_name] = agent
+        print(f"Agent named {agent_name} initialized.")
     except Exception as e:
-        print(f"Failed to initialize agent: {e}")
+        print(f"Failed to initialize {agent_name}: {e}")
 
     response = {
         "done": True
@@ -170,26 +181,27 @@ def _init_agent(command_json):
     return response
 
 def _load_agent(command_json):
-    did_load = load_checkpoint(agent, command_json["step_count"])
+    agent_name = command_json["file_name"]
+    agent = load_checkpoint(agent, agent_name)
     
-    if not did_load:
-        _write_agent_policy_matrix(command_json)
+    if agent == None:
+        print(f"Agent named {agent_name} not loaded.")
+    else:
+        agents[agent_name] = agent
+        print(f"Agent named {agent_name} is loaded.")
     
     response = {
         "done": True
     }
-    
-    print("Agent loaded")
 
     return response
 
 def _write_agent_policy_matrix(command_json):
-    write_policy(agent.policy)
+    file_name = command_json["file_name"]
+    write_policy(agents[file_name], file_name)
     
     response = {
         "done": True
     }
-    
-    print("Agent's policy written to policy.json file")
 
     return response

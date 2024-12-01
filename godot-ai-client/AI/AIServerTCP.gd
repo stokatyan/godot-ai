@@ -41,30 +41,6 @@ func _send_json(data: Dictionary):
 	var json_string = JSON.stringify(data)
 	var utf8_buffer = json_string.to_utf8_buffer()
 
-	## Wrap StreamPeerTCP with StreamPeerGZIP
-	#var gzip = StreamPeerGZIP.new()
-	#var chunk_size = 1024 # 1 MB chunks
-	#var data_length = utf8_buffer.size()
-	#var offset = 0
-#
-	#gzip.start_compression(false, data_length * chunk_size)
-	#while offset < data_length:
-		#var end = min(offset + chunk_size, data_length)
-		#var chunk = utf8_buffer.slice(offset, end)
-#
-		#var put_error = gzip.put_data(chunk)
-		#if put_error != OK:
-			#print("Error while compressing chunk:", put_error)
-			#break
-		#offset = end
-#
-	#var error = gzip.finish()
-	#if error:
-		#pass
-	#var compressed_data = gzip.get_data(gzip.get_available_bytes())[1]
-	#var compressed_data_size = compressed_data.size()
-#
-	#_client.put_data(compressed_data)
 	_client.put_data(utf8_buffer)
 
 func _receive_json() -> Dictionary:
@@ -204,7 +180,7 @@ func submit_batch_replay(replays: Array[Replay]):
 	_is_communicating = false
 	return action
 
-func train(steps: int, make_checkpoint: bool, print_logs: bool):
+func train(steps: int, make_checkpoint: bool, file_name: String, print_logs: bool):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -218,7 +194,7 @@ func train(steps: int, make_checkpoint: bool, print_logs: bool):
 	data["steps"] = steps
 
 	if make_checkpoint:
-		data["checkpoint"] = 1
+		data["file_name"] = file_name
 
 	_send_json(data)
 
