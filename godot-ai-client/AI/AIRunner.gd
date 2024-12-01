@@ -118,8 +118,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		replay_history[s] = history
 
 	for step in range(env_delegate.get_steps_in_round()):
-		var scores_before: Array[float] = []
-
 		var agent_to_move_index = {}
 		var agent_to_states_map = {}
 		for sim in simulations:
@@ -127,7 +125,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 				var agent_name = sim.get_agent_name(agent_index)
 				agent_to_move_index[agent_name] = 0
 				var score_before = sim.get_score(agent_index)
-				scores_before.append(score_before)
 				var state = sim.get_observation(agent_index)
 				var batch_state: Array = []
 				if agent_to_states_map.has(agent_name):
@@ -149,31 +146,43 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			for agent_index in sim.get_agent_indicis():
 				var agent_name = sim.get_agent_name(agent_index)
 				var agent_move_index = agent_to_move_index[agent_name]
-				var action = actions_dictionary[agent_name][agent_move_index]
 				agent_to_move_index[agent_name] = agent_move_index + 1
+				var action = actions_dictionary[agent_name][agent_move_index]
 				sim.apply_action(agent_index, action, null)
 
 		await get_tree().physics_frame
 		await get_tree().physics_frame
+
+		for key in agent_to_move_index.keys():
+			agent_to_move_index[key] = 0
 
 		for simulation_index in range(simulations.size()):
 			if done_indecis.has(simulation_index):
 				continue
 
 			var sim = simulations[simulation_index]
-			var action = actions[simulation_index]
-			var state_ = sim.get_game_state()
-			var is_done = sim.is_game_complete()
-			var reward = sim.get_score()
-			var replay = Replay.new(batch_state[simulation_index], action, reward, state_, is_done)
 
-			replay_history[sim].append(replay)
+			for agent_index in sim.get_agent_indicis():
+				var agent_name = sim.get_agent_name(agent_index)
 
-			if is_done:
-				var replays = replay_history[sim]
-				sim.rescore_history(replays)
-				done_indecis[simulation_index] = true
-				continue
+				# Get the index of of the move
+				var agent_move_index = agent_to_move_index[agent_name]
+
+				# Create Replay
+				var state_ = sim.get_observation(agent_index)
+				var action = actions_dictionary[agent_name][agent_move_index]
+				var is_done = sim.is_game_complete(agent_index)
+				var reward = sim.get_score(agent_index)
+				var prev_state = agent_to_states_map[agent_name][agent_move_index]
+				var replay = Replay.new(prev_state, action, reward, state_, is_done)
+				replay_history[sim].append(replay)
+				agent_to_move_index[agent_name] = agent_move_index + 1
+
+				if is_done:
+					var replays = replay_history[sim]
+					sim.rescore_history(replays)
+					done_indecis[simulation_index] = true
+					continue
 
 		env_delegate.display_simulation(simulations[0])
 
@@ -190,7 +199,7 @@ func _loop_train():
 	env_delegate.update_status(_loop_train_count, "playing")
 	_is_loop_training = true
 	var simulations = await _create_simulations()
-	var replays = await _get_batch_from_playing_round(simulations, false)
+	var replays = await _get_batch_from_playing_round(simulations, {})
 	replays += _pending_hindsight_replays
 	print("+ " + str(_pending_hindsight_replays.size()) + " hindsight replays appended")
 	_pending_hindsight_replays = []
@@ -199,7 +208,8 @@ func _loop_train():
 	var _response = await _ai_tcp.submit_batch_replay(replays)
 	print("Training ...")
 	env_delegate.update_status(_loop_train_count, "training")
-	_response = await _ai_tcp.train(env_delegate.get_train_steps(), true, true)
+	for agent_name in env_delegate.get_agent_names():
+		_response = await _ai_tcp.train(agent_name, env_delegate.get_train_steps(agent_name), true)
 	_cleanup_simulations(simulations)
 
 	_loop_train_count += 1

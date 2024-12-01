@@ -8,7 +8,7 @@ func new_game(physics_update: Signal) -> bool:
 	await physics_update
 	return true
 
-func is_game_complete() -> bool:
+func is_game_complete(agent_index: int) -> bool:
 	return false
 
 func apply_action(agent_index: int, _action_vector: Array[float], _callback):

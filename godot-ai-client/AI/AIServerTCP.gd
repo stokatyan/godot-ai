@@ -191,7 +191,7 @@ func submit_batch_replay(replays: Array[Replay]):
 	_is_communicating = false
 	return action
 
-func train(steps: int, file_name: String, print_logs: bool):
+func train(file_name: String, steps: int, print_logs: bool):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
