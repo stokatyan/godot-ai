@@ -122,9 +122,14 @@ func _draw_simulation(s: FCGSimulation):
 			agent._position,
 			agent._radius,
 			colors[agent_index],
-			true,
+			false,
 			2.0,
 			true
+		)
+		draw_circle(
+			agent._position,
+			agent._radius,
+			colors[agent_index],
 		)
 
 		# Orientation
