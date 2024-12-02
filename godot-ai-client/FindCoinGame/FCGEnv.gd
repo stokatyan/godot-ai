@@ -9,7 +9,7 @@ var _example_sim: FCGSimulation = FCGSimulation.new()
 func _draw():
 	if !sim_to_display:
 		return
-	_draw_simulation(sim_to_display)
+	_draw_simulation(sim_to_display, Vector2(100, 100))
 
 func _input(event):
 	var keyboard_event = event as InputEventKey
@@ -88,7 +88,7 @@ func get_hidden_size(_agent_name: String) -> int:
 func get_train_steps(_agent_name: String) -> int:
 	return 100
 
-func _draw_simulation(s: FCGSimulation):
+func _draw_simulation(s: FCGSimulation, offset: Vector2):
 	if s._is_cleaned:
 		return
 
@@ -104,38 +104,39 @@ func _draw_simulation(s: FCGSimulation):
 			var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
 			var direction = Vector2.from_angle(a)
 			draw_line(
-				agent._position + direction * agent._radius,
-				agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius,
+				agent._position + direction * agent._radius + offset,
+				agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius + offset,
 				Color.DARK_GRAY,
 				3.5,
 				true
 			)
 			draw_line(
-				agent._position + direction * agent._radius,
-				agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius,
+				agent._position + direction * agent._radius + offset,
+				agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius + offset,
 				Color.CADET_BLUE,
 				0.75,
 				true
 			)
 		# Agent
 		draw_circle(
-			agent._position,
+			agent._position + offset,
 			agent._radius,
 			colors[agent_index],
 			false,
 			2.0,
 			true
 		)
+		# Filled circle
 		draw_circle(
-			agent._position,
+			agent._position + offset,
 			agent._radius,
 			colors[agent_index],
 		)
 
 		# Orientation
 		draw_line(
-			agent._position,
-			agent._position + Vector2.from_angle(agent._rotation) * agent._radius,
+			agent._position + offset,
+			agent._position + Vector2.from_angle(agent._rotation) * agent._radius + offset,
 			Color.WHITE_SMOKE,
 			3,
 			true
@@ -144,8 +145,8 @@ func _draw_simulation(s: FCGSimulation):
 	# Walls
 	for body in s._boundary_wall_bodies + s._inner_wall_bodies:
 		var shape_rect = s.get_wall_shape(body)
-		var p0 = shape_rect.position
-		var p1 = shape_rect.size
+		var p0 = shape_rect.position + offset
+		var p1 = shape_rect.size + offset
 		draw_line(p0, p1, Color.BLACK, s._wall_thickness, true)
 
 func update_status(epoch: int, message: String):
