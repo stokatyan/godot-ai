@@ -66,8 +66,9 @@ func get_steps_in_round() -> int:
 	return 100
 
 func get_state_dim(_agent_name: String) -> int:
-	var example = _example_sim.get_game_state()
-	return example.size()
+	if _agent_name == _example_sim.get_agent_names()[0]:
+		return _example_sim.get_state(0).size()
+	return _example_sim.get_state(1).size()
 
 func get_action_dim(_agent_name: String) -> int:
 	return 2
