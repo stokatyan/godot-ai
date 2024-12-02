@@ -34,13 +34,18 @@ func _handle_user_input(_key: Key):
 		apply_move = true
 		move_vector += Vector2.RIGHT
 
+	var agent_index = 0
+	if Input.is_key_pressed(KEY_SHIFT):
+		agent_index = 1
+
 	if apply_move and !_ai_runner._initial_simulations.is_empty():
 		var action: Array[float] = [move_vector.x, move_vector.y]
-		_ai_runner._initial_simulations[0].apply_action(action, display_simulation)
+
+		_ai_runner._initial_simulations[0].apply_action(agent_index, action, display_simulation)
 		await get_tree().physics_frame
 		await get_tree().physics_frame
-		if _ai_runner._initial_simulations[0].is_game_complete():
-			await get_tree().create_timer(1).timeout
+		if _ai_runner._initial_simulations[0].is_game_complete(0):
+			await get_tree().create_timer(0.5).timeout
 			await _ai_runner._initial_simulations[0].new_game(get_tree().physics_frame)
 			display_simulation(_ai_runner._initial_simulations[0])
 
