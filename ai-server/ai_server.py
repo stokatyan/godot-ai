@@ -15,8 +15,8 @@ server_socket.bind(('127.0.0.1', 9999))  # Use localhost and some port (e.g., 65
 server_socket.listen()
 
 print("Current working directory:", os.getcwd())
-
 print("AI Server is waiting for a connection...")
+print()
 
 # Accept a connection
 connection, client_address = server_socket.accept()

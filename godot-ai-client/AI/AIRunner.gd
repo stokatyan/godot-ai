@@ -173,6 +173,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 				var reward = sim.get_score(agent_index)
 				var prev_state = agent_to_states_map[agent_name][agent_move_index]
 				var replay = Replay.new(prev_state, action, reward, state_, is_done)
+				replay.agent_name = agent_name
 				replay_history[sim].append(replay)
 				agent_to_move_index[agent_name] = agent_move_index + 1
 

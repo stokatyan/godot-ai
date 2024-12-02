@@ -169,10 +169,8 @@ func submit_batch_replay(replays: Array[Replay]):
 	var replay_data = []
 	for replay in replays:
 		var d = replay.to_data()
-		if d.has("agent_name"):
-			replay_data.append(d)
-		else:
-			push_error("Expected replay to have corresponding agent's name.")
+		assert(d.has("agent_name"), "Expected replay to have corresponding agent's name.")
+		replay_data.append(d)
 
 	var replay_dictionary = {}
 	replay_dictionary["replays"] = replay_data
