@@ -10,7 +10,7 @@ var _display_offsets: Array[Vector2] = [Vector2(-600, 0), Vector2(0, 0), Vector2
 func _draw():
 	if _sims_to_display.is_empty():
 		return
-	for index in range(0, _sims_to_display.size()):
+	for index in range(0, get_number_of_simulations_to_display()):
 		var sim = _sims_to_display[index]
 		_draw_simulation(sim, _display_offsets[index])
 
@@ -59,8 +59,9 @@ func display_simulation(s: BaseSimulation):
 	await get_tree().physics_frame
 
 	_sims_to_display.append(s)
-	while _sims_to_display.size() > _display_offsets.size():
+	while _sims_to_display.size() > get_number_of_simulations_to_display():
 		_sims_to_display.pop_front()
+
 	queue_redraw()
 
 func new_simulation() -> BaseSimulation:
@@ -165,4 +166,4 @@ func get_agent_names() -> Array[String]:
 	return _example_sim.get_agent_names()
 
 func get_number_of_simulations_to_display() -> int:
-	return min(3, get_simulation_count())
+	return min(_display_offsets.size(), get_simulation_count())
