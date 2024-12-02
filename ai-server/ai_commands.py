@@ -55,7 +55,6 @@ def _get_batch_actions(command_json):
     batch_state_path = command_json["path"]
     batch = []
     current_state = []
-    batch_actions = []
     
     batch_state_json = {}
     try:
@@ -68,6 +67,7 @@ def _get_batch_actions(command_json):
     
     batch_actions_data = {}
     for name in batch_state_json:
+        batch_actions = []
         batch = batch_state_json[name]
         agent = agents[name]
         deterministic = name in deterministic_map and deterministic_map[name] == True
@@ -178,7 +178,6 @@ def _init_agent(command_json):
     return response
 
 def _load_agent(command_json):
-    print()
     agent_name = command_json["file_name"]
     agent = agents[agent_name]
     if agent is not None:
