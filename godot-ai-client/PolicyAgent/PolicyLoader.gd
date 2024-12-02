@@ -8,7 +8,7 @@ var _policy_weights: Array
 var _policy_biases: Array
 
 func get_policy_path(file_name: String) -> String:
-	return "res://AIServerCommFiles/" + file_name + ".json"
+	return "res://AIServerCommFiles/" + file_name + "_policy" + ".json"
 
 func try_to_load_policy_data(file_name: String):
 	var policy_path = get_policy_path(file_name)
