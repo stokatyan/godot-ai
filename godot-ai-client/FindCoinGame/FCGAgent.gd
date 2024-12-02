@@ -1,6 +1,6 @@
 extends FCGBaseNode
 
-class_name FCGHero
+class_name FCGAgent
 
 var max_vision_distance: float:
 	get:

@@ -85,58 +85,50 @@ func get_train_steps(agent_name: String) -> int:
 func _draw_simulation(s: FCGSimulation):
 	if s._is_cleaned:
 		return
-	# Hero Vision
-	var vision_angles = s._hero.get_vision_angles()
-	var game_state = s.get_game_state()
-	var h = s._hero
-	for i in range(vision_angles.size()):
-		var a = vision_angles[i]
-		var wall_depth = game_state[i + 1] # first item is rotation
-		var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
-		var direction = Vector2.from_angle(a)
-		draw_line(
-			h._position + direction * h._radius,
-			h._position + direction * wall_depth * h.max_vision_distance + direction * h._radius,
-			Color.BURLYWOOD,
-			4,
+
+	var colors = [Color.RED, Color.YELLOW]
+	for agent_index in range(0, s.get_agents_count()):
+		# Vision
+		var agent = s._agents[agent_index]
+		var vision_angles = agent.get_vision_angles()
+		var game_state = s.get_state(agent_index)
+		for i in range(vision_angles.size()):
+			var a = vision_angles[i]
+			var wall_depth = game_state[i + 1] # first item is rotation
+			var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
+			var direction = Vector2.from_angle(a)
+			draw_line(
+				agent._position + direction * agent._radius,
+				agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius,
+				Color.BURLYWOOD,
+				4,
+				true
+			)
+			draw_line(
+				agent._position + direction * agent._radius,
+				agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius,
+				Color.CADET_BLUE,
+				1,
+				true
+			)
+		# Agent
+		draw_circle(
+			agent._position,
+			agent._radius,
+			colors[agent_index],
+			false,
+			2.0,
 			true
 		)
+
+		# Orientation
 		draw_line(
-			h._position + direction * h._radius,
-			h._position + direction * target_depth * h.max_vision_distance + direction * h._radius,
-			Color.CADET_BLUE,
-			1,
+			agent._position,
+			agent._position + Vector2.from_angle(agent._rotation) * agent._radius,
+			Color.WHITE_SMOKE,
+			3,
 			true
 		)
-
-	# Target
-	draw_circle(
-		s._target._position,
-		s._target._radius,
-		Color.YELLOW,
-		false,
-		2.0,
-		true
-	)
-
-	# Hero
-	draw_circle(
-		s._hero._position,
-		s._hero._radius,
-		Color.RED,
-		false,
-		2.0,
-		true
-	)
-
-	# Hero Orientation
-	draw_line(
-		h._position,
-		h._position + Vector2.from_angle(h._rotation) * h._radius,
-		Color.WHITE_SMOKE,
-		3,
-		true
-	)
 
 	# Walls
 	for body in s._boundary_wall_bodies + s._inner_wall_bodies:

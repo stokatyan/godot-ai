@@ -2,8 +2,17 @@ extends BaseSimulation
 
 class_name FCGSimulation
 
-var _hero: FCGHero = FCGHero.new()
-var _target: FCGTarget = FCGTarget.new()
+var agent_names: Array[String] = ["hero", "target"]
+var agent_indecis: Array[int] = [0, 1]
+
+var _hero: FCGAgent = FCGAgent.new()
+var _target: FCGAgent = FCGAgent.new()
+var _agents: Array[FCGAgent]:
+	get:
+		var agents: Array[FCGAgent] = []
+		agents.append(_hero)
+		agents.append(_target)
+		return agents
 
 var _map_size: float = 500
 var _map_radius: float:
@@ -12,12 +21,11 @@ var _map_radius: float:
 
 var _actions_taken = 0
 
-var _prev_actions: Array[float] = []
+var _agents_to_prev_actions = {}
 var _action_history_size = 10
 
-var _prev_observations: Array = []
+var _agents_to_prev_observations= {}
 var _observation_history_size = 10
-var _initial_hero_position: Vector2
 
 var _wall_thickness: float = 5
 
@@ -167,28 +175,34 @@ func new_game(physics_update: Signal) -> bool:
 	_hero.set_transform(p_hero, randf_range(-PI, PI))
 	_target.set_transform(p_target, 0)
 
-	_initial_hero_position = p_hero
 	_reset_prev_actions()
 	_reset_prev_observations()
 
 	return true
 
 func _reset_prev_actions():
-	_prev_actions = []
-	for i in range(_action_history_size):
-		_prev_actions.append(0.0)
-		_prev_actions.append(0.0)
+	for agent in _agents:
+		var history: Array[float] = []
+
+		for i in range(_action_history_size):
+			history.append(0.0)
+			history.append(0.0)
+
+		_agents_to_prev_actions[agent] = history
 
 func _reset_prev_observations():
-	var obs = _get_hero_observation()
-	_prev_observations = []
-	for i in range(_observation_history_size):
-		_prev_observations.append(obs)
+	for agent_index in get_agents_count():
+		var obs = _get_current_observation(agent_index)
+		var prev_observations = []
+		for i in range(_observation_history_size):
+			prev_observations.append(obs)
+		_agents_to_prev_observations[_agents[agent_index]] = prev_observations
 
 func is_game_complete(agent_index: int) -> bool:
 	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
+	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
 	var hero_transform: Transform2D = get_transform(_hero._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
@@ -205,12 +219,16 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	var result = space_state.cast_motion(motion_query)
 	var motion_magnitude = result[0]
 
-	_prev_actions.pop_front()
-	_prev_actions.pop_front()
-	_prev_actions += action_vector
+	var prev_actions = _agents_to_prev_actions[agent]
+	prev_actions.pop_front()
+	prev_actions.pop_front()
+	prev_actions += action_vector
+	_agents_to_prev_actions[agent] = prev_actions
 
-	_prev_observations.pop_front()
-	_prev_observations.append(_get_hero_observation())
+	var prev_observations = _agents_to_prev_observations[agent]
+	prev_observations.pop_front()
+	prev_observations.append(_get_current_observation(agent_index))
+	_agents_to_prev_observations[agent] = prev_observations
 
 	_actions_taken += 1
 
@@ -219,15 +237,18 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	if callback:
 		callback.call(self)
 
-func get_observation(agent_index: int) -> Array[float]:
+func get_state(agent_index: int) -> Array[float]:
 	var current = _get_current_observation(agent_index)
-	if _prev_observations.size() != _observation_history_size:
+	var agent = _agents[agent_index]
+	var prev_observations = _agents_to_prev_observations[agent]
+	if prev_observations.size() != _observation_history_size:
 		_reset_prev_observations()
 	var flattened_prev_observatations: Array[float]
-	for obs in _prev_observations:
+	for obs in prev_observations:
 		flattened_prev_observatations += obs
+	var prev_actions: Array[float] = _agents_to_prev_actions[agent]
 
-	var state = current + flattened_prev_observatations + _prev_actions
+	var state = current + flattened_prev_observatations + prev_actions
 	return state
 
 func _get_current_observation(agent_index: int) -> Array[float]:
@@ -236,12 +257,13 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 	]
 	var angles = _hero.get_vision_angles()
 	var angle_to_wall_distance = {}
+	var agent = _agents[agent_index]
 	for a in angles:
-		var obs = _get_hero_layer_observation(a, _hero.max_vision_distance, _wall_layer)
+		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _wall_layer)
 		state.append(obs)
 		angle_to_wall_distance[a] = obs
 	for a in angles:
-		var obs = _get_hero_layer_observation(a, _hero.max_vision_distance, _target_layer)
+		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _target_layer | _hero_layer)
 		var t = _hero._transform
 		t.origin += Vector2.from_angle(a) * _target._radius
 		var target_collision_points = _get_collision_points(_hero._physics_shape, t, 0, _target_layer)
@@ -258,9 +280,9 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 
 	return state
 
-func _get_hero_layer_observation(angle: float, max_distance: float, layer: int) -> float:
+func _get_agent_observation(agent: FCGAgent, angle: float, max_distance: float, layer: int) -> float:
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
-	var hero_transform: Transform2D = get_transform(_hero._physics_body)
+	var agent_transform: Transform2D = get_transform(agent._physics_body)
 
 	# Define the motion query
 	var motion_query = PhysicsShapeQueryParameters2D.new()
@@ -268,8 +290,8 @@ func _get_hero_layer_observation(angle: float, max_distance: float, layer: int) 
 	motion_query.collide_with_bodies = true
 	motion_query.margin = 0
 	motion_query.motion = Vector2.from_angle(angle) * max_distance
-	motion_query.shape_rid = _hero._physics_shape
-	motion_query.transform = hero_transform
+	motion_query.shape_rid = agent._physics_shape
+	motion_query.transform = agent_transform
 	motion_query.collision_mask = layer
 
 	var result = space_state.cast_motion(motion_query)
@@ -286,9 +308,13 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 	return result
 
 func get_score(agent_index: int) -> float:
+	var scalar = 1.0
+	if agent_index == 1:
+		scalar = -1.0
+
 	if is_game_complete(agent_index):
-		return 1.0
-	return -1.0
+		return 1.0 * scalar
+	return -1.0 * scalar
 
 ## Check if p2 will overlap the line from p1 to p3
 func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):
@@ -317,3 +343,14 @@ func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):
 
 	if distance_to_p2 < min_distance:
 		return closest_point
+
+func get_agent_names() -> Array[String]:
+	return agent_names
+
+func get_agents_count() -> int:
+	return _agents.size()
+
+func get_agent_name(agent_index: int) -> String:
+	if agent_index == 0:
+		return agent_names[0]
+	return agent_names[1]
