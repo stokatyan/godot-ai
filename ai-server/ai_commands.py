@@ -157,6 +157,7 @@ def _train(command_json):
     return response
 
 def _init_agent(command_json):
+    print()
     try:
         agent_name = command_json["file_name"]
         agent = Agent(
@@ -179,14 +180,11 @@ def _init_agent(command_json):
     return response
 
 def _load_agent(command_json):
+    print()
     agent_name = command_json["file_name"]
-    agent = load_checkpoint(agent, agent_name)
-    
-    if agent == None:
-        print(f"Agent named {agent_name} not loaded.")
-    else:
-        agents[agent_name] = agent
-        print(f"Agent named {agent_name} is loaded.")
+    agent = agents[agent_name]
+    if agent is not None:
+        load_checkpoint(agent, agent_name)
     
     response = {
         "done": True

@@ -3,6 +3,7 @@ import json
 import socket
 import traceback
 import ai_commands
+import os
 
 # Create a TCP/IP socket
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -12,6 +13,8 @@ server_socket.bind(('127.0.0.1', 9999))  # Use localhost and some port (e.g., 65
 
 # Listen for incoming connections
 server_socket.listen()
+
+print("Current working directory:", os.getcwd())
 
 print("AI Server is waiting for a connection...")
 

@@ -96,7 +96,8 @@ func _setup_ai():
 	if !result:
 		return
 
-	for agent_name in env_delegate.get_agent_names():
+	var agent_names = env_delegate.get_agent_names()
+	for agent_name in agent_names:
 		var state_dim = env_delegate.get_state_dim(agent_name)
 		var action_dim = env_delegate.get_action_dim(agent_name)
 		var batch_size = env_delegate.get_batch_size(agent_name)
@@ -104,7 +105,7 @@ func _setup_ai():
 		var num_critic_layers = env_delegate.get_num_critic_layers(agent_name)
 		var hidden_size = env_delegate.get_hidden_size(agent_name)
 		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
-		_ai_tcp.load_agent(agent_name)
+		result = await _ai_tcp.load_agent(agent_name)
 	_try_to_load_policy_agents()
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:

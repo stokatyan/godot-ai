@@ -33,6 +33,8 @@ var _wall_layer   = 0b0100
 func _init():
 	_reset_prev_actions()
 	_setup_physics_server()
+	_reset_prev_actions()
+	_reset_prev_observations()
 
 func cleanup_simulation():
 	if _is_cleaned:

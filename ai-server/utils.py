@@ -135,11 +135,10 @@ def make_checkpoint(agent, file_name):
     print(f"checkpoint saved as: {save_path}")
 
 def load_checkpoint(agent, file_name):
-    print("Current working directory:", os.getcwd())
     load_path = f"checkpoints/{file_name}.pt"
 
     if not os.path.isfile(load_path):
-        print("Checkpoint not loaded")
+        print(f"Checkpoint not loaded for: {file_name}")
         return
 
     checkpoint = torch.load(load_path)
@@ -149,8 +148,7 @@ def load_checkpoint(agent, file_name):
     agent.policy.load_state_dict(checkpoint['policy_state_dict'])
     agent.log_alpha = checkpoint['log_alpha_state_dict']
     
-    print(f"Checkpoint loaded successfully from {load_path}")
-    return agent
+    print(f"Checkpoint loaded for {load_path}")
 
 def write_policy(policy, file_name):
     write_path = f"AIServerCommFiles/{file_name}_policy.json"

@@ -26,7 +26,6 @@ func get_score(_agent_index: int) -> float:
 	return 0
 
 func cleanup_simulation():
-	assert(false)
 	_is_cleaned = true
 
 func get_state_dim(_agent_name: String) -> int:
