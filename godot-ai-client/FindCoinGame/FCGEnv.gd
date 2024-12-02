@@ -58,7 +58,7 @@ func get_simulation_count() -> int:
 	return 60
 
 func get_steps_in_round() -> int:
-	return 36
+	return 100
 
 func get_state_dim(agent_name: String) -> int:
 	var example = _example_sim.get_game_state()
