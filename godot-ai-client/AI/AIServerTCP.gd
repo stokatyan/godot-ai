@@ -122,9 +122,7 @@ func get_batch_actions(agent_to_states_map: Dictionary, deterministic_map: Dicti
 				batch.append(snapped(s, rounding_precision))
 		agent_to_consumable_batch_states[agent_name] = batch
 
-	var batch_state_dict = {}
-	batch_state_dict["batch_state"] = agent_to_consumable_batch_states
-	_save_dict_to_json(batch_state_path, batch_state_dict)
+	_save_dict_to_json(batch_state_path, agent_to_consumable_batch_states)
 
 	_send_json(data)
 

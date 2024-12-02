@@ -50,7 +50,7 @@ def _get_action(command_json):
     
     return response
 
-def _get_batch_actions(command_json):    
+def _get_batch_actions(command_json):
     deterministic_map = ["deterministic_map"]
     batch_state_path = command_json["path"]
     batch = []
@@ -67,10 +67,10 @@ def _get_batch_actions(command_json):
         print(f"[_submit_batch_replay] -> Error decoding JSON: {e}")
     
     batch_actions_data = {}
-    for name in batch_state_json["batch_state"]:
+    for name in batch_state_json:
         batch = batch_state_json[name]
         agent = agents[name]
-        deterministic = name in deterministic_map and deterministic_map[name]
+        deterministic = name in deterministic_map and deterministic_map[name] == True
         for i in range(len(batch)):
             current_state.append(batch[i])
             if len(current_state) == agent.state_dim:
@@ -83,13 +83,12 @@ def _get_batch_actions(command_json):
                 current_state = []
         batch_actions_data[name] = batch_actions
     
-    
     actions_path = "AIServerCommFiles/batch_action.json"
     write_to_file(actions_path, batch_actions_data)
     response = {
         "path": actions_path
     }
-    
+        
     return response
 
 def _submit_batch_replay(command_json):
