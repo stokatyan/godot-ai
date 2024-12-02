@@ -25,31 +25,31 @@ func get_simulation_count() -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 1
 
-func get_state_dim(agent_name: String) -> int:
+func get_state_dim(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
-func get_action_dim(agent_name: String) -> int:
+func get_action_dim(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
-func get_batch_size(agent_name: String) -> int:
+func get_batch_size(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
-func get_num_actor_layers(agent_name: String) -> int:
+func get_num_actor_layers(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
-func get_num_critic_layers(agent_name: String) -> int:
+func get_num_critic_layers(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
-func get_hidden_size(agent_name: String) -> int:
+func get_hidden_size(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
-func get_train_steps(agent_name: String) -> int:
+func get_train_steps(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 

@@ -45,7 +45,6 @@ func _set_policy_data(json_data: Dictionary):
 		var k_bias = keys[i + 1]
 		var weights: Array = json_data[k_weight]
 		var biases: Array = json_data[k_bias]
-		var weights_size = weights.size()
 		_policy_weights.append(weights)
 		_policy_biases.append(biases)
 		i += 2

@@ -40,7 +40,6 @@ func _input(event):
 			if _is_loop_training or _is_testing:
 				return
 			_is_testing = true
-			var simulations = await _create_simulations()
 
 			_is_testing = false
 		KEY_UP:
@@ -124,7 +123,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 			for agent_index in range(0, sim.get_agents_count()):
 				var agent_name = sim.get_agent_name(agent_index)
 				agent_to_move_index[agent_name] = 0
-				var score_before = sim.get_score(agent_index)
 				var state = sim.get_state(agent_index)
 				var batch_state: Array = []
 				if agent_to_states_map.has(agent_name):

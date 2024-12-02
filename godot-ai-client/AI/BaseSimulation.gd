@@ -9,19 +9,19 @@ func new_game(physics_update: Signal) -> bool:
 	await physics_update
 	return true
 
-func is_game_complete(agent_index: int) -> bool:
+func is_game_complete(_agent_index: int) -> bool:
 	assert(false)
 	return false
 
-func apply_action(agent_index: int, _action_vector: Array[float], _callback):
+func apply_action(_agent_index: int, _action_vector: Array[float], _callback):
 	assert(false)
 	pass
 
-func get_state(agent_index: int) -> Array[float]:
+func get_state(_agent_index: int) -> Array[float]:
 	assert(false)
 	return []
 
-func get_score(agent_index: int) -> float:
+func get_score(_agent_index: int) -> float:
 	assert(false)
 	return 0
 
@@ -29,11 +29,11 @@ func cleanup_simulation():
 	assert(false)
 	_is_cleaned = true
 
-func get_state_dim(agent_name: String) -> int:
+func get_state_dim(_agent_name: String) -> int:
 	assert(false)
 	return 0
 
-func get_action_dim(agent_name: String) -> int:
+func get_action_dim(_agent_name: String) -> int:
 	assert(false)
 	return 0
 
@@ -46,6 +46,6 @@ func get_agents_count() -> int:
 	assert(false)
 	return 0
 
-func get_agent_name(agent_index: int) -> String:
+func get_agent_name(_agent_index: int) -> String:
 	assert(false)
 	return ""

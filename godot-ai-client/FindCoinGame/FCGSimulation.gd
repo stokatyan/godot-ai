@@ -191,7 +191,7 @@ func _reset_prev_observations():
 			prev_observations.append(obs)
 		_agents_to_prev_observations[_agents[agent_index]] = prev_observations
 
-func is_game_complete(agent_index: int) -> bool:
+func is_game_complete(_agent_index: int) -> bool:
 	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
@@ -236,7 +236,9 @@ func get_state(agent_index: int) -> Array[float]:
 	var prev_observations = _agents_to_prev_observations[agent]
 	if prev_observations.size() != _observation_history_size:
 		_reset_prev_observations()
-	var flattened_prev_observatations: Array[float]
+
+	prev_observations = _agents_to_prev_observations[agent]
+	var flattened_prev_observatations: Array[float] = []
 	for obs in prev_observations:
 		flattened_prev_observatations += obs
 	var prev_actions: Array[float] = _agents_to_prev_actions[agent]
