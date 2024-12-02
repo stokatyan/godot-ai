@@ -26,7 +26,9 @@ func _ready():
 # Called when the node enters the scene tree for the first time.
 func setup_simulations():
 	_initial_simulations = await _create_simulations()
-	env_delegate.display_simulation(_initial_simulations[0])
+
+	for i in range(0, env_delegate.get_number_of_simulations_to_display()):
+		env_delegate.display_simulation(_initial_simulations[i])
 
 func _input(event):
 	var key_input = event as InputEventKey
@@ -108,7 +110,9 @@ func _setup_ai():
 		result = await _ai_tcp.load_agent(agent_name)
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:
-	env_delegate.display_simulation(simulations[0])
+	for i in range(0, env_delegate.get_number_of_simulations_to_display()):
+		env_delegate.display_simulation(simulations[i])
+
 	var batch_replay: Array[Replay] = []
 	var done_indecis = {}
 	var replay_history = {}
@@ -183,7 +187,8 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 					done_indecis[simulation_index] = true
 					continue
 
-		env_delegate.display_simulation(simulations[0])
+		for i in range(0, env_delegate.get_number_of_simulations_to_display()):
+			env_delegate.display_simulation(simulations[i])
 
 	batch_replay = _get_batch_replays_from_replay_map(replay_history)
 

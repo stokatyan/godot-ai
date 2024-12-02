@@ -10,6 +10,9 @@ func _ready():
 	add_child(_ai_runner)
 	_ai_runner.setup_simulations()
 
+func get_number_of_simulations_to_display() -> int:
+	return 1
+
 func new_simulation() -> BaseSimulation:
 	assert(false, "new_simulation not implemented")
 	return BaseSimulation.new()
