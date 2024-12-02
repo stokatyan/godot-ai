@@ -92,7 +92,7 @@ func _draw_simulation(s: FCGSimulation):
 	if s._is_cleaned:
 		return
 
-	var colors = [Color.RED, Color.YELLOW]
+	var colors = [Color.INDIAN_RED, Color.SEA_GREEN]
 	for agent_index in range(0, s.get_agents_count()):
 		# Vision
 		var agent = s._agents[agent_index]
@@ -106,15 +106,15 @@ func _draw_simulation(s: FCGSimulation):
 			draw_line(
 				agent._position + direction * agent._radius,
 				agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius,
-				Color.BURLYWOOD,
-				2.5,
+				Color.DARK_GRAY,
+				3.5,
 				true
 			)
 			draw_line(
 				agent._position + direction * agent._radius,
 				agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius,
 				Color.CADET_BLUE,
-				1,
+				0.75,
 				true
 			)
 		# Agent
@@ -122,7 +122,7 @@ func _draw_simulation(s: FCGSimulation):
 			agent._position,
 			agent._radius,
 			colors[agent_index],
-			false,
+			true,
 			2.0,
 			true
 		)
