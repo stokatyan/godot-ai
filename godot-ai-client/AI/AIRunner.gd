@@ -106,7 +106,6 @@ func _setup_ai():
 		var hidden_size = env_delegate.get_hidden_size(agent_name)
 		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
 		result = await _ai_tcp.load_agent(agent_name)
-	_try_to_load_policy_agents()
 
 func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:
 	env_delegate.display_simulation(simulations[0])

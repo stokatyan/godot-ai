@@ -107,7 +107,7 @@ func _draw_simulation(s: FCGSimulation):
 				agent._position + direction * agent._radius,
 				agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius,
 				Color.BURLYWOOD,
-				4,
+				2.5,
 				true
 			)
 			draw_line(
