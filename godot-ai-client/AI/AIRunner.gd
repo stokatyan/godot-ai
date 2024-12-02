@@ -49,7 +49,11 @@ func _input(event):
 		KEY_2: # Get and Submit batch
 			env_delegate.update_status(_loop_train_count, "playing")
 			var simulations = await _create_simulations()
-			var replays = await _get_batch_from_playing_round(simulations, {})
+			var is_discrete_map = {}
+			for agent_name in env_delegate.get_agent_names():
+				is_discrete_map[agent_name] = true
+
+			var replays = await _get_batch_from_playing_round(simulations, is_discrete_map)
 			env_delegate.update_status(_loop_train_count, "submitting")
 			var _response = await _ai_tcp.submit_batch_replay(replays)
 			env_delegate.update_status(_loop_train_count, "done submitting")
@@ -202,7 +206,8 @@ func _loop_train():
 	env_delegate.update_status(_loop_train_count, "playing")
 	_is_loop_training = true
 	var simulations = await _create_simulations()
-	var replays = await _get_batch_from_playing_round(simulations, {})
+	var is_deterministic_map = env_delegate.get_is_deterministic_map(_loop_train_count)
+	var replays = await _get_batch_from_playing_round(simulations, is_deterministic_map)
 	replays += _pending_hindsight_replays
 	print("+ " + str(_pending_hindsight_replays.size()) + " hindsight replays appended")
 	_pending_hindsight_replays = []
@@ -212,7 +217,8 @@ func _loop_train():
 	print("Training ...")
 	env_delegate.update_status(_loop_train_count, "training")
 	for agent_name in env_delegate.get_agent_names():
-		_response = await _ai_tcp.train(agent_name, env_delegate.get_train_steps(agent_name), true)
+		if !is_deterministic_map.has(agent_name) or !is_deterministic_map[agent_name]:
+			_response = await _ai_tcp.train(agent_name, env_delegate.get_train_steps(agent_name), true)
 	_cleanup_simulations(simulations)
 
 	_loop_train_count += 1

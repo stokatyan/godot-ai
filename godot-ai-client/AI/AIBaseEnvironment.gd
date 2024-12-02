@@ -63,3 +63,8 @@ func get_agent_names() -> Array[String]:
 	assert(false, "get_steps_in_round not implemented")
 	var agent_names: Array[String] = []
 	return agent_names
+
+func get_is_deterministic_map(epoch: int) -> Dictionary:
+	assert(false, "get_is_discrete_map not implemented")
+	var deterministic_map = {}
+	return deterministic_map

@@ -167,3 +167,13 @@ func get_agent_names() -> Array[String]:
 
 func get_number_of_simulations_to_display() -> int:
 	return min(_display_offsets.size(), get_simulation_count())
+
+func get_is_deterministic_map(epoch: int) -> Dictionary:
+	var agent_names = _example_sim.get_agent_names()
+	var discrete_map = {}
+	var max = 1000
+	var count = epoch % max
+	discrete_map[agent_names[0]] = count < 500
+	discrete_map[agent_names[1]] = count >= 500
+
+	return discrete_map
