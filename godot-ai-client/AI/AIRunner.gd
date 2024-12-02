@@ -183,7 +183,6 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 				if is_done:
 					var replays = replay_history[sim]
-					sim.rescore_history(replays)
 					done_indecis[simulation_index] = true
 					continue
 
