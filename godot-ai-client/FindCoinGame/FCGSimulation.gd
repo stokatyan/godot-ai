@@ -5,14 +5,7 @@ class_name FCGSimulation
 var agent_names: Array[String] = ["hero", "target"]
 var agent_indecis: Array[int] = [0, 1]
 
-var _hero: FCGAgent = FCGAgent.new()
-var _target: FCGAgent = FCGAgent.new()
-var _agents: Array[FCGAgent]:
-	get:
-		var agents: Array[FCGAgent] = []
-		agents.append(_hero)
-		agents.append(_target)
-		return agents
+var _agents: Array[FCGAgent] = [FCGAgent.new(), FCGAgent.new()]
 
 var _map_size: float = 500
 var _map_radius: float:
@@ -48,10 +41,10 @@ func cleanup_simulation():
 	_free_all_objects()
 
 func _free_all_objects():
-	PhysicsServer2D.free_rid(_hero._physics_shape)
-	PhysicsServer2D.free_rid(_hero._physics_body)
-	PhysicsServer2D.free_rid(_target._physics_shape)
-	PhysicsServer2D.free_rid(_target._physics_body)
+	PhysicsServer2D.free_rid(_agents[0]._physics_shape)
+	PhysicsServer2D.free_rid(_agents[0]._physics_body)
+	PhysicsServer2D.free_rid(_agents[1]._physics_shape)
+	PhysicsServer2D.free_rid(_agents[1]._physics_body)
 	for wall in _boundary_wall_bodies + _inner_wall_bodies:
 		var shape_count = PhysicsServer2D.body_get_shape_count(wall)
 		var range_of_count = range(shape_count)
@@ -67,13 +60,13 @@ func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.space_set_active(_physics_space, true)
 
-	PhysicsServer2D.body_set_space(_hero._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_hero._physics_body, _hero_layer)
-	PhysicsServer2D.body_set_collision_mask(_hero._physics_body, _hero_layer)
+	PhysicsServer2D.body_set_space(_agents[0]._physics_body, _physics_space)
+	PhysicsServer2D.body_set_collision_layer(_agents[0]._physics_body, _hero_layer)
+	PhysicsServer2D.body_set_collision_mask(_agents[0]._physics_body, _hero_layer)
 
-	PhysicsServer2D.body_set_space(_target._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_target._physics_body, _target_layer)
-	PhysicsServer2D.body_set_collision_mask(_target._physics_body, _target_layer)
+	PhysicsServer2D.body_set_space(_agents[1]._physics_body, _physics_space)
+	PhysicsServer2D.body_set_collision_layer(_agents[1]._physics_body, _target_layer)
+	PhysicsServer2D.body_set_collision_mask(_agents[1]._physics_body, _target_layer)
 
 	var wall_segments: Array[Rect2] = [
 		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),
@@ -147,7 +140,7 @@ func new_game(physics_update: Signal) -> bool:
 
 		var temp_hero_body = PhysicsServer2D.body_create()
 		var temp_hero_shape = PhysicsServer2D.circle_shape_create()
-		PhysicsServer2D.shape_set_data(temp_hero_shape, _hero._radius)
+		PhysicsServer2D.shape_set_data(temp_hero_shape, _agents[0]._radius)
 		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
 		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_hero)
 		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
@@ -155,14 +148,14 @@ func new_game(physics_update: Signal) -> bool:
 
 		var temp_target_body = PhysicsServer2D.body_create()
 		var temp_target_shape = PhysicsServer2D.circle_shape_create()
-		PhysicsServer2D.shape_set_data(temp_target_shape, _target._radius)
+		PhysicsServer2D.shape_set_data(temp_target_shape, _agents[1]._radius)
 		PhysicsServer2D.body_add_shape(temp_target_body, temp_target_shape)
 		PhysicsServer2D.body_set_state(temp_target_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_target)
 		PhysicsServer2D.body_set_space(temp_target_body, _physics_space)
 		PhysicsServer2D.body_set_collision_layer(temp_target_body, _target_layer)
 
-		var result = _get_collision_points(temp_hero_shape, t_hero, _hero._radius * 2, _wall_layer | _target_layer)
-		result += _get_collision_points(temp_target_shape, t_target, _hero._radius * 2, _wall_layer)
+		var result = _get_collision_points(temp_hero_shape, t_hero, _agents[0]._radius * 2, _wall_layer | _target_layer)
+		result += _get_collision_points(temp_target_shape, t_target, _agents[1]._radius * 2, _wall_layer)
 
 		PhysicsServer2D.free_rid(temp_hero_shape)
 		PhysicsServer2D.free_rid(temp_hero_body)
@@ -172,8 +165,8 @@ func new_game(physics_update: Signal) -> bool:
 		if result.is_empty():
 			break
 
-	_hero.set_transform(p_hero, randf_range(-PI, PI))
-	_target.set_transform(p_target, 0)
+	_agents[0].set_transform(p_hero, randf_range(-PI, PI))
+	_agents[1].set_transform(p_target, randf_range(-PI, PI))
 
 	_reset_prev_actions()
 	_reset_prev_observations()
@@ -199,12 +192,12 @@ func _reset_prev_observations():
 		_agents_to_prev_observations[_agents[agent_index]] = prev_observations
 
 func is_game_complete(agent_index: int) -> bool:
-	return _hero._position.distance_to(_target._position) < _hero._radius + _target._radius
+	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
 	var agent = _agents[agent_index]
-	var motion_vector = Vector2(action_vector[0], action_vector[1]) * _hero._radius
-	var hero_transform: Transform2D = get_transform(_hero._physics_body)
+	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
+	var transform: Transform2D = get_transform(agent._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 
 	var motion_query = PhysicsShapeQueryParameters2D.new()
@@ -212,8 +205,8 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	motion_query.collide_with_bodies = true
 	motion_query.margin = _wall_thickness
 	motion_query.motion = motion_vector
-	motion_query.shape_rid = _hero._physics_shape
-	motion_query.transform = hero_transform
+	motion_query.shape_rid = agent._physics_shape
+	motion_query.transform = transform
 	motion_query.collision_mask = _wall_layer
 
 	var result = space_state.cast_motion(motion_query)
@@ -232,7 +225,7 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 
 	_actions_taken += 1
 
-	_hero.set_transform(_hero._position + motion_vector * motion_magnitude, motion_vector.angle())
+	agent.set_transform(agent._position + motion_vector * motion_magnitude, motion_vector.angle())
 
 	if callback:
 		callback.call(self)
@@ -252,31 +245,34 @@ func get_state(agent_index: int) -> Array[float]:
 	return state
 
 func _get_current_observation(agent_index: int) -> Array[float]:
-	var state: Array[float] = [
-		(_hero._rotation / PI) - 1.0
-	]
-	var angles = _hero.get_vision_angles()
-	var angle_to_wall_distance = {}
 	var agent = _agents[agent_index]
+	var state: Array[float] = [
+		(agent._rotation / PI) - 1.0
+	]
+	var angles = agent.get_vision_angles()
+	var angle_to_wall_distance = {}
+	var other_agent_layer = _target_layer
+	if agent_index == 1:
+		other_agent_layer = _hero_layer
 	for a in angles:
 		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _wall_layer)
 		state.append(obs)
 		angle_to_wall_distance[a] = obs
 	for a in angles:
-		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _target_layer | _hero_layer)
-		var t = _hero._transform
-		t.origin += Vector2.from_angle(a) * _target._radius
-		var target_collision_points = _get_collision_points(_hero._physics_shape, t, 0, _target_layer)
+		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, other_agent_layer)
+		var t = agent._transform
+		t.origin += Vector2.from_angle(a) * _agents[(agent_index + 1) % 2]._radius
+		var target_collision_points = _get_collision_points(agent._physics_shape, t, 0, other_agent_layer)
 
 		if !target_collision_points.is_empty():
-			obs = 0.2 * _hero._position.distance_to(target_collision_points[1]) / _hero.max_vision_distance
+			obs = 0.2 * agent._position.distance_to(target_collision_points[1]) / agent.max_vision_distance
 
 		if obs > angle_to_wall_distance[a]:
 			obs = 1
 		state.append(obs)
 
-	state.append(_hero._position.x / _map_radius)
-	state.append(_hero._position.y / _map_radius)
+	state.append(agent._position.x / _map_radius)
+	state.append(agent._position.y / _map_radius)
 
 	return state
 
