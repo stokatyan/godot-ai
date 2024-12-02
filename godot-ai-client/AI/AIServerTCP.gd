@@ -128,7 +128,7 @@ func get_batch_actions(agent_to_states_map: Dictionary, deterministic_map: Dicti
 
 	var response: Dictionary
 	while !response:
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(0.001).timeout
 		_client.poll()
 		response = _receive_json()
 
@@ -180,7 +180,7 @@ func submit_batch_replay(replays: Array[Replay]):
 
 	var response: Dictionary
 	while !response:
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(0.01).timeout
 		_client.poll()
 		response = _receive_json()
 
@@ -206,7 +206,7 @@ func train(file_name: String, steps: int, print_logs: bool):
 
 	var response: Dictionary
 	while !response:
-		await get_tree().create_timer(0.1).timeout
+		await get_tree().create_timer(0.01).timeout
 		_client.poll()
 		response = _receive_json()
 
