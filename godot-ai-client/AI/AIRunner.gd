@@ -223,41 +223,6 @@ func _loop_train():
 	else:
 		_loop_train()
 
-func _create_hindsight_replays_on_bg_thread(simulations: Array[BaseSimulation], done_indecis: Dictionary, replay_history: Dictionary):
-	if _hindsight_creation_thread or simulations.is_empty():
-		return
-
-	for sim in simulations:
-		_simulations_used_in_hindsight_creation[sim] = true
-	_hindsight_creation_thread = Thread.new()
-	_hindsight_creation_thread.start(_bg_thread_create_hindsight_replays.bind(simulations, done_indecis, replay_history))
-
-func _bg_thread_create_hindsight_replays(simulations: Array[BaseSimulation], done_indecis: Dictionary, replay_history: Dictionary):
-	var start_time = Time.get_ticks_msec()
-	print("+ Creating hindsight replays ...")
-	var hindsight_replays_history = {}
-	for simulation_index in range(simulations.size()):
-		if done_indecis.has(simulation_index):
-			continue
-		var sim = simulations[simulation_index]
-		var replays = replay_history[sim]
-		var hindsight_replays = await sim.create_hindsight_replays(replays, get_tree().physics_frame)
-		hindsight_replays_history[sim] = hindsight_replays
-
-	var batch_replays = _get_batch_replays_from_replay_map(hindsight_replays_history)
-	print("++")
-	print("+++ Created hindsight replays in " + str(float(Time.get_ticks_msec() - start_time) / 1000.0) + "s")
-	print("++")
-
-	call_deferred("_set_pending_hindsight_replays", batch_replays, simulations)
-
-func _set_pending_hindsight_replays(batch_replay: Array[Replay], simulations: Array[BaseSimulation]):
-	_pending_hindsight_replays += batch_replay
-	_hindsight_creation_thread.wait_to_finish()
-	_hindsight_creation_thread = null
-	_simulations_used_in_hindsight_creation = {}
-	_cleanup_simulations(simulations)
-
 func _get_batch_replays_from_replay_map(replay_history: Dictionary) -> Array[Replay]:
 	var batch_replay: Array[Replay] = []
 	for r in replay_history.values():
