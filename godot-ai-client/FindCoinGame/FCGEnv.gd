@@ -7,6 +7,9 @@ var _display_offsets: Array[Vector2] = [Vector2(-600, 0), Vector2(0, 0), Vector2
 @export var epoch_label: Label
 @export var state_label: Label
 
+var _is_training_hero = true
+var _is_training_target = false
+
 func _draw():
 	if _sims_to_display.is_empty():
 		return
@@ -36,6 +39,22 @@ func _handle_user_input(_key: Key):
 	if Input.is_key_pressed(KEY_D):
 		apply_move = true
 		move_vector += Vector2.RIGHT
+	if Input.is_key_pressed(KEY_7):
+		_is_training_hero = true
+		_is_training_target = false
+		print("_is_training_hero: " + str(_is_training_hero) + ", _is_training_target: " + str(_is_training_target))
+	if Input.is_key_pressed(KEY_8):
+		_is_training_hero = false
+		_is_training_target = true
+		print("_is_training_hero: " + str(_is_training_hero) + ", _is_training_target: " + str(_is_training_target))
+	if Input.is_key_pressed(KEY_9):
+		_is_training_hero = true
+		_is_training_target = true
+		print("_is_training_hero: " + str(_is_training_hero) + ", _is_training_target: " + str(_is_training_target))
+	if Input.is_key_pressed(KEY_0):
+		_is_training_hero = false
+		_is_training_target = false
+		print("_is_training_hero: " + str(_is_training_hero) + ", _is_training_target: " + str(_is_training_target))
 
 	var agent_index = 0
 	if Input.is_key_pressed(KEY_SHIFT):
@@ -171,9 +190,11 @@ func get_number_of_simulations_to_display() -> int:
 func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
-	var max_val = 3000
-	var count = epoch % max_val
-	discrete_map[agent_names[0]] = count >= 1500
-	discrete_map[agent_names[1]] = count < 1500
+	#var max_val = 3000
+	#var count = epoch % max_val
+	#discrete_map[agent_names[0]] = count >= 1500
+	#discrete_map[agent_names[1]] = count < 1500
+	discrete_map[agent_names[0]] = !_is_training_hero
+	discrete_map[agent_names[1]] = !_is_training_target
 
 	return discrete_map
