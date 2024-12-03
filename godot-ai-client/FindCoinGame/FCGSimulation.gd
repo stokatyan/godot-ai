@@ -3,7 +3,6 @@ extends BaseSimulation
 class_name FCGSimulation
 
 var agent_names: Array[String] = ["hero", "target"]
-var agent_indecis: Array[int] = [0, 1]
 
 var _agents: Array[FCGAgent] = [FCGAgent.new(), FCGAgent.new()]
 
