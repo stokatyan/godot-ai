@@ -171,9 +171,9 @@ func get_number_of_simulations_to_display() -> int:
 func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
-	var max_val = 1200
+	var max_val = 3000
 	var count = epoch % max_val
-	discrete_map[agent_names[0]] = count >= 600
-	discrete_map[agent_names[1]] = count < 600
+	discrete_map[agent_names[0]] = count >= 1500
+	discrete_map[agent_names[1]] = count < 1500
 
 	return discrete_map
