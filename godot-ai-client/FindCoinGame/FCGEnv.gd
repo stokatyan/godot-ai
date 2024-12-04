@@ -104,10 +104,10 @@ func get_batch_size(_agent_name: String) -> int:
 	return 500
 
 func get_num_actor_layers(_agent_name: String) -> int:
-	return 3
+	return 6
 
 func get_num_critic_layers(_agent_name: String) -> int:
-	return 4
+	return 8
 
 func get_hidden_size(_agent_name: String) -> int:
 	return 200
