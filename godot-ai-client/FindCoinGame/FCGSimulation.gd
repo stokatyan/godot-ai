@@ -2,7 +2,7 @@ extends BaseSimulation
 
 class_name FCGSimulation
 
-var agent_names: Array[String] = ["hero"] # ["hero", "target"]
+var agent_names: Array[String] = ["hero", "target"]
 
 var _agents: Array[FCGAgent] = [FCGAgent.new(), FCGAgent.new()]
 
@@ -14,10 +14,10 @@ var _map_radius: float:
 var _actions_taken = 0
 
 var _agents_to_prev_actions = {}
-var _action_history_size = 10
+var _action_history_size = 0 #10
 
 var _agents_to_prev_observations= {}
-var _observation_history_size = 10
+var _observation_history_size = 0 #10
 
 var _wall_thickness: float = 5
 
@@ -250,7 +250,7 @@ func get_state(agent_index: int) -> Array[float]:
 func _get_current_observation(agent_index: int) -> Array[float]:
 	var agent = _agents[agent_index]
 	var state: Array[float] = [
-		(agent._rotation / PI) - 1.0
+		(agent._rotation / PI)
 	]
 	var angles = agent.get_vision_angles()
 	var angle_to_wall_distance = {}
@@ -353,4 +353,4 @@ func get_agents_count() -> int:
 func get_agent_name(agent_index: int) -> String:
 	if agent_index == 0:
 		return agent_names[0]
-	return agent_names[agent_names.size() - 1]
+	return agent_names[1]

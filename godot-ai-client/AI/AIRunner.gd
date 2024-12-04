@@ -124,12 +124,11 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		var history: Array[Replay] = []
 		replay_history[s] = history
 
-	var num_agents = 1 # sim.get_agents_count()
 	for step in range(env_delegate.get_steps_in_round()):
 		var agent_to_move_index = {}
 		var agent_to_states_map = {}
 		for sim in simulations:
-			for agent_index in range(0, num_agents):
+			for agent_index in range(0, sim.get_agents_count()):
 				var agent_name = sim.get_agent_name(agent_index)
 				agent_to_move_index[agent_name] = 0
 				var state = sim.get_state(agent_index)
@@ -150,7 +149,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 			var sim = simulations[simulation_index]
 
-			for agent_index in range(0, num_agents):
+			for agent_index in range(0, sim.get_agents_count()):
 				var agent_name = sim.get_agent_name(agent_index)
 				var agent_move_index = agent_to_move_index[agent_name]
 				agent_to_move_index[agent_name] = agent_move_index + 1
@@ -169,7 +168,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 			var sim = simulations[simulation_index]
 
-			for agent_index in range(0, num_agents):
+			for agent_index in range(0, sim.get_agents_count()):
 				var agent_name = sim.get_agent_name(agent_index)
 
 				# Get the index of of the move

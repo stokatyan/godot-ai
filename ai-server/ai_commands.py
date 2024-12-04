@@ -84,6 +84,7 @@ def _get_batch_actions(command_json):
         batch_actions_data[name] = batch_actions
     
     actions_path = "AIServerCommFiles/batch_action.json"
+    print(batch_actions_data)
     write_to_file(actions_path, batch_actions_data)
     response = {
         "path": actions_path
@@ -105,6 +106,7 @@ def _submit_batch_replay(command_json):
     
     batch_replay = batch_replay_json["replays"]
     replay_counts = {}
+    print(batch_replay)
     
     for replay in batch_replay:
         state = replay["state"]
@@ -155,7 +157,6 @@ def _train(command_json):
     return response
 
 def _init_agent(command_json):
-    print(command_json)
     try:
         agent_name = command_json["file_name"]
         agent = Agent(
