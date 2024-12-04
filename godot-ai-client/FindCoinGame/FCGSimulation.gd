@@ -119,13 +119,12 @@ func new_game(physics_update: Signal) -> bool:
 	var p_hero = Vector2.ZERO
 	var p_target = Vector2.ZERO
 	var wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
-	wall_segment = Rect2(-500, -500, -500, -500)
-#
-	#while wall_segment.position.distance_to(wall_segment.size) < max_p * 0.75:
-		#wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
-#
-	#var inner_wall = _add_wall(wall_segment)
-	#_inner_wall_bodies.append(inner_wall)
+
+	while wall_segment.position.distance_to(wall_segment.size) < max_p * 0.75:
+		wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+
+	var inner_wall = _add_wall(wall_segment)
+	_inner_wall_bodies.append(inner_wall)
 
 	var is_done = true
 	while !is_done:
@@ -167,9 +166,8 @@ func new_game(physics_update: Signal) -> bool:
 		if result.is_empty():
 			break
 
-	p_hero = Vector2(-200, -200)
-	_agents[0].set_transform(p_hero, -PI)
-	_agents[1].set_transform(p_target, 0) #randf_range(-PI, PI)
+	_agents[0].set_transform(p_hero, randf_range(-PI, PI))
+	_agents[1].set_transform(p_target, randf_range(-PI, PI))
 
 	_reset_prev_actions()
 	_reset_prev_observations()
@@ -198,8 +196,6 @@ func is_game_complete(_agent_index: int) -> bool:
 	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
-	if agent_index == 1:
-		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var transform: Transform2D = get_transform(agent._physics_body)
