@@ -196,6 +196,8 @@ func is_game_complete(_agent_index: int) -> bool:
 	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
+	if agent_index != 0:
+		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var transform: Transform2D = get_transform(agent._physics_body)
@@ -309,11 +311,11 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 func get_score(agent_index: int) -> float:
 	if agent_index == 0:
 		if is_game_complete(agent_index):
-			return 50.0
+			return 1.0
 		return -1.0
 	else:
 		if is_game_complete(agent_index):
-			return -50.0
+			return -1.0
 		return 1.0
 
 ## Check if p2 will overlap the line from p1 to p3
