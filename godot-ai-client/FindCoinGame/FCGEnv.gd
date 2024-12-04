@@ -190,7 +190,7 @@ func get_number_of_simulations_to_display() -> int:
 func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
-	var max_val = 100
+	var max_val = 500
 	var count = epoch % (max_val + 1)
 	if count == max_val:
 		_is_training_hero = !_is_training_hero
