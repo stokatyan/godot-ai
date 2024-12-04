@@ -126,7 +126,7 @@ func new_game(physics_update: Signal) -> bool:
 	var inner_wall = _add_wall(wall_segment)
 	_inner_wall_bodies.append(inner_wall)
 
-	var is_done = true
+	var is_done = false
 	while !is_done:
 		await physics_update
 
