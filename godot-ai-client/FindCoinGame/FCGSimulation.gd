@@ -14,10 +14,10 @@ var _map_radius: float:
 var _actions_taken = 0
 
 var _agents_to_prev_actions = {}
-var _action_history_size = 0 #10
+var _action_history_size = 10
 
 var _agents_to_prev_observations= {}
-var _observation_history_size = 0 #10
+var _observation_history_size = 10
 
 var _wall_thickness: float = 5
 
@@ -196,6 +196,8 @@ func is_game_complete(_agent_index: int) -> bool:
 	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
+	if agent_index != 0:
+		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var transform: Transform2D = get_transform(agent._physics_body)
