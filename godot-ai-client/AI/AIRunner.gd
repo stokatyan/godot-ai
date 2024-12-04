@@ -8,7 +8,6 @@ var _ai_tcp: AIServerTCP = AIServerTCP.new()
 
 var _loop_train_count = 0
 var _is_loop_training = false
-var _is_testing = false
 
 var _pending_hindsight_replays: Array[Replay] = []
 var _simulations_used_in_hindsight_creation = {}
@@ -38,12 +37,10 @@ func _input(event):
 	if key_input.echo or key_input.is_released():
 		return
 	match key_input.keycode:
-		KEY_ENTER:
-			if _is_loop_training or _is_testing:
+		KEY_SPACE:
+			if _is_loop_training:
 				return
-			_is_testing = true
-
-			_is_testing = false
+			_one_step()
 		KEY_UP:
 			_setup_ai()
 		KEY_2: # Get and Submit batch
@@ -53,7 +50,7 @@ func _input(event):
 			for agent_name in env_delegate.get_agent_names():
 				is_discrete_map[agent_name] = true
 
-			var replays = await _get_batch_from_playing_round(simulations, is_discrete_map)
+			var replays = await _get_batch_from_playing_round(env_delegate.get_steps_in_round(), simulations, is_discrete_map)
 			env_delegate.update_status(_loop_train_count, "submitting")
 			var _response = await _ai_tcp.submit_batch_replay(replays)
 			env_delegate.update_status(_loop_train_count, "done submitting")
@@ -113,7 +110,7 @@ func _setup_ai():
 		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
 		result = await _ai_tcp.load_agent(agent_name)
 
-func _get_batch_from_playing_round(simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:
+func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:
 	for i in range(0, env_delegate.get_number_of_simulations_to_display()):
 		env_delegate.display_simulation(simulations[i])
 
@@ -124,7 +121,7 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 		var history: Array[Replay] = []
 		replay_history[s] = history
 
-	for step in range(env_delegate.get_steps_in_round()):
+	for step in range(steps):
 		var agent_to_move_index = {}
 		var agent_to_states_map = {}
 		for sim in simulations:
@@ -197,6 +194,15 @@ func _get_batch_from_playing_round(simulations: Array[BaseSimulation], determini
 
 	return batch_replay
 
+func _one_step():
+	env_delegate.update_status(_loop_train_count, "1 step")
+	var simulations = await _create_simulations()
+	var is_deterministic_map = env_delegate.get_is_deterministic_map(_loop_train_count)
+	var replays = await _get_batch_from_playing_round(1, simulations, is_deterministic_map)
+	await get_tree().create_timer(0.5).timeout
+	_cleanup_simulations(simulations)
+
+
 func _loop_train():
 	if _is_loop_training:
 		return
@@ -207,10 +213,7 @@ func _loop_train():
 	_is_loop_training = true
 	var simulations = await _create_simulations()
 	var is_deterministic_map = env_delegate.get_is_deterministic_map(_loop_train_count)
-	var replays = await _get_batch_from_playing_round(simulations, is_deterministic_map)
-	replays += _pending_hindsight_replays
-	print("+ " + str(_pending_hindsight_replays.size()) + " hindsight replays appended")
-	_pending_hindsight_replays = []
+	var replays = await _get_batch_from_playing_round(env_delegate.get_steps_in_round(), simulations, is_deterministic_map)
 	print("Submitting ...")
 	env_delegate.update_status(_loop_train_count, "submitting")
 	var _response = await _ai_tcp.submit_batch_replay(replays)

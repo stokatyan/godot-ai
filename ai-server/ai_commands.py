@@ -51,7 +51,7 @@ def _get_action(command_json):
     return response
 
 def _get_batch_actions(command_json):
-    deterministic_map = ["deterministic_map"]
+    deterministic_map = command_json["deterministic_map"]
     batch_state_path = command_json["path"]
     batch = []
     current_state = []
@@ -71,15 +71,24 @@ def _get_batch_actions(command_json):
         batch = batch_state_json[name]
         agent = agents[name]
         deterministic = name in deterministic_map and deterministic_map[name] == True
+        states = []
         for i in range(len(batch)):
             current_state.append(batch[i])
             if len(current_state) == agent.state_dim:
+                states.append(current_state)
+                if len(states) == 5:
+                    print(f"States for {name}")
+                    print(deterministic_map)
+                    print(states)
                 action = agent.get_action(current_state, deterministic=deterministic)
                 if agent.action_dim == 1:
                     batch_actions.append(float(action))
                 else:
                     for a in action:
                         batch_actions.append(float(a))
+                        if len(batch_actions) == 10:
+                            print(f"Batch Actions for {name}")
+                            print(batch_actions)
                 current_state = []
         batch_actions_data[name] = batch_actions
     
@@ -119,6 +128,8 @@ def _submit_batch_replay(command_json):
             replay_counts[agent_name] += 1
         else:
             replay_counts[agent_name] = 1
+        if replay_counts[agent_name] < 5:
+            print(replay)
         
     for name in replay_counts:
         print(f"Received {replay_counts[name]} replays for {name}")
