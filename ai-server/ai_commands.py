@@ -155,6 +155,7 @@ def _train(command_json):
     return response
 
 def _init_agent(command_json):
+    print(command_json)
     try:
         agent_name = command_json["file_name"]
         agent = Agent(

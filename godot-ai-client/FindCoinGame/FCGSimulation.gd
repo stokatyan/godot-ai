@@ -2,7 +2,7 @@ extends BaseSimulation
 
 class_name FCGSimulation
 
-var agent_names: Array[String] = ["hero", "target"]
+var agent_names: Array[String] = ["hero"] # ["hero", "target"]
 
 var _agents: Array[FCGAgent] = [FCGAgent.new(), FCGAgent.new()]
 
@@ -196,8 +196,6 @@ func is_game_complete(_agent_index: int) -> bool:
 	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
-	if agent_index != 0:
-		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var transform: Transform2D = get_transform(agent._physics_body)
@@ -355,4 +353,4 @@ func get_agents_count() -> int:
 func get_agent_name(agent_index: int) -> String:
 	if agent_index == 0:
 		return agent_names[0]
-	return agent_names[1]
+	return agent_names[agent_names.size() - 1]
