@@ -309,11 +309,11 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 func get_score(agent_index: int) -> float:
 	if agent_index == 0:
 		if is_game_complete(agent_index):
-			return 50.0
+			return 1.0
 		return -1.0
 	else:
 		if is_game_complete(agent_index):
-			return -50.0
+			return -1.0
 		return 1.0
 
 ## Check if p2 will overlap the line from p1 to p3
