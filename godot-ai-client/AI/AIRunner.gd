@@ -228,6 +228,7 @@ func _loop_train():
 
 	_is_loop_training = false
 	if Input.is_key_pressed(KEY_ENTER):
+		_loop_train_count = 0
 		return
 	else:
 		_loop_train()
