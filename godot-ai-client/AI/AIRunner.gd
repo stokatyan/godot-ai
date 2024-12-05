@@ -107,7 +107,8 @@ func _setup_ai():
 		var num_actor_layers = env_delegate.get_num_actor_layers(agent_name)
 		var num_critic_layers = env_delegate.get_num_critic_layers(agent_name)
 		var hidden_size = env_delegate.get_hidden_size(agent_name)
-		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers)
+		var replay_capacity = env_delegate.get_replay_capacity(agent_name)
+		result = await _ai_tcp.init_agent(agent_name, state_dim, action_dim, batch_size, hidden_size, num_actor_layers, num_critic_layers, replay_capacity)
 		result = await _ai_tcp.load_agent(agent_name)
 
 func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation], deterministic_map: Dictionary) -> Array[Replay]:

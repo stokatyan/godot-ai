@@ -213,7 +213,7 @@ func train(file_name: String, steps: int, print_logs: bool):
 	_is_communicating = false
 	return action
 
-func init_agent(file_name: String, state_dim: int, action_dim: int, batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int):
+func init_agent(file_name: String, state_dim: int, action_dim: int, batchsize: int, hidden_size: int, num_actor_layers: int, num_critic_layers: int, replay_capacity: int):
 	while _is_communicating:
 		await get_tree().create_timer(2).timeout
 
@@ -230,6 +230,7 @@ func init_agent(file_name: String, state_dim: int, action_dim: int, batchsize: i
 	data["hidden_size"] = hidden_size
 	data["num_actor_layers"] = num_actor_layers
 	data["num_critic_layers"] = num_critic_layers
+	data["replay_capacity"] = replay_capacity
 
 	_send_json(data)
 

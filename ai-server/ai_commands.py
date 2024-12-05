@@ -163,7 +163,8 @@ def _init_agent(command_json):
             batchsize=command_json["batchsize"],
             hidden_size=command_json["hidden_size"],
             num_actor_layers=command_json["num_actor_layers"],
-            num_critic_layers=command_json["num_critic_layers"]
+            num_critic_layers=command_json["num_critic_layers"],
+            replay_capacity=command_json["replay_capacity"]
         )
         agents[agent_name] = agent
         print(f"Agent named {agent_name} initialized.")

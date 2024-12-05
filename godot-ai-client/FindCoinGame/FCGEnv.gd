@@ -199,3 +199,8 @@ func get_is_deterministic_map(epoch: int) -> Dictionary:
 	discrete_map[agent_names[1]] = !_is_training_target
 
 	return discrete_map
+
+func get_replay_capacity(agent_name: String) -> int:
+	if agent_name == get_agent_names()[0]:
+		return 5_000_000
+	return 100

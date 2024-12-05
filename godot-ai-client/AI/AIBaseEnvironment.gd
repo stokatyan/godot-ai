@@ -52,6 +52,10 @@ func get_hidden_size(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
 
+func get_replay_capacity(_agent_name) -> int:
+	assert(false)
+	return 0
+
 func get_train_steps(_agent_name: String) -> int:
 	assert(false, "get_steps_in_round not implemented")
 	return 0
