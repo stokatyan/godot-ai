@@ -174,7 +174,11 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 				if agent_index == 1:
 					continue
 				var agent_name = sim.get_agent_name(agent_index)
+
+				var is_done = sim.is_game_complete(agent_index)
 				if deterministic_map.has(agent_name) and deterministic_map[agent_name]:
+					if is_done:
+						done_indecis[simulation_index] = true
 					continue
 
 				# Get the index of of the move
@@ -183,7 +187,6 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 				# Create Replay
 				var state_ = sim.get_state(agent_index)
 				var action = actions_dictionary[agent_name][agent_move_index]
-				var is_done = sim.is_game_complete(agent_index)
 				var reward = sim.get_score(agent_index)
 				var prev_state = agent_to_states_map[agent_name][agent_move_index]
 				var replay = Replay.new(prev_state, action, reward, state_, is_done)
@@ -192,7 +195,6 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 				agent_to_move_index[agent_name] = agent_move_index + 1
 
 				if is_done:
-					var replays = replay_history[sim]
 					done_indecis[simulation_index] = true
 					continue
 

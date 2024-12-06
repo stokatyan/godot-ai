@@ -193,7 +193,10 @@ func _reset_prev_observations():
 		_agents_to_prev_observations[_agents[agent_index]] = prev_observations
 
 func is_game_complete(_agent_index: int) -> bool:
-	return _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
+	var val = _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
+	if val:
+		pass
+	return val
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
 	var agent = _agents[agent_index]
