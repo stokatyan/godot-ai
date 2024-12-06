@@ -88,10 +88,10 @@ func new_simulation() -> BaseSimulation:
 	return FCGSimulation.new() as FCGSimulation
 
 func get_simulation_count() -> int:
-	return 50
+	return 40
 
 func get_steps_in_round() -> int:
-	return 40
+	return 80
 
 func get_state_dim(_agent_name: String) -> int:
 	if _agent_name == _example_sim.get_agent_names()[0]:

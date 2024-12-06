@@ -119,7 +119,6 @@ def _submit_batch_replay(command_json):
         agent_name = replay["agent_name"]
         agent = agents[agent_name]
         transition = Transition(state, action, reward, state_, done)
-        print(transition)
         agent.replay_pool.push(transition)
         if agent_name in replay_counts:
             replay_counts[agent_name] += 1
