@@ -197,6 +197,9 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 
 	batch_replay = _get_batch_replays_from_replay_map(replay_history)
 
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+
 	return batch_replay
 
 func _one_step():
