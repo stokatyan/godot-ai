@@ -167,7 +167,11 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 			var sim = simulations[simulation_index]
 
 			for agent_index in range(0, sim.get_agents_count()):
+				if agent_index == 1:
+					continue
 				var agent_name = sim.get_agent_name(agent_index)
+				if deterministic_map.has(agent_name) and deterministic_map[agent_name]:
+					continue
 
 				# Get the index of of the move
 				var agent_move_index = agent_to_move_index[agent_name]
