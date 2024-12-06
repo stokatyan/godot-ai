@@ -14,10 +14,10 @@ var _map_radius: float:
 var _actions_taken = 0
 
 var _agents_to_prev_actions = {}
-var _action_history_size = 10
+var _action_history_size = 1#10
 
 var _agents_to_prev_observations= {}
-var _observation_history_size = 10
+var _observation_history_size = 1#10
 
 var _wall_thickness: float = 5
 
@@ -214,14 +214,14 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	var motion_magnitude = result[0]
 
 	var prev_actions = _agents_to_prev_actions[agent]
-	prev_actions.pop_front()
-	prev_actions.pop_front()
 	prev_actions += action_vector
+	prev_actions.pop_front()
+	prev_actions.pop_front()
 	_agents_to_prev_actions[agent] = prev_actions
 
 	var prev_observations = _agents_to_prev_observations[agent]
-	prev_observations.pop_front()
 	prev_observations.append(_get_current_observation(agent_index))
+	prev_observations.pop_front()
 	_agents_to_prev_observations[agent] = prev_observations
 
 	_actions_taken += 1
@@ -252,6 +252,7 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 	var state: Array[float] = [
 		(agent._rotation / PI)
 	]
+
 	var angles = agent.get_vision_angles()
 	var angle_to_wall_distance = {}
 	var other_agent_layer = _target_layer

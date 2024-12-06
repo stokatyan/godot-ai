@@ -53,7 +53,6 @@ def _get_action(command_json):
 def _get_batch_actions(command_json):
     deterministic_map = command_json["deterministic_map"]
     batch_state_path = command_json["path"]
-    batch = []
     current_state = []
     
     batch_state_json = {}
@@ -82,6 +81,11 @@ def _get_batch_actions(command_json):
                         batch_actions.append(float(a))
                 current_state = []
         batch_actions_data[name] = batch_actions
+    
+        if len(current_state) != 0:
+            print()
+            print(f"Unexpected leftover state values for: {name}")
+            print()
 
     actions_path = "AIServerCommFiles/batch_action.json"
     write_to_file(actions_path, batch_actions_data)
@@ -114,7 +118,9 @@ def _submit_batch_replay(command_json):
         done = replay["done"]
         agent_name = replay["agent_name"]
         agent = agents[agent_name]
-        agent.replay_pool.push(Transition(state, action, reward, state_, done))
+        transition = Transition(state, action, reward, state_, done)
+        print(transition)
+        agent.replay_pool.push(transition)
         if agent_name in replay_counts:
             replay_counts[agent_name] += 1
         else:

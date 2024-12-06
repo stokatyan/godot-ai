@@ -231,7 +231,8 @@ func _loop_train():
 		if !is_deterministic_map.has(agent_name) or !is_deterministic_map[agent_name]:
 			_response = await _ai_tcp.train(agent_name, env_delegate.get_train_steps(agent_name), true)
 	_cleanup_simulations(simulations)
-
+	print("Done Training")
+	env_delegate.update_status(_loop_train_count, "Done Training")
 	_loop_train_count += 1
 
 	_is_loop_training = false
