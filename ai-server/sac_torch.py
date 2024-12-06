@@ -139,7 +139,7 @@ class SAC_Agent:
 
     def optimize(self, n_updates, state_filter=None):
         q1_loss, q2_loss, pi_loss, a_loss = 0, 0, 0, 0
-        print(f"Training replay pool size: \n{self.batchsize}")
+        print(f"Training replay pool size: {len(self.replay_pool)}")
         for i in range(n_updates):
             samples = self.replay_pool.sample(self.batchsize)
 
