@@ -203,7 +203,7 @@ func get_is_deterministic_map(epoch: int) -> Dictionary:
 
 func get_replay_capacity(agent_name: String) -> int:
 	if agent_name == get_agent_names()[0]:
-		return 5_000_000
+		return 800_000
 	return 100
 
 func get_agent_indecis() -> Array[int]:
