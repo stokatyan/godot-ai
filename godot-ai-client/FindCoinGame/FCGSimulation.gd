@@ -14,10 +14,10 @@ var _map_radius: float:
 var _actions_taken = 0
 
 var _agents_to_prev_actions = {}
-var _action_history_size = 1#10
+var _action_history_size = 10
 
 var _agents_to_prev_observations= {}
-var _observation_history_size = 1#10
+var _observation_history_size = 10
 
 var _wall_thickness: float = 5
 
@@ -310,7 +310,7 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 func get_score(agent_index: int) -> float:
 	if agent_index == 0:
 		if is_game_complete(agent_index):
-			return 1.0
+			return 100.0
 		return -1.0
 	else:
 		if is_game_complete(agent_index):
