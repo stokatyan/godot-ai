@@ -125,7 +125,11 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 	for step in range(steps):
 		var agent_to_move_index = {}
 		var agent_to_states_map = {}
-		for sim in simulations:
+		for simulation_index in range(simulations.size()):
+			if done_indecis.has(simulation_index):
+				continue
+
+			var sim = simulations[simulation_index]
 			for agent_index in env_delegate.get_agent_indecis():
 				var agent_name = sim.get_agent_name(agent_index)
 				agent_to_move_index[agent_name] = 0
