@@ -15,7 +15,7 @@ func _draw():
 		return
 	for index in range(0, get_number_of_simulations_to_display()):
 		var sim = _sims_to_display[index]
-		_draw_simulation(sim, _display_offsets[index])
+		_draw_simulation(sim, _display_offsets[index], index)
 
 func _input(event):
 	var keyboard_event = event as InputEventKey
@@ -116,7 +116,7 @@ func get_hidden_size(_agent_name: String) -> int:
 func get_train_steps(_agent_name: String) -> int:
 	return 100
 
-func _draw_simulation(s: FCGSimulation, offset: Vector2):
+func _draw_simulation(s: FCGSimulation, offset: Vector2, sim_index: int):
 	if s._is_cleaned:
 		return
 
@@ -126,26 +126,27 @@ func _draw_simulation(s: FCGSimulation, offset: Vector2):
 		var agent = s._agents[agent_index]
 		var vision_angles = agent.get_vision_angles()
 		var game_state = s.get_state(agent_index)
-		for i in range(vision_angles.size()):
-			var a = vision_angles[i]
-			var wall_depth = game_state[i + 1] # first item is rotation
-			var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
-			target_depth = min(wall_depth, target_depth)
-			var direction = Vector2.from_angle(a)
-			draw_line(
-				agent._position + direction * agent._radius + offset,
-				agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius + offset,
-				Color.DARK_GRAY,
-				3.5,
-				true
-			)
-			draw_line(
-				agent._position + direction * agent._radius + offset,
-				agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius + offset,
-				Color.STEEL_BLUE,
-				0.75,
-				true
-			)
+		if sim_index == 0:
+			for i in range(vision_angles.size()):
+				var a = vision_angles[i]
+				var wall_depth = game_state[i + 1] # first item is rotation
+				var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
+				target_depth = min(wall_depth, target_depth)
+				var direction = Vector2.from_angle(a)
+				draw_line(
+					agent._position + direction * agent._radius + offset,
+					agent._position + direction * wall_depth * agent.max_vision_distance + direction * agent._radius + offset,
+					Color.DARK_GRAY,
+					3.5,
+					true
+				)
+				draw_line(
+					agent._position + direction * agent._radius + offset,
+					agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius + offset,
+					Color.STEEL_BLUE,
+					0.75,
+					true
+				)
 		# Agent
 		draw_circle(
 			agent._position + offset,

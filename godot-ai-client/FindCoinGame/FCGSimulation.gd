@@ -29,6 +29,8 @@ var _hero_layer   = 0b0001
 var _target_layer = 0b0010
 var _wall_layer   = 0b0100
 
+var _is_game_over = false
+
 func _init():
 	_reset_prev_actions()
 	_setup_physics_server()
@@ -103,6 +105,7 @@ func get_transform(body: RID) -> Transform2D:
 	return transform
 
 func new_game(physics_update: Signal) -> bool:
+	_is_game_over = false
 	for body in _inner_wall_bodies:
 		var shape_count = PhysicsServer2D.body_get_shape_count(body)
 		for i in range(shape_count):
@@ -195,10 +198,12 @@ func _reset_prev_observations():
 func is_game_complete(_agent_index: int) -> bool:
 	var val = _agents[0]._position.distance_to(_agents[1]._position) < _agents[0]._radius + _agents[1]._radius
 	if val:
-		pass
+		_is_game_over = true
 	return val
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
+	if _is_game_over:
+		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var transform: Transform2D = get_transform(agent._physics_body)
