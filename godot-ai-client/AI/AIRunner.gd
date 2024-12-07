@@ -116,21 +116,25 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 		env_delegate.display_simulation(simulations[i])
 
 	var batch_replay: Array[Replay] = []
-	var done_indecis = {}
+	var done_indecis: Array[Dictionary] = []
 	var replay_history = {}
 	for s in simulations:
 		var history: Array[Replay] = []
 		replay_history[s] = history
+		var index_to_done_map = {}
+		for index in env_delegate.get_agent_indecis():
+			index_to_done_map[index] = false
+
+		done_indecis.append(index_to_done_map)
 
 	for step in range(steps):
 		var agent_to_move_index = {}
 		var agent_to_states_map = {}
 		for simulation_index in range(simulations.size()):
-			if done_indecis.has(simulation_index):
-				continue
-
 			var sim = simulations[simulation_index]
 			for agent_index in env_delegate.get_agent_indecis():
+				if done_indecis[simulation_index][agent_index]:
+					continue
 				var agent_name = sim.get_agent_name(agent_index)
 				agent_to_move_index[agent_name] = 0
 				var state = sim.get_state(agent_index)
@@ -146,12 +150,10 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 		env_delegate.update_status(_loop_train_count, "playing: got_batch_actions")
 
 		for simulation_index in range(simulations.size()):
-			if done_indecis.has(simulation_index):
-				continue
-
 			var sim = simulations[simulation_index]
-
 			for agent_index in env_delegate.get_agent_indecis():
+				if done_indecis[simulation_index][agent_index]:
+					continue
 				var agent_name = sim.get_agent_name(agent_index)
 				var agent_move_index = agent_to_move_index[agent_name]
 				agent_to_move_index[agent_name] = agent_move_index + 1
@@ -165,20 +167,15 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 			agent_to_move_index[key] = 0
 
 		for simulation_index in range(simulations.size()):
-			if done_indecis.has(simulation_index):
-				continue
-
 			var sim = simulations[simulation_index]
 
 			for agent_index in env_delegate.get_agent_indecis():
-				if agent_index == 1:
+				if done_indecis[simulation_index][agent_index]:
 					continue
 				var agent_name = sim.get_agent_name(agent_index)
 
 				var is_done = sim.is_game_complete(agent_index)
 				if deterministic_map.has(agent_name) and deterministic_map[agent_name]:
-					if is_done:
-						done_indecis[simulation_index] = true
 					continue
 
 				# Get the index of of the move
@@ -195,7 +192,7 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 				agent_to_move_index[agent_name] = agent_move_index + 1
 
 				if is_done:
-					done_indecis[simulation_index] = true
+					done_indecis[simulation_index][agent_index] = true
 					continue
 
 		for i in range(0, env_delegate.get_number_of_simulations_to_display()):
