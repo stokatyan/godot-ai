@@ -88,7 +88,7 @@ func new_simulation() -> BaseSimulation:
 	return FCGSimulation.new() as FCGSimulation
 
 func get_simulation_count() -> int:
-	return 20
+	return 50
 
 func get_steps_in_round() -> int:
 	return 60
@@ -192,11 +192,11 @@ func get_number_of_simulations_to_display() -> int:
 func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
-	#var max_val = 500
-	#var count = epoch % (max_val + 1)
-	#if count == max_val:
-		#_is_training_hero = !_is_training_hero
-		#_is_training_target = !_is_training_target
+	var max_val = 100
+	var count = epoch % (max_val + 1)
+	if count == max_val:
+		_is_training_hero = !_is_training_hero
+		_is_training_target = !_is_training_target
 	discrete_map[agent_names[0]] = !_is_training_hero
 	discrete_map[agent_names[1]] = !_is_training_target
 
@@ -204,5 +204,5 @@ func get_is_deterministic_map(epoch: int) -> Dictionary:
 
 func get_replay_capacity(agent_name: String) -> int:
 	if agent_name == get_agent_names()[0]:
-		return 0
-	return 800_000
+		return 500_000
+	return 500_000
