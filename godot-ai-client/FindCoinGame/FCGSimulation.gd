@@ -317,7 +317,7 @@ func get_score(agent_index: int) -> float:
 		return -1.0
 	else:
 		if is_game_complete(agent_index):
-			return -1.0
+			return -100.0
 		return 1.0
 
 ## Check if p2 will overlap the line from p1 to p3
