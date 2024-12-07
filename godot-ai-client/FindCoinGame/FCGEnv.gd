@@ -205,7 +205,3 @@ func get_replay_capacity(agent_name: String) -> int:
 	if agent_name == get_agent_names()[0]:
 		return 5
 	return 800_000
-
-func get_agent_indecis() -> Array[int]:
-	var indecis: Array[int] = [0, 1]
-	return indecis

@@ -72,8 +72,3 @@ func get_is_deterministic_map(epoch: int) -> Dictionary:
 	assert(false, "get_is_discrete_map not implemented")
 	var deterministic_map = {}
 	return deterministic_map
-
-func get_agent_indecis() -> Array[int]:
-	assert(false)
-	var indecis: Array[int] = []
-	return indecis

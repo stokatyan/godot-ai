@@ -122,7 +122,7 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 		var history: Array[Replay] = []
 		replay_history[s] = history
 		var index_to_done_map = {}
-		for index in env_delegate.get_agent_indecis():
+		for index in s.get_agents_count():
 			index_to_done_map[index] = false
 
 		done_indecis.append(index_to_done_map)
@@ -132,7 +132,7 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 		var agent_to_states_map = {}
 		for simulation_index in range(simulations.size()):
 			var sim = simulations[simulation_index]
-			for agent_index in env_delegate.get_agent_indecis():
+			for agent_index in sim.get_agents_count():
 				if done_indecis[simulation_index][agent_index]:
 					continue
 				var agent_name = sim.get_agent_name(agent_index)
@@ -151,7 +151,7 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 
 		for simulation_index in range(simulations.size()):
 			var sim = simulations[simulation_index]
-			for agent_index in env_delegate.get_agent_indecis():
+			for agent_index in sim.get_agents_count():
 				if done_indecis[simulation_index][agent_index]:
 					continue
 				var agent_name = sim.get_agent_name(agent_index)
@@ -169,7 +169,7 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 		for simulation_index in range(simulations.size()):
 			var sim = simulations[simulation_index]
 
-			for agent_index in env_delegate.get_agent_indecis():
+			for agent_index in sim.get_agents_count():
 				if done_indecis[simulation_index][agent_index]:
 					continue
 				var agent_name = sim.get_agent_name(agent_index)
