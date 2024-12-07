@@ -207,7 +207,7 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	if agent_index > 0:
-		motion_vector *= 2
+		motion_vector *= 1.2
 
 	var transform: Transform2D = get_transform(agent._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
