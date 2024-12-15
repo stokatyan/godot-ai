@@ -219,16 +219,18 @@ func new_game(physics_update: Signal) -> bool:
 	var max_p = _map_radius * 0.75
 	var p_hero = Vector2.ZERO
 
-
+	var last_wall_was_vertical = false
 	for i in range(0, randi_range(1, 4)):
 		var p1 = Vector2(randf_range(-max_p, max_p), randf_range(-max_p, max_p))
 		var p2 = Vector2()
-		if randi() % 2 == 0: # Random choice
+		if !last_wall_was_vertical: # Random choice
 			# Vertical line
 			p2 = Vector2(p1.x + randf_range(-20, 20), randf_range(-max_p, max_p))
+			last_wall_was_vertical = true
 		else:
 			# Horizontal line
 			p2 = Vector2(randf_range(-max_p, max_p), p1.y + randf_range(-20, 20))
+			last_wall_was_vertical = false
 
 		if p1.distance_to(p2) < 20:
 			continue
