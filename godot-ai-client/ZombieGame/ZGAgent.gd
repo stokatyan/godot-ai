@@ -1,5 +1,10 @@
 extends ZGBaseNode
 
+class_name ZGAgent
+
+var _health: float = 1.0
+var _attack_damage: float = 0.25
+
 var max_vision_distance: float:
 	get:
 		return 700
@@ -35,3 +40,7 @@ func get_vision_angles() -> Array[float]:
 		(PI * -0.75 + r),
 	]
 	return _angles
+
+func did_get_hit(damage_taken: float):
+	_health -= damage_taken
+	_health = max(0, _health)

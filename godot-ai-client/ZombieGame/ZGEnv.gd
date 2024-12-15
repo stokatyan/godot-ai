@@ -99,7 +99,7 @@ func _draw_simulation(s: ZGSimulation, offset: Vector2, sim_index: int):
 	if s._is_cleaned:
 		return
 
-	var colors = [Color.INDIAN_RED, Color.SEA_GREEN]
+	var colors = [Color.SEA_GREEN, Color.INDIAN_RED]
 	for agent_index in range(0, s.get_agents_count()):
 		# Vision
 		var agent = s._agents[agent_index]
@@ -126,6 +126,8 @@ func _draw_simulation(s: ZGSimulation, offset: Vector2, sim_index: int):
 					0.75,
 					true
 				)
+
+		var color = colors[0].lerp(colors[1], 1.0 - agent._health)
 		# Agent
 		draw_circle(
 			agent._position + offset,

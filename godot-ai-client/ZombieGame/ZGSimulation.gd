@@ -4,7 +4,7 @@ class_name ZGSimulation
 
 var agent_names: Array[String] = ["hero"]
 
-var _agents: Array[FCGAgent] = [FCGAgent.new()]
+var _agents: Array[ZGAgent] = [ZGAgent.new()]
 
 var _map_size: float = 500
 var _map_radius: float:
@@ -123,10 +123,10 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 
 	state.append(agent._position.x / _map_radius)
 	state.append(agent._position.y / _map_radius)
-
+	state.append(agent._health)
 	return state
 
-func _get_agent_observation(agent: FCGAgent, angle: float, max_distance: float, layer: int) -> float:
+func _get_agent_observation(agent: ZGAgent, angle: float, max_distance: float, layer: int) -> float:
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 	var agent_transform: Transform2D = get_transform(agent._physics_body)
 
