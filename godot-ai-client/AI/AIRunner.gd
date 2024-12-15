@@ -37,7 +37,7 @@ func _input(event):
 	if key_input.echo or key_input.is_released():
 		return
 	match key_input.keycode:
-		KEY_SPACE:
+		KEY_EQUAL:
 			if _is_loop_training:
 				return
 			_one_step()

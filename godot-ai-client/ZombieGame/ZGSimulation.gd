@@ -215,24 +215,34 @@ func new_game(physics_update: Signal) -> bool:
 		# Free the body RID
 		PhysicsServer2D.free_rid(body)
 
-	_inner_wall_bodies = []
-
 	_actions_taken = 0
 	var max_p = _map_radius * 0.75
 	var p_hero = Vector2.ZERO
-	var wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
 
-	while wall_segment.position.distance_to(wall_segment.size) < max_p * 0.75:
-		wall_segment = Rect2(randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p), randf_range(-max_p , max_p))
 
-	var inner_wall = _add_wall(wall_segment)
-	_inner_wall_bodies.append(inner_wall)
+	for i in range(0, randi_range(1, 4)):
+		var p1 = Vector2(randf_range(-max_p, max_p), randf_range(-max_p, max_p))
+		var p2 = Vector2()
+		if randi() % 2 == 0: # Random choice
+			# Vertical line
+			p2 = Vector2(p1.x + randf_range(-20, 20), randf_range(-max_p, max_p))
+		else:
+			# Horizontal line
+			p2 = Vector2(randf_range(-max_p, max_p), p1.y + randf_range(-20, 20))
 
-	var is_done = true
+		if p1.distance_to(p2) < 20:
+			continue
+
+		var wall_segment = Rect2(p1.x, p1.y, p2.x, p2.y)
+
+		var inner_wall = _add_wall(wall_segment)
+		_inner_wall_bodies.append(inner_wall)
+
+	var is_done = false
 	while !is_done:
 		await physics_update
 
-		p_hero = Vector2.ZERO
+		p_hero = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
 
 		var t_hero = Transform2D(0, p_hero)
 		var temp_hero_body = PhysicsServer2D.body_create()
@@ -243,9 +253,10 @@ func new_game(physics_update: Signal) -> bool:
 		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
 		PhysicsServer2D.body_set_collision_layer(temp_hero_body, _hero_layer)
 
-		var result = _get_collision_points(temp_hero_shape, t_hero, _agents[0]._radius * 2, _wall_layer)
+		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, t_hero, _agents[0]._radius * 2, _wall_layer)
 
 		if result.is_empty():
+			is_done = true
 			break
 
 	_agents[0].set_transform(p_hero, randf_range(-PI, PI))
