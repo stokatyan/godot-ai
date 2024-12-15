@@ -53,7 +53,7 @@ func get_hidden_size(_agent_name: String) -> int:
 	return 0
 
 func get_replay_capacity(_agent_name) -> int:
-	assert(false)
+	assert(false, "get_replay_capacity not implemented")
 	return 0
 
 func get_train_steps(_agent_name: String) -> int:
@@ -68,7 +68,7 @@ func get_agent_names() -> Array[String]:
 	var agent_names: Array[String] = []
 	return agent_names
 
-func get_is_deterministic_map(epoch: int) -> Dictionary:
+func get_is_deterministic_map(_epoch: int) -> Dictionary:
 	assert(false, "get_is_discrete_map not implemented")
 	var deterministic_map = {}
 	return deterministic_map

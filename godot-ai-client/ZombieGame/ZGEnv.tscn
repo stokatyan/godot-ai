@@ -1,3 +1,22 @@
-[gd_scene format=3 uid="uid://cdqj53iytypjv"]
+[gd_scene load_steps=2 format=3 uid="uid://cdqj53iytypjv"]
 
-[node name="ZombieGameEnv" type="Node2D"]
+[ext_resource type="Script" path="res://ZombieGame/ZGEnv.gd" id="1_sm6k6"]
+
+[node name="ZombieGameEnv" type="Node2D" node_paths=PackedStringArray("epoch_label", "state_label")]
+script = ExtResource("1_sm6k6")
+epoch_label = NodePath("CanvasLayer/VBoxContainer/Epoch")
+state_label = NodePath("CanvasLayer/VBoxContainer/Status")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer"]
+
+[node name="Epoch" type="Label" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "epoch"
+
+[node name="Status" type="Label" parent="CanvasLayer/VBoxContainer"]
+layout_mode = 2
+text = "status"

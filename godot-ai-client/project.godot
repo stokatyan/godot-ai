@@ -11,9 +11,17 @@ config_version=5
 [application]
 
 config/name="godot-ai"
-run/main_scene="res://FindCoinGame/FCGEnv.tscn"
+run/main_scene="res://ZombieGame/ZGEnv.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
+
+[debug]
+
+gdscript/warnings/unused_variable=0
+gdscript/warnings/unused_private_class_variable=0
+gdscript/warnings/unused_parameter=0
+gdscript/warnings/integer_division=0
+gdscript/warnings/narrowing_conversion=0
 
 [display]
 
