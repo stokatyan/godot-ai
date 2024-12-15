@@ -99,7 +99,7 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 	if s._is_cleaned:
 		return
 
-	var colors = [Color.SEA_GREEN, Color.INDIAN_RED]
+	var colors = [Color.SEA_GREEN, Color.DODGER_BLUE]
 	for agent_index in range(0, s.get_agents_count()):
 		# Vision
 		var agent = s._agents[agent_index]
@@ -127,7 +127,7 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 					true
 				)
 
-		var color = colors[0].lerp(colors[1], 1.0 - agent._health)
+		var color = colors[agent_index]
 		# Agent
 		draw_circle(
 			agent._position + offset,
@@ -137,11 +137,17 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 			2.0,
 			true
 		)
-		# Filled circle
-		draw_circle(
-			agent._position + offset,
-			agent._radius,
-			colors[agent_index],
+
+		# Health
+		var stat_root = Vector2(agent._position.x - agent._radius * 0.9, agent._position.y)
+		stat_root += offset
+		stat_root.y += 10
+		draw_line(
+			stat_root,
+			stat_root + Vector2(agent._health * agent._radius * 2 * 0.9, 0),
+			Color.INDIAN_RED,
+			0.75,
+			true
 		)
 
 		# Orientation
