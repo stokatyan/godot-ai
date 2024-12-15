@@ -1,6 +1,6 @@
-extends ZGBaseNode
+extends BRBaseNode
 
-class_name ZGAgent
+class_name BRAgent
 
 var _health: float = 1.0
 var _attack_damage: float = 0.25

@@ -1,7 +1,7 @@
 extends AIBaseEnvironment
 
-var _sims_to_display: Array[ZGSimulation] = []
-var _example_sim: ZGSimulation = ZGSimulation.new()
+var _sims_to_display: Array[BRSimulation] = []
+var _example_sim: BRSimulation = BRSimulation.new()
 var _display_offsets: Array[Vector2] = [Vector2(-600, 0), Vector2(0, 0), Vector2(600, 0)]
 
 @export var epoch_label: Label
@@ -66,7 +66,7 @@ func display_simulation(s: BaseSimulation):
 	queue_redraw()
 
 func new_simulation() -> BaseSimulation:
-	return ZGSimulation.new() as ZGSimulation
+	return BRSimulation.new() as BRSimulation
 
 func get_simulation_count() -> int:
 	return 50
@@ -95,7 +95,7 @@ func get_hidden_size(_agent_name: String) -> int:
 func get_train_steps(_agent_name: String) -> int:
 	return 100
 
-func _draw_simulation(s: ZGSimulation, offset: Vector2, sim_index: int):
+func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 	if s._is_cleaned:
 		return
 

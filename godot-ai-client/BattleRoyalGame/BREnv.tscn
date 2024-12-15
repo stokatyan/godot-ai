@@ -1,9 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://cdqj53iytypjv"]
 
-[ext_resource type="Script" path="res://ZombieGame/ZGEnv.gd" id="1_sm6k6"]
+[ext_resource type="Script" path="res://BattleRoyalGame/BREnv.gd" id="1_wlvur"]
 
 [node name="ZombieGameEnv" type="Node2D" node_paths=PackedStringArray("epoch_label", "state_label")]
-script = ExtResource("1_sm6k6")
+script = ExtResource("1_wlvur")
 epoch_label = NodePath("CanvasLayer/VBoxContainer/Epoch")
 state_label = NodePath("CanvasLayer/VBoxContainer/Status")
 

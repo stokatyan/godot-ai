@@ -1,6 +1,6 @@
 extends RefCounted
 
-class_name ZGBaseNode
+class_name BRBaseNode
 
 var _physics_body: RID
 var _physics_shape: RID
