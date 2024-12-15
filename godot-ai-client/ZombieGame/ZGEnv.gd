@@ -42,7 +42,7 @@ func _handle_user_input(_key: Key):
 		agent_index = 1
 
 	if apply_move and !_ai_runner._initial_simulations.is_empty():
-		var action: Array[float] = [move_vector.x, move_vector.y]
+		var action: Array[float] = [move_vector.x, move_vector.y, move_vector.angle()/2.0]
 
 		_ai_runner._initial_simulations[0].apply_action(agent_index, action, null)
 		await get_tree().physics_frame

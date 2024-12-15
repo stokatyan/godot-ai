@@ -283,6 +283,7 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
+	var rotation = action_vector[2] * PI
 	if agent_index > 0:
 		motion_vector *= 1.2
 
@@ -314,7 +315,7 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 
 	_actions_taken += 1
 
-	agent.set_transform(agent._position + motion_vector * motion_magnitude, motion_vector.angle())
+	agent.set_transform(agent._position + motion_vector * motion_magnitude, rotation)
 
 	if callback:
 		callback.call(self)
