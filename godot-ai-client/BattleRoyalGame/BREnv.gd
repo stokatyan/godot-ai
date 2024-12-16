@@ -77,22 +77,22 @@ func get_simulation_count() -> int:
 	return 50
 
 func get_steps_in_round() -> int:
-	return 60
+	return 105
 
 func get_state_dim(_agent_name: String) -> int:
 	return _example_sim.get_state(0).size() # Only 1 type of agent
 
 func get_action_dim(_agent_name: String) -> int:
-	return 2
+	return 5
 
 func get_batch_size(_agent_name: String) -> int:
 	return 500
 
 func get_num_actor_layers(_agent_name: String) -> int:
-	return 3
+	return 6
 
 func get_num_critic_layers(_agent_name: String) -> int:
-	return 4
+	return 8
 
 func get_hidden_size(_agent_name: String) -> int:
 	return 200
