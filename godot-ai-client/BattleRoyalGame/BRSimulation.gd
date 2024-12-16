@@ -160,14 +160,17 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 	return result
 
 func get_score(agent_index: int) -> float:
-	if agent_index == 0:
-		if is_game_complete(agent_index):
-			return 1.0
-		return -1.0
+	var agent = _agents[agent_index]
+	var team = _agent_teams[agent_index]
+	var winning_team = _get_winning_team()
+	if winning_team <= 0:
+		if agent.is_dead:
+			return -10
+		return 0
+	if winning_team == team:
+		return 10
 	else:
-		if is_game_complete(agent_index):
-			return -1.0
-		return 1.0
+		return -100
 
 ## Check if p2 will overlap the line from p1 to p3
 func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):
@@ -292,12 +295,34 @@ func _free_all_objects():
 	PhysicsServer2D.free_rid(_physics_space)
 
 func is_game_complete(agent_index: int) -> bool:
-	return get_is_game_over_for_agent(agent_index)
+	return _get_winning_team() > 0
+
+func _get_winning_team() -> int:
+	var teams_alive_map = {}
+	for team in _agent_teams:
+		teams_alive_map[team] = false
+
+	for i in range(_agents.size()):
+		var is_team_alive = teams_alive_map[_agent_teams[i]]
+		teams_alive_map[_agent_teams[i]] = is_team_alive or _agents[i].is_dead
+
+	var winning_team = -1
+	var teams_alive = 0
+	for team in teams_alive_map.keys():
+		var val = teams_alive_map[team]
+		if val:
+			winning_team = team
+			teams_alive += 1
+
+	if teams_alive >= 2:
+		return -1
+	return winning_team
+
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
-	if get_is_game_over_for_agent(agent_index):
-		return
 	var agent = _agents[agent_index]
+	if agent.is_dead:
+		return
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var rotation = action_vector[2] * PI
 
@@ -357,7 +382,3 @@ func get_state(agent_index: int) -> Array[float]:
 
 	var state = current + flattened_prev_observatations + prev_actions
 	return state
-
-func get_is_game_over_for_agent(agent_index: int) -> bool:
-	var agent = _agents[agent_index]
-	return agent._steps_remaining <= 0

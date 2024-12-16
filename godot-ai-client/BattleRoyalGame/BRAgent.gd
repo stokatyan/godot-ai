@@ -32,6 +32,10 @@ var max_vision_distance: float:
 	get:
 		return 700
 
+var is_dead: bool:
+	get:
+		return _health <= 0 or _steps_remaining <= 0
+
 func _init():
 	_radius = 20
 	_physics_body = PhysicsServer2D.body_create()
