@@ -317,7 +317,7 @@ func _get_winning_team() -> int:
 
 	for i in range(_agents.size()):
 		var is_team_alive = teams_alive_map[_agent_teams[i]]
-		teams_alive_map[_agent_teams[i]] = is_team_alive or _agents[i].is_dead
+		teams_alive_map[_agent_teams[i]] = is_team_alive or !_agents[i].is_dead
 
 	var winning_team = -1
 	var teams_alive = 0
@@ -372,7 +372,12 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	agent.step_did_elapse()
 
 	if shoot_action:
-		agent.shoot()
+		var did_shoot = agent.shoot()
+		if did_shoot:
+			var shot_start = agent._position
+			var shot_end = _physics_shoot_query(shot_start, Vector2.from_angle(agent._rotation) * agent.max_vision_distance)
+			agent.last_shot_line = Vector4(shot_start.x, shot_start.y, shot_end.x, shot_end.y)
+
 	if reload_action:
 		agent.reload()
 	agent.set_transform(agent._position + motion_vector * motion_magnitude, rotation)
@@ -395,3 +400,25 @@ func get_state(agent_index: int) -> Array[float]:
 
 	var state = current + flattened_prev_observatations + prev_actions
 	return state
+
+func _physics_shoot_query(start: Vector2, motion: Vector2) -> Vector2:
+	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
+
+	var shape = PhysicsServer2D.circle_shape_create()
+	PhysicsServer2D.shape_set_data(shape, 5.0)
+	var from_transform = Transform2D(0, start)
+
+	var shoot_query = PhysicsShapeQueryParameters2D.new()
+	shoot_query.collide_with_areas = false
+	shoot_query.collide_with_bodies = true
+	shoot_query.motion = motion
+	shoot_query.collision_mask = _wall_layer | _team1_layer | _team2_layer
+	shoot_query.margin = 0
+	shoot_query.shape_rid = shape
+	shoot_query.transform = from_transform
+
+	var shoot_result = space_state.cast_motion(shoot_query)
+	print(shoot_result)
+	var shoot_magnitude = shoot_result[0]
+	var shot_end = start + shoot_magnitude * shoot_query.motion
+	return shot_end

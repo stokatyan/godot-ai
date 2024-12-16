@@ -153,10 +153,10 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 
 		# Bullet
 		draw_line(
-			Vector2(agent._last_shot_line.x, agent._last_shot_line.y) + offset,
-			Vector2(agent._last_shot_line.z, agent._last_shot_line.w) + offset,
+			Vector2(agent.last_shot_line.x, agent.last_shot_line.y) + offset,
+			Vector2(agent.last_shot_line.z, agent.last_shot_line.w) + offset,
 			Color.RED,
-			2 * (agent._fire_delay_remaining/agent._fire_delay_per_shot),
+			1.0 * (agent._fire_delay_remaining/agent._fire_delay_per_shot),
 			true
 		)
 
@@ -173,7 +173,7 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 			true
 		)
 
-		stat_root.y += 10
+		stat_root.y += 5
 		var ammo_percent = agent._current_ammo / agent._ammo_per_reload
 		if agent._current_ammo == 0:
 			ammo_percent = 1.0 - agent._reload_delay_remaining/agent._reload_time

@@ -5,8 +5,8 @@ class_name BRAgent
 var _health: float = 1.0
 var _attack_damage: float = 0.5
 
-var _current_ammo: float = 0.10
-var _ammo_per_reload: float = 0.10
+var _current_ammo: float = 0.05
+var _ammo_per_reload: float = 0.05
 var _ammo_cost_per_shot: float:
 	get:
 		return 0.01
@@ -36,7 +36,7 @@ var is_dead: bool:
 	get:
 		return _health <= 0 or _steps_remaining <= 0
 
-var _last_shot_line: Vector4
+var last_shot_line: Vector4
 
 func _init():
 	_radius = 20
@@ -115,9 +115,6 @@ func shoot() -> bool:
 
 	_current_ammo -= _ammo_cost_per_shot
 	_fire_delay_remaining = _fire_delay_per_shot
-
-	var p2 = _position + Vector2.from_angle(_rotation) * max_vision_distance
-	_last_shot_line = Vector4(_position.x, _position.y, p2.x, p2.y)
 
 	return true
 
