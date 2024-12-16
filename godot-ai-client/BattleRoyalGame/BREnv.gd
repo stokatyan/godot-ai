@@ -136,11 +136,17 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 		draw_circle(
 			agent._position + offset,
 			agent._radius,
+			colors[agent_index]
+		)
+		draw_circle(
+			agent._position + offset,
+			agent._radius,
 			colors[agent_index],
 			false,
 			2.0,
 			true
 		)
+
 
 		# Orientation
 		draw_line(

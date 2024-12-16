@@ -34,6 +34,7 @@ func get_layer(agent_index: int):
 		return _team1_layer
 	if team == 2:
 		return _team2_layer
+	assert(false, "No Layer to return")
 
 func _init():
 	_setup_physics_server()
@@ -179,34 +180,6 @@ func get_score(agent_index: int) -> float:
 	else:
 		return -100
 
-## Check if p2 will overlap the line from p1 to p3
-func _will_overlap(p1: Vector2, p3: Vector2, p2: Vector2, r: float):
-	var min_distance = 2 * r
-
-	# Vector from p1 to p3
-	var p1_to_p3 = p3 - p1
-	# Vector from p1 to p2
-	var p1_to_p2 = p2 - p1
-
-	# Project p1_to_p2 onto p1_to_p3
-	var projection = p1_to_p2.dot(p1_to_p3) / p1_to_p3.length_squared()
-	var closest_point: Vector2
-
-	# Determine the closest point on the line segment to p2
-	if projection < 0.0:
-		#return null
-		closest_point = p1  # Closest to p1 if the projection is negative
-	elif projection > 1.0:
-		closest_point = p3  # Closest to p3 if the projection exceeds 1
-	else:
-		closest_point = p1 + p1_to_p3 * projection  # Closest point on the segment
-
-	# Calculate the distance from p2 to the closest point
-	var distance_to_p2 = (closest_point - p2).length()
-
-	if distance_to_p2 < min_distance:
-		return closest_point
-
 func get_agent_names() -> Array[String]:
 	return agent_names
 
@@ -214,9 +187,7 @@ func get_agents_count() -> int:
 	return _agents.size()
 
 func get_agent_name(agent_index: int) -> String:
-	if agent_index == 0:
-		return agent_names[0]
-	return agent_names[1]
+	return agent_names[0]
 
 ## New Game
 
@@ -418,7 +389,6 @@ func _physics_shoot_query(start: Vector2, motion: Vector2) -> Vector2:
 	shoot_query.transform = from_transform
 
 	var shoot_result = space_state.cast_motion(shoot_query)
-	print(shoot_result)
 	var shoot_magnitude = shoot_result[0]
 	var shot_end = start + shoot_magnitude * shoot_query.motion
 	return shot_end
