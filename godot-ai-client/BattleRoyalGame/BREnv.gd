@@ -131,7 +131,7 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 					true
 				)
 
-		var color = colors[agent_index]
+		var color = colors[s._agent_teams[agent_index] - 1]
 		# Agent
 		draw_circle(
 			agent._position + offset,

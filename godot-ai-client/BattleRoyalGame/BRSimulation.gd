@@ -45,9 +45,10 @@ func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.space_set_active(_physics_space, true)
 
-	PhysicsServer2D.body_set_space(_agents[0]._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_agents[0]._physics_body, _team1_layer)
-	PhysicsServer2D.body_set_collision_mask(_agents[0]._physics_body, _team1_layer)
+	for i in range(_agents.size()):
+		PhysicsServer2D.body_set_space(_agents[i]._physics_body, _physics_space)
+		PhysicsServer2D.body_set_collision_layer(_agents[i]._physics_body, get_layer(i))
+		PhysicsServer2D.body_set_collision_mask(_agents[i]._physics_body, get_layer(i))
 
 	var wall_segments: Array[Rect2] = [
 		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),
@@ -253,7 +254,6 @@ func new_game(physics_update: Signal) -> bool:
 
 	for i in range(_agents.size()):
 		_agents[i].set_transform(agent_positions[i], randf_range(-PI, PI))
-		_agents[i].set_collision_layer(get_layer(i))
 
 	_reset_prev_actions()
 	_reset_prev_observations()
