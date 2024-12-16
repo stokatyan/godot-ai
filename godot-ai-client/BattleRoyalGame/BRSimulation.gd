@@ -325,7 +325,7 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	motion_query.motion = motion_vector
 	motion_query.shape_rid = agent._physics_shape
 	motion_query.transform = transform
-	motion_query.collision_mask = _wall_layer
+	motion_query.collision_mask = _wall_layer | _team1_layer | _team2_layer
 
 	var result = space_state.cast_motion(motion_query)
 	var motion_magnitude = result[0]

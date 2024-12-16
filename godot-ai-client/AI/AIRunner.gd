@@ -56,6 +56,8 @@ func _input(event):
 			_loop_train()
 		KEY_O:
 			_ai_tcp.write_policy(env_delegate.get_agent_names()[0])
+		KEY_ENTER:
+			_is_loop_training = false
 
 func _try_to_load_policy_agents():
 	print()
