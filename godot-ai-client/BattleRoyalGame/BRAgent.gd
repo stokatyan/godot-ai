@@ -12,12 +12,12 @@ var _ammo_cost_per_shot: float:
 		return 0.01
 
 var _reload_delay_remaining = 0.0
-var _reload_time = 0.05
+var _reload_time = 0.1
 var _reload_time_per_frame: float:
 	get:
 		return 0.01
 
-var _fire_delay_per_shot = 0.1
+var _fire_delay_per_shot = 0.02
 var _fire_delay_remaining = 0.0
 var _fire_time_per_frame: float:
 	get:

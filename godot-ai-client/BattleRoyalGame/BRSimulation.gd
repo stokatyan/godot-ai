@@ -4,8 +4,8 @@ class_name BRSimulation
 
 var agent_names: Array[String] = ["001"]
 
-var _agents: Array[BRAgent] = [BRAgent.new()]
-var _agent_teams: Array[int] = [1]
+var _agents: Array[BRAgent] = [BRAgent.new(), BRAgent.new()]
+var _agent_teams: Array[int] = [1, 2]
 
 var _map_size: float = 500
 var _map_radius: float:
