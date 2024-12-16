@@ -73,7 +73,7 @@ func new_simulation() -> BaseSimulation:
 	return BRSimulation.new() as BRSimulation
 
 func get_simulation_count() -> int:
-	return 50
+	return 20
 
 func get_steps_in_round() -> int:
 	return 105
@@ -173,9 +173,16 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 		stat_root.y += 10
 		draw_line(
 			stat_root,
+			stat_root + Vector2(2 * half_width, 0),
+			Color.BLACK,
+			3,
+			true
+		)
+		draw_line(
+			stat_root,
 			stat_root + Vector2(agent._health * 2 * half_width, 0),
 			Color.INDIAN_RED,
-			1,
+			2,
 			true
 		)
 
@@ -186,9 +193,16 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 		# Ammo
 		draw_line(
 			stat_root,
+			stat_root + Vector2(2 * half_width, 0),
+			Color.BLACK,
+			3,
+			true
+		)
+		draw_line(
+			stat_root,
 			stat_root + Vector2(ammo_percent * 2 * half_width, 0),
 			Color.GRAY,
-			1,
+			2,
 			true
 		)
 
