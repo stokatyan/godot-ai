@@ -402,7 +402,7 @@ func _physics_shoot_query(start: Vector2, motion: Vector2) -> ShootResult:
 
 	if shoot_result.size() > 0:
 		var shoot_magnitude = shoot_result[0]
-		var hit_point = start + shoot_magnitude * shoot_query.motion
+		var hit_point = start + shoot_magnitude * shoot_query.motion + motion.normalized() * bullet_radius
 		shoot_query.transform = Transform2D(0, hit_point)
 		shoot_query.motion = Vector2.ZERO
 		shoot_query.margin = bullet_radius
