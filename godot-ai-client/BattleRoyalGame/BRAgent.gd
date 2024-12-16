@@ -3,7 +3,7 @@ extends BRBaseNode
 class_name BRAgent
 
 var _health: float = 1.0
-var _attack_damage: float = 0.25
+var _attack_damage: float = 0.5
 
 var _current_ammo: float = 0.20
 var _ammo_per_reload: float = 0.20
@@ -12,7 +12,7 @@ var _ammo_cost_per_shot: float:
 		return 0.01
 
 var _reload_delay_remaining = 0.0
-var _reload_time = 0.1
+var _reload_time = 0.05
 var _reload_time_per_frame: float:
 	get:
 		return 0.01
@@ -35,6 +35,8 @@ var max_vision_distance: float:
 var is_dead: bool:
 	get:
 		return _health <= 0 or _steps_remaining <= 0
+
+var _last_shot_line: Vector4
 
 func _init():
 	_radius = 20
@@ -113,6 +115,9 @@ func shoot() -> bool:
 
 	_current_ammo -= _ammo_cost_per_shot
 	_fire_delay_remaining = _fire_delay_per_shot
+
+	var p2 = _position + Vector2.from_angle(_rotation) * max_vision_distance
+	_last_shot_line = Vector4(_position.x, _position.y, p2.x, p2.y)
 
 	return true
 

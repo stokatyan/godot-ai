@@ -37,15 +37,20 @@ func _handle_user_input(_key: Key):
 		apply_move = true
 		move_vector += Vector2.RIGHT
 
+	var rotation = move_vector.angle()
 	var agent_index = 0
+	var shoot = -1.0
 	if Input.is_key_pressed(KEY_SHIFT):
-		agent_index = 1
+		rotation = move_vector.angle()
+		move_vector = Vector2.ZERO
 
-	if apply_move and !_ai_runner._initial_simulations.is_empty():
-		var action: Array[float] = [move_vector.x, move_vector.y, move_vector.angle()/2.0]
-		var shoot = -1.0
 		if Input.is_key_pressed(KEY_SPACE):
 			shoot = 1.0
+			apply_move = true
+
+	if apply_move and !_ai_runner._initial_simulations.is_empty():
+		var action: Array[float] = [move_vector.x, move_vector.y, rotation/PI]
+
 		action.append(shoot)
 		action.append(0.0)
 
@@ -161,6 +166,15 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 			agent._position + Vector2.from_angle(agent._rotation) * agent._radius + offset,
 			Color.WHITE_SMOKE,
 			3,
+			true
+		)
+
+			# Bullet
+		draw_line(
+			Vector2(agent._last_shot_line.x, agent._last_shot_line.y) + offset,
+			Vector2(agent._last_shot_line.z, agent._last_shot_line.w) + offset,
+			Color.RED,
+			2 * (agent._fire_delay_remaining/agent._fire_delay_per_shot),
 			true
 		)
 
