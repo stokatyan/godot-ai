@@ -385,7 +385,8 @@ func _physics_shoot_query(start: Vector2, motion: Vector2) -> ShootResult:
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 
 	var shape = PhysicsServer2D.circle_shape_create()
-	PhysicsServer2D.shape_set_data(shape, 5.0)
+	var bullet_radius = 5.0
+	PhysicsServer2D.shape_set_data(shape, bullet_radius)
 	var from_transform = Transform2D(0, start)
 
 	var shoot_query = PhysicsShapeQueryParameters2D.new()
@@ -404,7 +405,7 @@ func _physics_shoot_query(start: Vector2, motion: Vector2) -> ShootResult:
 		var hit_point = start + shoot_magnitude * shoot_query.motion
 		shoot_query.transform = Transform2D(0, hit_point)
 		shoot_query.motion = Vector2.ZERO
-		shoot_query.margin = 1
+		shoot_query.margin = bullet_radius
 		var info = space_state.get_rest_info(shoot_query)
 		if info.has("rid"):
 			return ShootResult.new(hit_point, info["rid"])
