@@ -25,8 +25,8 @@ var _boundary_wall_bodies: Array[RID] = []
 var _inner_wall_bodies: Array[RID] = []
 
 var _team1_layer   = 0b0001
-var _team2_layer = 0b0010
-var _wall_layer   = 0b0100
+var _team2_layer   = 0b0010
+var _wall_layer    = 0b0100
 
 func get_layer(agent_index: int):
 	var team = _agent_teams[agent_index]
@@ -253,6 +253,7 @@ func new_game(physics_update: Signal) -> bool:
 
 	for i in range(_agents.size()):
 		_agents[i].set_transform(agent_positions[i], randf_range(-PI, PI))
+		_agents[i].set_collision_layer(get_layer(i))
 
 	_reset_prev_actions()
 	_reset_prev_observations()
