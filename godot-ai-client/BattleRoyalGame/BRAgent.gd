@@ -108,8 +108,7 @@ func step_did_elapse(steps: float = 1.0):
 ## Update ammo state and returns true if a bullet was fired
 func shoot() -> bool:
 	if _current_ammo < _ammo_cost_per_shot:
-		if _reload_delay_remaining == 0:
-			reload()
+		reload()
 		return false
 	if _fire_delay_remaining > 0:
 		return false
@@ -122,6 +121,7 @@ func shoot() -> bool:
 func reload():
 	if _current_ammo == _ammo_per_reload:
 		return
-
+	if _reload_delay_remaining > 0:
+		return
 	_current_ammo = 0
 	_reload_delay_remaining = _reload_time
