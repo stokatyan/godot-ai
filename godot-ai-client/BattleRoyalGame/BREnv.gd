@@ -58,12 +58,6 @@ func _handle_user_input(_key: Key):
 		await get_tree().physics_frame
 		await get_tree().physics_frame
 		queue_redraw()
-		if _ai_runner._initial_simulations[0].is_game_complete(0):
-			await get_tree().create_timer(0.5).timeout
-			await _ai_runner._initial_simulations[0].new_game(get_tree().physics_frame)
-		await get_tree().physics_frame
-		await get_tree().physics_frame
-		queue_redraw()
 
 func display_simulation(s: BaseSimulation):
 	await get_tree().physics_frame

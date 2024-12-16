@@ -28,6 +28,13 @@ var _team1_layer   = 0b0001
 var _team2_layer = 0b0010
 var _wall_layer   = 0b0100
 
+func get_layer(agent_index: int):
+	var team = _agent_teams[agent_index]
+	if team == 1:
+		return _team1_layer
+	if team == 2:
+		return _team2_layer
+
 func _init():
 	_setup_physics_server()
 	_reset_prev_actions()
@@ -224,7 +231,7 @@ func new_game(physics_update: Signal) -> bool:
 		PhysicsServer2D.free_rid(body)
 
 	var max_p = _map_radius * 0.75
-	var p_hero = Vector2.ZERO
+	var agent_positions: Array[Vector2] = []
 
 	var last_wall_was_vertical = false
 	for i in range(0, randi_range(1, 4)):
@@ -248,27 +255,33 @@ func new_game(physics_update: Signal) -> bool:
 		_inner_wall_bodies.append(inner_wall)
 
 	var is_done = false
-	while !is_done:
+	var agent_index = 0
+	while agent_index < _agents.size():
+		if agent_index == agent_positions.size():
+			agent_positions.append(Vector2())
+		await physics_update
 		await physics_update
 
-		p_hero = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+		agent_positions[agent_index] = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+		var position = agent_positions[agent_index]
 
-		var t_hero = Transform2D(0, p_hero)
+		var agent_transform = Transform2D(0, position)
 		var temp_hero_body = PhysicsServer2D.body_create()
 		var temp_hero_shape = PhysicsServer2D.circle_shape_create()
 		PhysicsServer2D.shape_set_data(temp_hero_shape, _agents[0]._radius)
 		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
-		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_hero)
+		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, agent_transform)
 		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
-		PhysicsServer2D.body_set_collision_layer(temp_hero_body, _team1_layer)
+		PhysicsServer2D.body_set_collision_layer(temp_hero_body, get_layer(agent_index))
 
-		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, t_hero, _agents[0]._radius * 2, _wall_layer)
+		var all_layers = _team1_layer | _team2_layer | _wall_layer
+		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, agent_transform, _agents[0]._radius * 2, _wall_layer)
 
 		if result.is_empty():
-			is_done = true
-			break
+			agent_index += 1
 
-	_agents[0].set_transform(p_hero, randf_range(-PI, PI))
+	for i in range(_agents.size()):
+		_agents[i].set_transform(agent_positions[i], randf_range(-PI, PI))
 
 	_reset_prev_actions()
 	_reset_prev_observations()
