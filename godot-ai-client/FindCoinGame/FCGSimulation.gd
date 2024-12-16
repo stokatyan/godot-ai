@@ -40,8 +40,8 @@ func _init():
 func cleanup_simulation():
 	if _is_cleaned:
 		return
-	super.cleanup_simulation()
 	_free_all_objects()
+	_is_cleaned = true
 
 func _free_all_objects():
 	PhysicsServer2D.free_rid(_agents[0]._physics_shape)

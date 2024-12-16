@@ -2,16 +2,15 @@ extends BaseSimulation
 
 class_name BRSimulation
 
-var agent_names: Array[String] = ["hero"]
+var agent_names: Array[String] = ["001"]
 
 var _agents: Array[BRAgent] = [BRAgent.new()]
+var _agent_teams: Array[int] = [1]
 
 var _map_size: float = 500
 var _map_radius: float:
 	get:
 		return _map_size/2
-
-var _actions_taken = 0
 
 var _agents_to_prev_actions = {}
 var _action_history_size = 10
@@ -25,11 +24,9 @@ var _physics_space: RID
 var _boundary_wall_bodies: Array[RID] = []
 var _inner_wall_bodies: Array[RID] = []
 
-var _hero_layer   = 0b0001
-var _zombie_layer = 0b0010
+var _team1_layer   = 0b0001
+var _team2_layer = 0b0010
 var _wall_layer   = 0b0100
-
-var _is_game_over = false
 
 func _init():
 	_setup_physics_server()
@@ -41,8 +38,8 @@ func _setup_physics_server():
 	PhysicsServer2D.space_set_active(_physics_space, true)
 
 	PhysicsServer2D.body_set_space(_agents[0]._physics_body, _physics_space)
-	PhysicsServer2D.body_set_collision_layer(_agents[0]._physics_body, _hero_layer)
-	PhysicsServer2D.body_set_collision_mask(_agents[0]._physics_body, _hero_layer)
+	PhysicsServer2D.body_set_collision_layer(_agents[0]._physics_body, _team1_layer)
+	PhysicsServer2D.body_set_collision_mask(_agents[0]._physics_body, _team1_layer)
 
 	var wall_segments: Array[Rect2] = [
 		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),
@@ -103,16 +100,23 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 
 	var angles = agent.get_vision_angles()
 	var angle_to_wall_distance = {}
+	var agent_team = _agent_teams[agent_index]
+
+	var enemy_layer = _team1_layer | _team2_layer
+	if agent_team == 1:
+		enemy_layer = enemy_layer & ~_team1_layer
+	if agent_team == 2:
+		enemy_layer = enemy_layer & ~_team2_layer
 
 	for a in angles: # Walls
 		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _wall_layer)
 		state.append(obs)
 		angle_to_wall_distance[a] = obs
-	for a in angles: # Zombies
-		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _zombie_layer)
+	for a in angles: # Enemies
+		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, enemy_layer)
 		var t = agent._transform
 		t.origin += Vector2.from_angle(a) * _agents[0]._radius
-		var target_collision_points = _get_collision_points(agent._physics_shape, t, 0, _zombie_layer)
+		var target_collision_points = _get_collision_points(agent._physics_shape, t, 0, enemy_layer)
 
 		if !target_collision_points.is_empty():
 			obs = 0.2 * agent._position.distance_to(target_collision_points[1]) / agent.max_vision_distance
@@ -123,7 +127,9 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 
 	state.append(agent._position.x / _map_radius)
 	state.append(agent._position.y / _map_radius)
-	state.append(agent._health)
+
+	state += agent.get_stats()
+
 	return state
 
 func _get_agent_observation(agent: BRAgent, angle: float, max_distance: float, layer: int) -> float:
@@ -205,7 +211,6 @@ func get_agent_name(agent_index: int) -> String:
 ## New Game
 
 func new_game(physics_update: Signal) -> bool:
-	_is_game_over = false
 	for body in _inner_wall_bodies:
 		var shape_count = PhysicsServer2D.body_get_shape_count(body)
 		for i in range(shape_count):
@@ -215,7 +220,6 @@ func new_game(physics_update: Signal) -> bool:
 		# Free the body RID
 		PhysicsServer2D.free_rid(body)
 
-	_actions_taken = 0
 	var max_p = _map_radius * 0.75
 	var p_hero = Vector2.ZERO
 
@@ -253,7 +257,7 @@ func new_game(physics_update: Signal) -> bool:
 		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
 		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, t_hero)
 		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
-		PhysicsServer2D.body_set_collision_layer(temp_hero_body, _hero_layer)
+		PhysicsServer2D.body_set_collision_layer(temp_hero_body, _team1_layer)
 
 		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, t_hero, _agents[0]._radius * 2, _wall_layer)
 
@@ -271,8 +275,8 @@ func new_game(physics_update: Signal) -> bool:
 func cleanup_simulation():
 	if _is_cleaned:
 		return
-	super.cleanup_simulation()
 	_free_all_objects()
+	_is_cleaned = true
 
 func _free_all_objects():
 	PhysicsServer2D.free_rid(_agents[0]._physics_shape)
@@ -287,18 +291,18 @@ func _free_all_objects():
 		PhysicsServer2D.free_rid(wall)
 	PhysicsServer2D.free_rid(_physics_space)
 
-func is_game_complete(_agent_index: int) -> bool:
-	return false
-	#_is_game_over = true
+func is_game_complete(agent_index: int) -> bool:
+	return get_is_game_over_for_agent(agent_index)
 
 func apply_action(agent_index: int, action_vector: Array[float], callback):
-	if _is_game_over:
+	if get_is_game_over_for_agent(agent_index):
 		return
 	var agent = _agents[agent_index]
 	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
 	var rotation = action_vector[2] * PI
-	if agent_index > 0:
-		motion_vector *= 1.2
+
+	var shoot_action: bool = action_vector[3] > 0.0
+	var reload_action: bool = action_vector[4] > 0.0
 
 	var transform: Transform2D = get_transform(agent._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
@@ -317,8 +321,9 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 
 	var prev_actions = _agents_to_prev_actions[agent]
 	prev_actions += action_vector
-	prev_actions.pop_front()
-	prev_actions.pop_front()
+	for action in range(0, 5):
+		prev_actions.pop_front()
+
 	_agents_to_prev_actions[agent] = prev_actions
 
 	var prev_observations = _agents_to_prev_observations[agent]
@@ -326,8 +331,12 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	prev_observations.pop_front()
 	_agents_to_prev_observations[agent] = prev_observations
 
-	_actions_taken += 1
+	agent.step_did_elapse()
 
+	if shoot_action:
+		agent.shoot()
+	if reload_action:
+		agent.reload()
 	agent.set_transform(agent._position + motion_vector * motion_magnitude, rotation)
 
 	if callback:
@@ -348,3 +357,7 @@ func get_state(agent_index: int) -> Array[float]:
 
 	var state = current + flattened_prev_observatations + prev_actions
 	return state
+
+func get_is_game_over_for_agent(agent_index: int) -> bool:
+	var agent = _agents[agent_index]
+	return agent._steps_remaining <= 0

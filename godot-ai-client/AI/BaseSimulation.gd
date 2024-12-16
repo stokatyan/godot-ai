@@ -26,7 +26,7 @@ func get_score(_agent_index: int) -> float:
 	return 0
 
 func cleanup_simulation():
-	_is_cleaned = true
+	assert(false, "cleanup_simulation not implemented")
 
 func get_state_dim(_agent_name: String) -> int:
 	assert(false, "get_state_dim not implemented")

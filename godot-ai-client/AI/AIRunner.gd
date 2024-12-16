@@ -37,10 +37,6 @@ func _input(event):
 	if key_input.echo or key_input.is_released():
 		return
 	match key_input.keycode:
-		KEY_EQUAL:
-			if _is_loop_training:
-				return
-			_one_step()
 		KEY_UP:
 			_setup_ai()
 		KEY_2: # Get and Submit batch
@@ -204,15 +200,6 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 	await get_tree().physics_frame
 
 	return batch_replay
-
-func _one_step():
-	env_delegate.update_status(_loop_train_count, "1 step")
-	var simulations = await _create_simulations()
-	var is_deterministic_map = env_delegate.get_is_deterministic_map(_loop_train_count)
-	var replays = await _get_batch_from_playing_round(1, simulations, is_deterministic_map)
-	await get_tree().create_timer(0.5).timeout
-	_cleanup_simulations(simulations)
-
 
 func _loop_train():
 	if _is_loop_training:
