@@ -151,7 +151,7 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 		# Orientation
 		draw_line(
 			agent._position + offset,
-			agent._position + Vector2.from_angle(agent._rotation) * agent._radius * 1.2 + offset,
+			agent._position + Vector2.from_angle(agent._rotation) * agent._radius * 1.1 + offset,
 			Color.WHITE_SMOKE,
 			3,
 			true
