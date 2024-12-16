@@ -175,11 +175,11 @@ func get_score(agent_index: int) -> float:
 	if winning_team <= 0:
 		if agent.is_dead:
 			return -10
-		return 0
+		return agent._health
 	if winning_team == team:
 		return 10
 	else:
-		return -100
+		return -10
 
 func get_agent_names() -> Array[String]:
 	return agent_names
