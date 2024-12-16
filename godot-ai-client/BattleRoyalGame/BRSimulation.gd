@@ -124,7 +124,7 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 	for a in angles: # Enemies
 		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, enemy_layer)
 		var t = agent._transform
-		t.origin += Vector2.from_angle(a) * _agents[0]._radius
+		t.origin += Vector2.from_angle(a) * agent._radius
 		var target_collision_points = _get_collision_points(agent._physics_shape, t, 0, enemy_layer)
 
 		if !target_collision_points.is_empty():
@@ -240,14 +240,14 @@ func new_game(physics_update: Signal) -> bool:
 		var agent_transform = Transform2D(0, position)
 		var temp_hero_body = PhysicsServer2D.body_create()
 		var temp_hero_shape = PhysicsServer2D.circle_shape_create()
-		PhysicsServer2D.shape_set_data(temp_hero_shape, _agents[0]._radius)
+		PhysicsServer2D.shape_set_data(temp_hero_shape, _agents[agent_index]._radius)
 		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
 		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, agent_transform)
 		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
 		PhysicsServer2D.body_set_collision_layer(temp_hero_body, get_layer(agent_index))
 
 		var all_layers = _team1_layer | _team2_layer | _wall_layer
-		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, agent_transform, _agents[0]._radius * 2, _wall_layer)
+		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, agent_transform, _agents[agent_index]._radius * 2, _wall_layer)
 
 		if result.is_empty():
 			agent_index += 1
@@ -267,8 +267,9 @@ func cleanup_simulation():
 	_is_cleaned = true
 
 func _free_all_objects():
-	PhysicsServer2D.free_rid(_agents[0]._physics_shape)
-	PhysicsServer2D.free_rid(_agents[0]._physics_body)
+	for i in range(_agents.size()):
+		PhysicsServer2D.free_rid(_agents[i]._physics_shape)
+		PhysicsServer2D.free_rid(_agents[i]._physics_body)
 	for wall in _boundary_wall_bodies + _inner_wall_bodies:
 		var shape_count = PhysicsServer2D.body_get_shape_count(wall)
 		var range_of_count = range(shape_count)
@@ -346,9 +347,16 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 	if shoot_action:
 		var did_shoot = agent.shoot()
 		if did_shoot:
+			var shot_motion = Vector2.from_angle(agent._rotation) * agent.max_vision_distance
 			var shot_start = agent._position
-			var shot_end = _physics_shoot_query(shot_start, Vector2.from_angle(agent._rotation) * agent.max_vision_distance)
-			agent.last_shot_line = Vector4(shot_start.x, shot_start.y, shot_end.x, shot_end.y)
+			var shot_result = _physics_shoot_query(shot_start, shot_motion)
+			if shot_result:
+				var p = shot_result.hit_point
+				agent.last_shot_line = Vector4(shot_start.x, shot_start.y, p.x, p.y)
+				_shot_did_hit(shot_result.hit_body, agent._attack_damage)
+			else:
+				var miss_point = shot_start + shot_motion
+				agent.last_shot_line = Vector4(shot_start.x, shot_start.y, miss_point.x, miss_point.y)
 
 	if reload_action:
 		agent.reload()
@@ -373,7 +381,7 @@ func get_state(agent_index: int) -> Array[float]:
 	var state = current + flattened_prev_observatations + prev_actions
 	return state
 
-func _physics_shoot_query(start: Vector2, motion: Vector2) -> Vector2:
+func _physics_shoot_query(start: Vector2, motion: Vector2) -> ShootResult:
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 
 	var shape = PhysicsServer2D.circle_shape_create()
@@ -390,6 +398,20 @@ func _physics_shoot_query(start: Vector2, motion: Vector2) -> Vector2:
 	shoot_query.transform = from_transform
 
 	var shoot_result = space_state.cast_motion(shoot_query)
-	var shoot_magnitude = shoot_result[0]
-	var shot_end = start + shoot_magnitude * shoot_query.motion
-	return shot_end
+
+	if shoot_result.size() > 0:
+		var shoot_magnitude = shoot_result[0]
+		var hit_point = start + shoot_magnitude * shoot_query.motion
+		shoot_query.transform = Transform2D(0, hit_point)
+		shoot_query.motion = Vector2.ZERO
+		shoot_query.margin = 1
+		var info = space_state.get_rest_info(shoot_query)
+		if info.has("rid"):
+			return ShootResult.new(hit_point, info["rid"])
+
+	return null
+
+func _shot_did_hit(body_id: RID, damage: float):
+	for agent in _agents:
+		if agent._physics_body == body_id:
+			agent.did_get_hit(damage)

@@ -79,7 +79,7 @@ func _create_simulations() -> Array[BaseSimulation]:
 
 	for i in range(env_delegate.get_simulation_count()):
 		var s = env_delegate.new_simulation()
-		await s.new_game(get_tree().physics_frame)
+		var result = await s.new_game(get_tree().physics_frame)
 		simulations.append(s)
 
 	await get_tree().physics_frame
