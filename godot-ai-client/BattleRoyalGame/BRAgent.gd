@@ -5,8 +5,8 @@ class_name BRAgent
 var _health: float = 1.0
 var _attack_damage: float = 0.5
 
-var _current_ammo: float = 0.20
-var _ammo_per_reload: float = 0.20
+var _current_ammo: float = 0.10
+var _ammo_per_reload: float = 0.10
 var _ammo_cost_per_shot: float:
 	get:
 		return 0.01

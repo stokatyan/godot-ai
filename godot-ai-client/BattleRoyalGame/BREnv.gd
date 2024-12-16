@@ -142,18 +142,6 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 			true
 		)
 
-		# Health
-		var stat_root = Vector2(agent._position.x - agent._radius * 0.9, agent._position.y)
-		stat_root += offset
-		stat_root.y += 10
-		draw_line(
-			stat_root,
-			stat_root + Vector2(agent._health * agent._radius * 2 * 0.9, 0),
-			Color.INDIAN_RED,
-			0.75,
-			true
-		)
-
 		# Orientation
 		draw_line(
 			agent._position + offset,
@@ -163,12 +151,38 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 			true
 		)
 
-			# Bullet
+		# Bullet
 		draw_line(
 			Vector2(agent._last_shot_line.x, agent._last_shot_line.y) + offset,
 			Vector2(agent._last_shot_line.z, agent._last_shot_line.w) + offset,
 			Color.RED,
 			2 * (agent._fire_delay_remaining/agent._fire_delay_per_shot),
+			true
+		)
+
+		# Health
+		var half_width = agent._radius * 0.9
+		var stat_root = Vector2(agent._position.x - half_width, agent._position.y)
+		stat_root += offset
+		stat_root.y += 10
+		draw_line(
+			stat_root,
+			stat_root + Vector2(agent._health * 2 * half_width, 0),
+			Color.INDIAN_RED,
+			1,
+			true
+		)
+
+		stat_root.y += 10
+		var ammo_percent = agent._current_ammo / agent._ammo_per_reload
+		if agent._current_ammo == 0:
+			ammo_percent = 1.0 - agent._reload_delay_remaining/agent._reload_time
+		# Ammo
+		draw_line(
+			stat_root,
+			stat_root + Vector2(ammo_percent * 2 * half_width, 0),
+			Color.GRAY,
+			1,
 			true
 		)
 

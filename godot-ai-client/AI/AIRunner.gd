@@ -88,6 +88,8 @@ func _create_simulations() -> Array[BaseSimulation]:
 	_cleanup_simulations(_initial_simulations)
 	_initial_simulations = []
 
+	env_delegate.update_status(_loop_train_count, "playing: done creating_simulations")
+
 	return simulations
 
 func _setup_ai():
