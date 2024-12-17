@@ -158,13 +158,14 @@ func _get_agent_observation(agent: BRAgent, angle: float, max_distance: float, l
 	var result = space_state.cast_motion(motion_query)
 	return result[0]
 
-func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float, collision_mask: int) -> Array[Vector2]:
+func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float, collision_mask: int, excluded: Array[RID] = []) -> Array[Vector2]:
 	var direct_state = PhysicsServer2D.space_get_direct_state(_physics_space)
 	var query = PhysicsShapeQueryParameters2D.new()
 	query.margin = margin
 	query.shape_rid = shape_rid
 	query.transform = transform
 	query.collision_mask = collision_mask
+	query.exclude = excluded
 	var result = direct_state.collide_shape(query, 1)
 	return result
 
@@ -203,7 +204,6 @@ func new_game(physics_update: Signal) -> bool:
 		PhysicsServer2D.free_rid(body)
 
 	var max_p = _map_radius * 0.75
-	var agent_positions: Array[Vector2] = []
 
 	var last_wall_was_vertical = false
 	for i in range(0, randi_range(1, 4)):
@@ -226,34 +226,24 @@ func new_game(physics_update: Signal) -> bool:
 		var inner_wall = _add_wall(wall_segment)
 		_inner_wall_bodies.append(inner_wall)
 
+	for agent in _agents:
+		agent._position = Vector2(-1000, -1000)
+
 	var is_done = false
 	var agent_index = 0
 	while agent_index < _agents.size():
-		if agent_index == agent_positions.size():
-			agent_positions.append(Vector2())
+		var agent = _agents[agent_index]
+		var new_position = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
+		agent.set_transform(new_position, randf_range(-PI, PI))
 		await physics_update
 		await physics_update
 
-		agent_positions[agent_index] = Vector2(randf_range(-max_p , max_p), randf_range(-max_p , max_p))
-		var position = agent_positions[agent_index]
-
-		var agent_transform = Transform2D(0, position)
-		var temp_hero_body = PhysicsServer2D.body_create()
-		var temp_hero_shape = PhysicsServer2D.circle_shape_create()
-		PhysicsServer2D.shape_set_data(temp_hero_shape, _agents[agent_index]._radius)
-		PhysicsServer2D.body_add_shape(temp_hero_body, temp_hero_shape)
-		PhysicsServer2D.body_set_state(temp_hero_body, PhysicsServer2D.BODY_STATE_TRANSFORM, agent_transform)
-		PhysicsServer2D.body_set_space(temp_hero_body, _physics_space)
-		PhysicsServer2D.body_set_collision_layer(temp_hero_body, get_layer(agent_index))
 
 		var all_layers = _team1_layer | _team2_layer | _wall_layer
-		var result: Array[Vector2] = _get_collision_points(temp_hero_shape, agent_transform, _agents[agent_index]._radius * 2, _wall_layer)
+		var result: Array[Vector2] = _get_collision_points(agent._physics_shape, agent._transform, agent._radius * 2, all_layers, [agent._physics_body])
 
 		if result.is_empty():
 			agent_index += 1
-
-	for i in range(_agents.size()):
-		_agents[i].set_transform(agent_positions[i], randf_range(-PI, PI))
 
 	_reset_prev_actions()
 	_reset_prev_observations()
