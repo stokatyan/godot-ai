@@ -52,7 +52,9 @@ func _input(event):
 			env_delegate.update_status(_loop_train_count, "done submitting")
 			_cleanup_simulations(simulations)
 		KEY_3: # Start training loop
-			_loop_train_count = 1
+			if _is_loop_training:
+				return
+			_is_loop_training = true
 			_loop_train()
 		KEY_O:
 			_ai_tcp.write_policy(env_delegate.get_agent_names()[0])
@@ -206,13 +208,12 @@ func _get_batch_from_playing_round(steps: int, simulations: Array[BaseSimulation
 	return batch_replay
 
 func _loop_train():
-	if _is_loop_training:
+	if !_is_loop_training:
 		return
 
 	print("\n----- Loop Train -----")
 	print("Epoch: " + str(_loop_train_count))
 	env_delegate.update_status(_loop_train_count, "playing")
-	_is_loop_training = true
 	var simulations = await _create_simulations()
 	var is_deterministic_map = env_delegate.get_is_deterministic_map(_loop_train_count)
 	var replays = await _get_batch_from_playing_round(env_delegate.get_steps_in_round(), simulations, is_deterministic_map)
@@ -229,12 +230,7 @@ func _loop_train():
 	env_delegate.update_status(_loop_train_count, "Done Training")
 	_loop_train_count += 1
 
-	_is_loop_training = false
-	if Input.is_key_pressed(KEY_ENTER):
-		_loop_train_count = 0
-		return
-	else:
-		_loop_train()
+	_loop_train()
 
 func _get_batch_replays_from_replay_map(replay_history: Dictionary) -> Array[Replay]:
 	var batch_replay: Array[Replay] = []
