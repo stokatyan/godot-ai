@@ -174,9 +174,7 @@ func get_score(agent_index: int) -> float:
 	var team = _agent_teams[agent_index]
 	var winning_team = _get_winning_team()
 	if winning_team <= 0:
-		if agent.is_dead:
-			return -10
-		return agent._health
+		return 0
 	if winning_team == team:
 		return 10
 	else:
