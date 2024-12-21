@@ -23,18 +23,13 @@ var _fire_time_per_frame: float:
 	get:
 		return 0.01
 
-var _steps_remaining: float = 1.0
-var _step_decrement: float:
-	get:
-		return 0.01
-
 var max_vision_distance: float:
 	get:
 		return 700
 
 var is_dead: bool:
 	get:
-		return _health <= 0 or _steps_remaining <= 0
+		return _health <= 0
 
 var last_shot_line: Vector4
 
@@ -45,6 +40,12 @@ func _init():
 	PhysicsServer2D.shape_set_data(_physics_shape, _radius)
 	PhysicsServer2D.body_add_shape(_physics_body, _physics_shape)
 	PhysicsServer2D.body_set_mode(_physics_body, PhysicsServer2D.BodyMode.BODY_MODE_KINEMATIC)
+
+	_ammo_per_reload = randf_range(0.01, 1.0)
+	_reload_time = randf_range(0.01, 1.0)
+	_fire_delay_per_shot = randf_range(0.01, 0.5)
+	_current_ammo = _ammo_per_reload
+	_attack_damage = randf_range(0.1, 1.0)
 
 func get_vision_angles() -> Array[float]:
 	var r: float = _rotation
@@ -85,7 +86,6 @@ func get_stats() -> Array[float]:
 		_double_and_subtract_one(_reload_time),
 		_double_and_subtract_one(_fire_delay_per_shot),
 		_double_and_subtract_one(_fire_delay_remaining),
-		_double_and_subtract_one(_steps_remaining)
 	]
 
 	return stats
@@ -102,8 +102,6 @@ func step_did_elapse(steps: float = 1.0):
 
 	_fire_delay_remaining -= steps * _fire_time_per_frame
 	_fire_delay_remaining = max(0, _fire_delay_remaining)
-
-	_steps_remaining -= _step_decrement * steps
 
 ## Update ammo state and returns true if a bullet was fired
 func shoot() -> bool:

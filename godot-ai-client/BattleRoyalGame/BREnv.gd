@@ -7,6 +7,8 @@ var _display_offsets: Array[Vector2] = [Vector2(-600, 0), Vector2(0, 0), Vector2
 @export var epoch_label: Label
 @export var state_label: Label
 
+var _is_deterministic = false
+
 func _draw():
 	if _sims_to_display.is_empty():
 		return
@@ -19,6 +21,11 @@ func _input(event):
 
 	if keyboard_event and keyboard_event.is_pressed():
 		_handle_user_input(keyboard_event.keycode)
+		if keyboard_event.keycode == KEY_0:
+			_is_deterministic = false
+		if keyboard_event.keycode == KEY_9:
+			_is_deterministic = true
+		print("_is_deterministic: " + str(_is_deterministic))
 
 func _handle_user_input(_key: Key):
 	var apply_move = false
@@ -158,11 +165,13 @@ func _draw_simulation(s: BRSimulation, offset: Vector2, sim_index: int):
 		)
 
 		# Bullet
+		var bullet_color = Color.RED
+		bullet_color.a = (agent._fire_delay_remaining/agent._fire_delay_per_shot)
 		draw_line(
 			Vector2(agent.last_shot_line.x, agent.last_shot_line.y) + offset,
 			Vector2(agent.last_shot_line.z, agent.last_shot_line.w) + offset,
-			Color.RED,
-			1.0 * (agent._fire_delay_remaining/agent._fire_delay_per_shot),
+			bullet_color,
+			5.0 * agent._attack_damage,
 			true
 		)
 
@@ -228,7 +237,7 @@ func get_number_of_simulations_to_display() -> int:
 func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
-	discrete_map[agent_names[0]] = false
+	discrete_map[agent_names[0]] = _is_deterministic
 
 	return discrete_map
 
