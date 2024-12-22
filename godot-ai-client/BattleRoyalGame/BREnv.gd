@@ -23,9 +23,10 @@ func _input(event):
 		_handle_user_input(keyboard_event.keycode)
 		if keyboard_event.keycode == KEY_0:
 			_is_deterministic = false
+			print("_is_deterministic: " + str(_is_deterministic))
 		if keyboard_event.keycode == KEY_9:
 			_is_deterministic = true
-		print("_is_deterministic: " + str(_is_deterministic))
+			print("_is_deterministic: " + str(_is_deterministic))
 
 func _handle_user_input(_key: Key):
 	var apply_move = false
@@ -242,4 +243,4 @@ func get_is_deterministic_map(epoch: int) -> Dictionary:
 	return discrete_map
 
 func get_replay_capacity(agent_name: String) -> int:
-	return 1_000_000
+	return 600_000
