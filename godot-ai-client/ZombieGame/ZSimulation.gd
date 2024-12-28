@@ -2,7 +2,7 @@ extends BaseSimulation
 
 class_name ZSimulation
 
-var agent_names: Array[String] = ["001"]
+var agent_names: Array[String] = ["Soldier", "Zombie"]
 
 var _agents: Array[ZAgent] = [ZSoldier.new(), ZZombie.new(), ZZombie.new(), ZZombie.new()]
 var _agent_teams: Array[int] = [1, 2, 2, 2]
