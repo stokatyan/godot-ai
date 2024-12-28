@@ -81,13 +81,16 @@ func new_simulation() -> BaseSimulation:
 	return ZSimulation.new() as ZSimulation
 
 func get_simulation_count() -> int:
-	return 20
+	return 1
 
 func get_steps_in_round() -> int:
 	return 105
 
 func get_state_dim(_agent_name: String) -> int:
-	return _example_sim.get_state(0).size() # Only 1 type of agent
+	if _agent_name == _example_sim.agent_names[0]:
+		return _example_sim.get_state(0).size()
+	else:
+		return _example_sim.get_state(1).size()
 
 func get_action_dim(_agent_name: String) -> int:
 	if _agent_name == _example_sim.agent_names[0]:

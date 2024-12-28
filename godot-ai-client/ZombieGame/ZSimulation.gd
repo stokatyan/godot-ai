@@ -13,10 +13,10 @@ var _map_radius: float:
 		return _map_size/2
 
 var _agents_to_prev_actions = {}
-var _action_history_size = 10
+var _action_history_size = 1
 
 var _agents_to_prev_observations= {}
-var _observation_history_size = 10
+var _observation_history_size = 1
 
 var _wall_thickness: float = 5
 
@@ -186,7 +186,9 @@ func get_agents_count() -> int:
 	return _agents.size()
 
 func get_agent_name(agent_index: int) -> String:
-	return agent_names[0]
+	if agent_index == 0:
+		return agent_names[0]
+	return agent_names[1]
 
 ## New Game
 
@@ -322,7 +324,7 @@ func _apply_zombie_action(agent_index: int, action_vector: Array[float], callbac
 
 	var prev_actions = _agents_to_prev_actions[agent]
 	prev_actions += action_vector
-	for action in range(0, 5):
+	for action in range(0, 3):
 		prev_actions.pop_front()
 
 	_agents_to_prev_actions[agent] = prev_actions
