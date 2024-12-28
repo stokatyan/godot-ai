@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="godot-ai"
-run/main_scene="res://BattleRoyalGame/BREnv.tscn"
+run/main_scene="res://ZombieGame/ZEnv.tscn"
 config/features=PackedStringArray("4.3", "Mobile")
 config/icon="res://icon.svg"
 
@@ -20,8 +20,12 @@ config/icon="res://icon.svg"
 gdscript/warnings/unused_variable=0
 gdscript/warnings/unused_private_class_variable=0
 gdscript/warnings/unused_parameter=0
+gdscript/warnings/shadowed_variable=0
+gdscript/warnings/shadowed_global_identifier=0
 gdscript/warnings/integer_division=0
 gdscript/warnings/narrowing_conversion=0
+gdscript/warnings/confusable_local_declaration=0
+gdscript/warnings/confusable_local_usage=0
 
 [display]
 
