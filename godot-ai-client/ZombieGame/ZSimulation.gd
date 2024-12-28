@@ -330,7 +330,8 @@ func _apply_zombie_action(agent_index: int, action_vector: Array[float], callbac
 	_agents_to_prev_actions[agent] = prev_actions
 
 	var prev_observations = _agents_to_prev_observations[agent]
-	prev_observations.append(_get_current_observation(agent_index))
+	var agent_obs = _get_current_observation(agent_index)
+	prev_observations.append(agent_obs)
 	prev_observations.pop_front()
 	_agents_to_prev_observations[agent] = prev_observations
 

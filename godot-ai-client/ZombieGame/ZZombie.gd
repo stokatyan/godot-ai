@@ -16,7 +16,7 @@ var _reload_time_per_frame: float:
 		return 0.01
 
 func _init():
-	_attack_damage = 0.1
+	_attack_damage = 0.04
 	_radius = 20
 	_physics_body = PhysicsServer2D.body_create()
 	_physics_shape = PhysicsServer2D.circle_shape_create()
