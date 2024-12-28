@@ -339,6 +339,11 @@ func _apply_zombie_action(agent_index: int, action_vector: Array[float], callbac
 	if agent._position.distance_to(_agents[0]._position) < agent._radius*1.5:
 		_agents[0].did_get_hit(agent._attack_damage)
 
+	agent.set_transform(agent._position + motion_vector * motion_magnitude, rotation)
+
+	if callback:
+		callback.call(self)
+
 func _apply_soldier_action(agent_index: int, action_vector: Array[float], callback):
 	var agent = _agents[agent_index]
 	if agent.is_dead:
