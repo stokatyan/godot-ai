@@ -159,7 +159,6 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 			true
 		)
 
-
 		# Orientation
 		draw_line(
 			agent._position + offset,
