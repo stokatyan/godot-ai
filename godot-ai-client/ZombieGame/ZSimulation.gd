@@ -13,10 +13,10 @@ var _map_radius: float:
 		return _map_size/2
 
 var _agents_to_prev_actions = {}
-var _action_history_size = 1
+var _action_history_size = 10
 
 var _agents_to_prev_observations= {}
-var _observation_history_size = 1
+var _observation_history_size = 10
 
 var _wall_thickness: float = 5
 
