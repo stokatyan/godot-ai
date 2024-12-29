@@ -55,6 +55,8 @@ func _handle_user_input(_key: Key):
 		if Input.is_key_pressed(KEY_SPACE):
 			shoot = 1.0
 			apply_move = true
+	if Input.is_key_pressed(KEY_CTRL):
+		agent_index = 1
 
 	if apply_move and !_ai_runner._initial_simulations.is_empty():
 		var action: Array[float] = [move_vector.x, move_vector.y, rotation/PI]

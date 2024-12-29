@@ -337,7 +337,9 @@ func _apply_zombie_action(agent_index: int, action_vector: Array[float], callbac
 
 	agent.step_did_elapse()
 
-	if agent._position.distance_to(_agents[0]._position) < agent._attack_range + _agents[0]._radius:
+	var normalized_attack_distance = (agent._attack_range + _agents[0]._radius) / agent.max_vision_distance
+
+	if agent_obs[1 + agent.get_vision_angles().size()] < normalized_attack_distance:
 		_agents[0].did_get_hit(agent._attack_damage)
 
 	agent.set_transform(agent._position + motion_vector * motion_magnitude, rotation)
