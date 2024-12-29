@@ -260,7 +260,9 @@ func get_number_of_simulations_to_display() -> int:
 func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
-	discrete_map[agent_names[0]] = _is_deterministic
+
+	for n in agent_names:
+		discrete_map[n] = _is_deterministic
 
 	return discrete_map
 
