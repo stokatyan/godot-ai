@@ -190,7 +190,7 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 				zombie._attack_range,
 				Color.RED,
 				false,
-				0.25,
+				0.5,
 				true
 			)
 
