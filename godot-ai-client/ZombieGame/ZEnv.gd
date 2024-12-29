@@ -81,7 +81,7 @@ func new_simulation() -> BaseSimulation:
 	return ZSimulation.new() as ZSimulation
 
 func get_simulation_count() -> int:
-	return 30
+	return 15
 
 func get_steps_in_round() -> int:
 	return 105
@@ -173,6 +173,7 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 
 		# Bullet
 		var soldier = agent as ZSoldier
+		var zombie = agent as ZZombie
 		if soldier:
 			var bullet_color = Color.RED
 			bullet_color.a = (agent._fire_delay_remaining/agent._fire_delay_per_shot)
@@ -181,6 +182,15 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 				Vector2(agent.last_shot_line.z, agent.last_shot_line.w) + offset,
 				bullet_color,
 				5.0 * agent._attack_damage,
+				true
+			)
+		if zombie:
+			draw_circle(
+				zombie._position + offset,
+				zombie._attack_range,
+				Color.RED,
+				false,
+				0.25,
 				true
 			)
 
@@ -205,26 +215,27 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 		)
 
 		stat_root.y += 5
-		var ammo_percent = agent._current_ammo / agent._ammo_per_reload
-		var ammo_color = Color.GRAY
-		if agent._current_ammo == 0:
-			ammo_percent = 1.0 - agent._reload_delay_remaining/agent._reload_time
-			ammo_color = Color.DIM_GRAY
-		# Ammo
-		draw_line(
-			stat_root,
-			stat_root + Vector2(2 * half_width, 0),
-			Color.BLACK,
-			3,
-			true
-		)
-		draw_line(
-			stat_root,
-			stat_root + Vector2(ammo_percent * 2 * half_width, 0),
-			ammo_color,
-			2,
-			true
-		)
+		if soldier:
+			var ammo_percent = agent._current_ammo / agent._ammo_per_reload
+			var ammo_color = Color.GRAY
+			if agent._current_ammo == 0:
+				ammo_percent = 1.0 - agent._reload_delay_remaining/agent._reload_time
+				ammo_color = Color.DIM_GRAY
+			# Ammo
+			draw_line(
+				stat_root,
+				stat_root + Vector2(2 * half_width, 0),
+				Color.BLACK,
+				3,
+				true
+			)
+			draw_line(
+				stat_root,
+				stat_root + Vector2(ammo_percent * 2 * half_width, 0),
+				ammo_color,
+				2,
+				true
+			)
 
 	# Walls
 	for body in s._boundary_wall_bodies + s._inner_wall_bodies:

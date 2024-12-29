@@ -2,7 +2,7 @@ extends ZAgent
 
 class_name ZZombie
 
-
+var _attack_range: float = 30 + 20
 var _current_ammo: float = 0.01
 var _ammo_per_reload: float = 0.01
 var _ammo_cost_per_shot: float:

@@ -4,8 +4,8 @@ class_name ZSimulation
 
 var agent_names: Array[String] = ["Soldier", "Zombie"]
 
-var _agents: Array[ZAgent] = [ZSoldier.new(), ZZombie.new(), ZZombie.new(), ZZombie.new()]
-var _agent_teams: Array[int] = [1, 2, 2, 2]
+var _agents: Array[ZAgent] = [ZSoldier.new(), ZZombie.new(), ZZombie.new()]
+var _agent_teams: Array[int] = [1, 2, 2]
 
 var _map_size: float = 500
 var _map_radius: float:
@@ -301,7 +301,7 @@ func apply_action(agent_index: int, action_vector: Array[float], callback):
 		_apply_zombie_action(agent_index, action_vector, callback)
 
 func _apply_zombie_action(agent_index: int, action_vector: Array[float], callback):
-	var agent = _agents[agent_index]
+	var agent: ZZombie = _agents[agent_index]
 	if agent.is_dead:
 		return
 
@@ -337,7 +337,7 @@ func _apply_zombie_action(agent_index: int, action_vector: Array[float], callbac
 
 	agent.step_did_elapse()
 
-	if agent._position.distance_to(_agents[0]._position) < agent._radius*1.5:
+	if agent._position.distance_to(_agents[0]._position) < agent._attack_range + _agents[0]._radius:
 		_agents[0].did_get_hit(agent._attack_damage)
 
 	agent.set_transform(agent._position + motion_vector * motion_magnitude, rotation)
