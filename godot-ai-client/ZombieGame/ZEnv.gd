@@ -188,7 +188,7 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 			draw_circle(
 				zombie._position + offset,
 				zombie._attack_range,
-				Color.RED,
+				Color.INDIAN_RED,
 				false,
 				0.5,
 				true
