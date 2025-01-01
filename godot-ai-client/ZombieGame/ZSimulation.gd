@@ -170,6 +170,7 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 
 func get_score(agent_index: int) -> float:
 	var enemy_health = _agents[0]._health
+
 	if agent_index != 0:
 		var zombie_score = ((1.0 - enemy_health) * 2.0) - 1.0
 		zombie_score *= 10
