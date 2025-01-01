@@ -171,14 +171,18 @@ func _get_collision_points(shape_rid: RID, transform: Transform2D, margin: float
 func get_score(agent_index: int) -> float:
 	var enemy_health = _agents[0]._health
 	if agent_index != 0:
-		return ((1.0 - enemy_health) * 2.0) - 1.0
+		var zombie_score = ((1.0 - enemy_health) * 2.0) - 1.0
+		zombie_score *= 10
+		return zombie_score
 
 	enemy_health = 0
 	for i in range(1, _agents.size()):
 		enemy_health += _agents[i]._health
 
-	var num_enemies = _agents.size() - 1
-	return ((num_enemies - enemy_health) * 2.0) - 1.0
+	var num_enemies = _agents.size() - 1.0
+	var soldier_score = ((num_enemies - enemy_health) * 2.0) - 1.0
+	soldier_score *= 10
+	return soldier_score
 
 func get_agent_names() -> Array[String]:
 	return agent_names
