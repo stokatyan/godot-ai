@@ -83,7 +83,7 @@ func new_simulation() -> BaseSimulation:
 	return ZSimulation.new() as ZSimulation
 
 func get_simulation_count() -> int:
-	return 15
+	return 20
 
 func get_steps_in_round() -> int:
 	return 100
