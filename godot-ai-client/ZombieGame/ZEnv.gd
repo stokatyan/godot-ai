@@ -143,7 +143,9 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 				var a = vision_angles[i]
 				var wall_depth = game_state[i + 1] # first item is rotation
 				var target_depth = game_state[i + 1 + vision_angles.size()] # first item is rotation
+				var friend_depth = game_state[i + 1 + vision_angles.size()*2]
 				target_depth = min(wall_depth, target_depth)
+				friend_depth = min(wall_depth, friend_depth)
 				var direction = Vector2.from_angle(a)
 				draw_line(
 					agent._position + direction * agent._radius + offset,
@@ -156,7 +158,14 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 					agent._position + direction * agent._radius + offset,
 					agent._position + direction * target_depth * agent.max_vision_distance + direction * agent._radius + offset,
 					Color.STEEL_BLUE,
-					0.75,
+					1.75,
+					true
+				)
+				draw_line(
+					agent._position + direction * agent._radius + offset,
+					agent._position + direction * friend_depth * agent.max_vision_distance + direction * agent._radius + offset,
+					Color.BURLYWOOD,
+					0.5,
 					true
 				)
 

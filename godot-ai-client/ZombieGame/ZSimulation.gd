@@ -111,11 +111,14 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 	var angle_to_wall_distance = {}
 	var agent_team = _agent_teams[agent_index]
 
+	var friend_layer = 0
 	var enemy_layer = _team1_layer | _team2_layer
 	if agent_team == 1:
 		enemy_layer = enemy_layer & ~_team1_layer
+		friend_layer = _team1_layer
 	if agent_team == 2:
 		enemy_layer = enemy_layer & ~_team2_layer
+		friend_layer = _team2_layer
 
 	for a in angles: # Walls
 		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, _wall_layer)
@@ -132,6 +135,16 @@ func _get_current_observation(agent_index: int) -> Array[float]:
 
 		if obs > angle_to_wall_distance[a]:
 			obs = 1
+
+		state.append(obs)
+	for a in angles: # Friends
+		var obs = _get_agent_observation(agent, a, agent.max_vision_distance, friend_layer)
+		var t = agent._transform
+		t.origin += Vector2.from_angle(a) * agent._radius
+		# Don't check for overlap otherwise it will find self
+		if obs > angle_to_wall_distance[a]:
+			obs = 1
+
 		state.append(obs)
 
 	state.append(agent._position.x / _map_radius)
