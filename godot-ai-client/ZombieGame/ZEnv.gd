@@ -75,6 +75,11 @@ func _handle_user_input(_key: Key):
 		await get_tree().physics_frame
 		await get_tree().physics_frame
 		queue_redraw()
+		print("-- scores --")
+		print("agent 0 score: " + str(_ai_runner._initial_simulations[0].get_score(0)))
+		print("agent 1 score: " + str(_ai_runner._initial_simulations[0].get_score(1)))
+		print("agent 2 score: " + str(_ai_runner._initial_simulations[0].get_score(2)))
+		print()
 
 func display_simulation(s: BaseSimulation):
 	await get_tree().physics_frame
@@ -128,8 +133,11 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 
 	var colors = [Color.SEA_GREEN, Color.MEDIUM_PURPLE]
 	for agent_index in range(0, s.get_agents_count()):
-		# Vision
 		var agent = s._agents[agent_index]
+		if agent._is_freed:
+			continue
+
+		# Vision
 		var vision_angles = agent.get_vision_angles()
 		var game_state = s.get_state(agent_index)
 		if sim_index == 0:

@@ -55,10 +55,6 @@ func get_vision_angles() -> Array[float]:
 	]
 	return _angles
 
-func did_get_hit(damage_taken: float):
-	_health -= damage_taken
-	_health = max(0, _health)
-
 ## Get all agent stats converted from 0->1 to -1->1
 func get_stats() -> Array[float]:
 	var stats: Array[float] = [

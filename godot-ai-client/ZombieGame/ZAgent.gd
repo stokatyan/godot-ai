@@ -29,6 +29,9 @@ func did_get_hit(damage_taken: float):
 	_health -= damage_taken
 	_health = max(0, _health)
 
+	if _health == 0:
+		free_from_physics_server()
+
 ## Get all agent stats converted from 0->1 to -1->1
 func get_stats() -> Array[float]:
 	var stats: Array[float] = []
