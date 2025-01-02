@@ -134,8 +134,6 @@ func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 	var colors = [Color.SEA_GREEN, Color.MEDIUM_PURPLE]
 	for agent_index in range(0, s.get_agents_count()):
 		var agent = s._agents[agent_index]
-		if agent._is_freed:
-			continue
 
 		# Vision
 		var vision_angles = agent.get_vision_angles()

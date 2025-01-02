@@ -30,7 +30,11 @@ func did_get_hit(damage_taken: float):
 	_health = max(0, _health)
 
 	if _health == 0:
-		free_from_physics_server()
+		_did_die()
+
+func _did_die():
+	PhysicsServer2D.body_set_collision_layer(_physics_body, 0)
+	PhysicsServer2D.body_set_collision_mask(_physics_body, 0)
 
 ## Get all agent stats converted from 0->1 to -1->1
 func get_stats() -> Array[float]:
