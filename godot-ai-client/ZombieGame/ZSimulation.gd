@@ -44,10 +44,11 @@ func _setup_physics_server():
 	_physics_space = PhysicsServer2D.space_create()
 	PhysicsServer2D.space_set_active(_physics_space, true)
 
+	var all_layers = _wall_layer | _team1_layer | _team2_layer
 	for i in range(_agents.size()):
 		PhysicsServer2D.body_set_space(_agents[i]._physics_body, _physics_space)
 		PhysicsServer2D.body_set_collision_layer(_agents[i]._physics_body, get_layer(i))
-		PhysicsServer2D.body_set_collision_mask(_agents[i]._physics_body, get_layer(i))
+		PhysicsServer2D.body_set_collision_mask(_agents[i]._physics_body, all_layers)
 
 	var wall_segments: Array[Rect2] = [
 		Rect2(Vector2(-_map_radius, _map_radius), Vector2(_map_radius, _map_radius)),

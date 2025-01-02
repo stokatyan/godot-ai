@@ -7,7 +7,8 @@ var _display_offsets: Array[Vector2] = [Vector2(-600, 0), Vector2(0, 0), Vector2
 @export var epoch_label: Label
 @export var state_label: Label
 
-var _is_deterministic = false
+var _is_soldier_deterministic = false
+var _is_zombie_deterministic = false
 
 func _draw():
 	if _sims_to_display.is_empty():
@@ -21,12 +22,18 @@ func _input(event):
 
 	if keyboard_event and keyboard_event.is_pressed():
 		_handle_user_input(keyboard_event.keycode)
-		if keyboard_event.keycode == KEY_0:
-			_is_deterministic = false
-			print("_is_deterministic: " + str(_is_deterministic))
+		if keyboard_event.keycode == KEY_7:
+			_is_soldier_deterministic = false
+			print("_is_soldier_deterministic: " + str(_is_soldier_deterministic))
+		if keyboard_event.keycode == KEY_8:
+			_is_soldier_deterministic = true
+			print("_is_soldier_deterministic: " + str(_is_soldier_deterministic))
 		if keyboard_event.keycode == KEY_9:
-			_is_deterministic = true
-			print("_is_deterministic: " + str(_is_deterministic))
+			_is_zombie_deterministic = false
+			print("_is_zombie_deterministic: " + str(_is_zombie_deterministic))
+		if keyboard_event.keycode == KEY_0:
+			_is_zombie_deterministic = true
+			print("_is_zombie_deterministic: " + str(_is_zombie_deterministic))
 
 func _handle_user_input(_key: Key):
 	var apply_move = false
@@ -261,8 +268,8 @@ func get_is_deterministic_map(epoch: int) -> Dictionary:
 	var agent_names = _example_sim.get_agent_names()
 	var discrete_map = {}
 
-	for n in agent_names:
-		discrete_map[n] = _is_deterministic
+	discrete_map[agent_names[0]] = _is_soldier_deterministic
+	discrete_map[agent_names[1]] = _is_zombie_deterministic
 
 	return discrete_map
 

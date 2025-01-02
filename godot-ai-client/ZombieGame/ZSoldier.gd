@@ -14,7 +14,7 @@ var _reload_time_per_frame: float:
 	get:
 		return 0.01
 
-var _fire_delay_per_shot = 0.05
+var _fire_delay_per_shot = 0.02
 var _fire_delay_remaining = 0.0
 var _fire_time_per_frame: float:
 	get:
@@ -23,7 +23,7 @@ var _fire_time_per_frame: float:
 var last_shot_line: Vector4
 
 func _init():
-	_attack_damage = 0.2
+	_attack_damage = 0.25
 	_radius = 20
 	_physics_body = PhysicsServer2D.body_create()
 	_physics_shape = PhysicsServer2D.circle_shape_create()

@@ -39,6 +39,7 @@ window/stretch/aspect="expand"
 
 common/physics_ticks_per_second=1000
 common/max_physics_steps_per_frame=100
+common/physics_jitter_fix=0.0
 
 [rendering]
 
