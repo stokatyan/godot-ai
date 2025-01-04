@@ -23,7 +23,7 @@ var _fire_time_per_frame: float:
 var last_shot_line: Vector4
 
 func _init():
-	_attack_damage = 0.51
+	_attack_damage = 0.35
 	_radius = 20
 	_physics_body = PhysicsServer2D.body_create()
 	_physics_shape = PhysicsServer2D.circle_shape_create()
