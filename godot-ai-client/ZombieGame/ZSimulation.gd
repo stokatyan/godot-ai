@@ -325,7 +325,7 @@ func _apply_zombie_action(agent_index: int, action_vector: Array[float], callbac
 	if agent.is_dead:
 		return
 
-	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius
+	var motion_vector = Vector2(action_vector[0], action_vector[1]) * agent._radius * 0.5
 	var rotation = action_vector[2] * PI
 	var transform: Transform2D = get_transform(agent._physics_body)
 	var space_state = PhysicsServer2D.space_get_direct_state(_physics_space)
