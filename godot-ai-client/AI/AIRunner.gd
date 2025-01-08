@@ -224,10 +224,10 @@ func _loop_train():
 	env_delegate.update_status(_loop_train_count, "training")
 	for agent_name in env_delegate.get_agent_names():
 		if !is_deterministic_map.has(agent_name) or !is_deterministic_map[agent_name]:
-			var file_name = agent_name
+			var checkpoint_name = agent_name
 			if _loop_train_count % 1000 == 0:
-				file_name += "_" + str(_loop_train_count)
-			_response = await _ai_tcp.train(file_name, env_delegate.get_train_steps(agent_name), true)
+				checkpoint_name += "_" + str(_loop_train_count)
+			_response = await _ai_tcp.train(agent_name, env_delegate.get_train_steps(agent_name), true, checkpoint_name)
 	_cleanup_simulations(simulations)
 	print("Done Training")
 	env_delegate.update_status(_loop_train_count, "Done Training")

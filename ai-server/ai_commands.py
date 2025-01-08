@@ -138,11 +138,14 @@ def _train(command_json):
     print_logs = command_json["print_logs"]
     steps = command_json["steps"]
     file_name = command_json["file_name"]
+    checkpoint_name = command_json["checkpoint_name"]
     agent = agents[file_name]
         
     q1_loss, q2_loss, pi_loss, a_loss = agent.optimize(steps)
     # _write_agent_policy_matrix(command_json)
-    make_checkpoint(agent, file_name)
+    make_checkpoint(agent, checkpoint_name)
+    if checkpoint_name != file_name:
+        make_checkpoint(agent, file_name)
     
     if print_logs:
         print("----- Training Report -----")
