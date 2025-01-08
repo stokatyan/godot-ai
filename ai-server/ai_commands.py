@@ -2,6 +2,7 @@ import json
 from sac_torch import SAC_Agent as Agent
 from utils import MeanStdevFilter, Transition, make_checkpoint, load_checkpoint, write_policy, write_to_file
 
+
 COMMAND = "command"
 GET_ACTION = "get_action"
 GET_BATCH_ACTIONS = "get_batch_actions"
@@ -52,9 +53,8 @@ def _get_action(command_json):
 
 def _get_batch_actions(command_json):
     deterministic_map = command_json["deterministic_map"]
-    batch_state_path = command_json["path"]
+    batch_state_path = f"{command_json["path"]}"
     current_state = []
-    
     batch_state_json = {}
     try:
         with open(batch_state_path, 'r') as file:

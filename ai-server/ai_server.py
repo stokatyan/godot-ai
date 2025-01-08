@@ -21,7 +21,7 @@ print()
 # Accept a connection
 connection, client_address = server_socket.accept()
 
-log_errors = False
+log_errors = True
 
 try:
     print(f"Connection from {client_address}")
