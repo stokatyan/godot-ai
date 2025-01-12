@@ -125,7 +125,7 @@ func get_hidden_size(_agent_name: String) -> int:
 	return 200
 
 func get_train_steps(_agent_name: String) -> int:
-	return 90
+	return 1
 
 func _draw_simulation(s: ZSimulation, offset: Vector2, sim_index: int):
 	if s._is_cleaned:
