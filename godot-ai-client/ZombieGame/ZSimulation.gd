@@ -192,11 +192,11 @@ func get_score(agent_index: int) -> float:
 
 	enemy_health = 0
 	for i in range(1, _agents.size()):
-		enemy_health += _agents[i]._health
+		enemy_health += (_agents[i]._health)
 
-	var num_enemies = _agents.size() - 1.0
-	var soldier_score = ((num_enemies - enemy_health) * 2.0) - 1.0
-	soldier_score *= 10
+	var num_enemies = float(_agents.size()) - 1.0
+	var soldier_score = pow(((num_enemies - enemy_health) * 2.0) - 1.0, 3)
+	#soldier_score *= 10
 	return soldier_score
 
 func get_agent_names() -> Array[String]:
