@@ -16,6 +16,7 @@ This repository streamlines reinforcement learning by handling several intricate
 ### Parallel Environments
 Reinforcement learning agents need to train in parallel environments to optimize learning time.
 In `godot-ai`, a scene containing the "game" is created in Godot and derives from `AIBaseEnvironment`, which utilizes an `AIRunner` to handle stepping through scenes in parrallel while also wiaitng for physics calculations from the engine to complete.
+The "games" which are run in parrallel derive from `BaseSimulation`, which the `AIRunner` interfaces with when stepping through each game.
 
 The `AIRunner` can be best understood from this snippet of it's implementation:
 ```gdscript
@@ -59,5 +60,42 @@ func _loop_train():
 ```
 
 ### Sending Data between Godot and Python
+Godot and Python cannot communicate directly.  Instead, Godot launches the python app defined in `/ai-server/ai_server.py`, and communicates with it using TCP.
+TCP, however, is not ideal for the large amount of data that needs to be sent. As a result, TCP is used just to communicate instructions, but data is expected to be written and read from at `godot-ai\godot-ai-client\AIServerCommFiles` (this folder and its files are not ignored by the project).
 
+## Getting Started
+To get started, you can run the FCGEnv.scene to reproduce the gif above.
+All you will need is Godot4 (with GDScript, not C#) and Pytorch (I am using 2.4.1+cu124).
 
+1. Launch the Godot Project
+2. Open the scene `res://FindCoinGame/FCGEnv.tscn`
+3. Run the open scene (note, the default scene is `res://ZombieGame/ZEnv.tscn`, which can also be run).
+4. Wait a moment, you should see a terminal open and after a second or two you should see the following:
+```
+Current working directory: C:\Users\<user>\Git\godot-ai\godot-ai-client
+AI Server is waiting for a connection...
+```
+5. Click on the Godot scene that was launched (so it is listening to keyboard input).
+6. Press up arrow on your keyboard, the python shell should output the following:
+```
+Connection from ('127.0.0.1', <some numbers>)
+Replay Capacity: 100000 
+Agent named hero initialized.
+Checkpoint loaded for checkpoints/hero.pt
+Replay Capacity: 100000
+Agent named target initialized.
+Checkpoint loaded for checkpoints/target.pt
+```
+7a. Press Numpad_2 to see both agents in deterministic mode
+<OR>
+7b. Press Numpad_3 to start training.
+
+## Notes:
+- Although hundreds of scenes can run in parrallel, only 3 are shown in the predefined environments.  Override `AIBaseEnvironment`'s `func display_simulation(_simulation: BaseSimulation):` to customize how the environment displays simulations.
+- To toggle whether an agent is training, or needs to be in determinstic mode, override `func get_is_deterministic_map(epoch: int) -> Dictionary:`.
+   - If you did step 7b., then you can toggle agent training states by pressing numpad_7, numpad_8, numpad_9, or numpad_0 (see lines [46-62](https://github.com/stokatyan/godot-ai/blob/475c6e18fe969456efcb787b39df2ebdd0694711/godot-ai-client/FindCoinGame/FCGEnv.gd#L46) for an example of how toggling training states works)
+
+## Contact
+If you have any questions, feel free to email reach me at:
+`tokat.shant@gmail.com`
+[@stokatyan](https://x.com/STokatyan)
