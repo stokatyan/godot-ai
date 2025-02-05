@@ -101,5 +101,5 @@ Checkpoint loaded for checkpoints/target.pt
 
 ## Contact
 If you have any questions, feel free to reach me at:
-`tokat.shant@gmail.com`
-[@stokatyan](https://x.com/STokatyan)
+- `tokat.shant@gmail.com`
+- [@stokatyan](https://x.com/STokatyan)
