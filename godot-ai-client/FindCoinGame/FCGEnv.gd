@@ -1,5 +1,9 @@
 extends AIBaseEnvironment
 
+## FCG stands for "Find Coin Game"
+## This environment was originally used to train an agent (the hero) to find a coin.
+## This was extended to make the coin (now called the target) move away from the hero.
+
 var _sims_to_display: Array[FCGSimulation] = []
 var _example_sim: FCGSimulation = FCGSimulation.new()
 var _display_offsets: Array[Vector2] = [Vector2(-600, 0), Vector2(0, 0), Vector2(600, 0)]
