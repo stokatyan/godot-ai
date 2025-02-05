@@ -6,7 +6,7 @@ var env_delegate: AIBaseEnvironment
 
 var _ai_tcp: AIServerTCP = AIServerTCP.new()
 
-var _loop_train_count = 98000
+var _loop_train_count = 1
 var _is_loop_training = false
 
 var _pending_hindsight_replays: Array[Replay] = []
