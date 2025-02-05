@@ -67,7 +67,7 @@ To optimize performance, TCP is used exclusively for sending instructions, while
 ## Getting Started
 To get started, you can run the FCGEnv.scene to reproduce the gif above.
 
-**Requirements: **
+**Requirements**
 - Godot4 (with GDScript, not C#)
 - Pytorch (I am using 2.4.1+cu124).
 
@@ -92,6 +92,7 @@ Checkpoint loaded for checkpoints/target.pt
 ```
 7a. Press Numpad_2 to see both agents in deterministic mode
 **<OR>**
+
 7b. Press Numpad_3 to start training.
 
 ## Notes:
