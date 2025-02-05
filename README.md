@@ -14,11 +14,11 @@ This repository streamlines reinforcement learning by handling several intricate
 - Configuring AI models directly from the Godot scene, eliminating the need for manual updates to PyTorch layers across different scenes.
 
 ### Parallel Environments
-Reinforcement learning agents need to train in parallel environments to optimize learning time.
-In `godot-ai`, a scene containing the "game" is created in Godot and derives from `AIBaseEnvironment`, which utilizes an `AIRunner` to handle stepping through scenes in parrallel while also wiaitng for physics calculations from the engine to complete.
-The "games" which are run in parrallel derive from `BaseSimulation`, which the `AIRunner` interfaces with when stepping through each game.
+Reinforcement learning agents need to train in parallel environments to maximize efficiency and reduce learning time. In godot-ai, a scene containing the "game" is created in Godot and extends `AIBaseEnvironment`, which utilizes an `AIRunner` to manage stepping through multiple scenes in parallel while ensuring physics calculations from the engine are completed before proceeding.
 
-The `AIRunner` can be best understood from this snippet of it's implementation:
+The individual "game" instances running in parallel inherit from `BaseSimulation`, which the `AIRunner` interacts with when advancing each simulation step.
+
+The AIRunner's functionality can be best understood through the following snippet of its implementation:
 ```gdscript
 func _loop_train():
 	if !_is_loop_training:
