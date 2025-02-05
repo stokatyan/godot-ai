@@ -66,7 +66,10 @@ To optimize performance, TCP is used exclusively for sending instructions, while
 
 ## Getting Started
 To get started, you can run the FCGEnv.scene to reproduce the gif above.
-All you will need is Godot4 (with GDScript, not C#) and Pytorch (I am using 2.4.1+cu124).
+
+**Requirements: **
+- Godot4 (with GDScript, not C#)
+- Pytorch (I am using 2.4.1+cu124).
 
 1. Launch the Godot Project
 2. Open the scene `res://FindCoinGame/FCGEnv.tscn`
@@ -77,7 +80,7 @@ Current working directory: C:\Users\<user>\Git\godot-ai\godot-ai-client
 AI Server is waiting for a connection...
 ```
 5. Click on the Godot scene that was launched (so it is listening to keyboard input).
-6. Press up arrow on your keyboard, the python shell should output the following:
+6. Press the up arrow on your keyboard, the python shell should output the following:
 ```
 Connection from ('127.0.0.1', <some numbers>)
 Replay Capacity: 100000 
@@ -88,7 +91,7 @@ Agent named target initialized.
 Checkpoint loaded for checkpoints/target.pt
 ```
 7a. Press Numpad_2 to see both agents in deterministic mode
-<OR>
+**<OR>**
 7b. Press Numpad_3 to start training.
 
 ## Notes:
@@ -97,6 +100,6 @@ Checkpoint loaded for checkpoints/target.pt
    - If you did step 7b., then you can toggle agent training states by pressing numpad_7, numpad_8, numpad_9, or numpad_0 (see lines [46-62](https://github.com/stokatyan/godot-ai/blob/475c6e18fe969456efcb787b39df2ebdd0694711/godot-ai-client/FindCoinGame/FCGEnv.gd#L46) for an example of how toggling training states works)
 
 ## Contact
-If you have any questions, feel free to email reach me at:
+If you have any questions, feel free to reach me at:
 `tokat.shant@gmail.com`
 [@stokatyan](https://x.com/STokatyan)
