@@ -60,8 +60,9 @@ func _loop_train():
 ```
 
 ### Sending Data between Godot and Python
-Godot and Python cannot communicate directly.  Instead, Godot launches the python app defined in `/ai-server/ai_server.py`, and communicates with it using TCP.
-TCP, however, is not ideal for the large amount of data that needs to be sent. As a result, TCP is used just to communicate instructions, but data is expected to be written and read from at `godot-ai\godot-ai-client\AIServerCommFiles` (this folder and its files are not ignored by the project).
+Godot and Python cannot communicate directly, so Godot launches the Python application defined in /ai-server/ai_server.py and interacts with it via TCP. However, TCP alone is not ideal for handling the large volume of data that needs to be transferred.
+
+To optimize performance, TCP is used exclusively for sending instructions, while actual data is read from and written to files in godot-ai/godot-ai-client/AIServerCommFiles. `AIServerCommFiles` and its contents are ignored by git.
 
 ## Getting Started
 To get started, you can run the FCGEnv.scene to reproduce the gif above.
